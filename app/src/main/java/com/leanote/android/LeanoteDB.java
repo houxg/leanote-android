@@ -10,7 +10,7 @@ import android.text.TextUtils;
 
 import com.leanote.android.datasets.AccountTable;
 import com.leanote.android.model.AccountHelper;
-import com.leanote.android.model.NoteDetail;
+import com.leanote.android.model.NoteInfo;
 import com.leanote.android.model.NoteDetailList;
 import com.leanote.android.model.NotebookInfo;
 import com.leanote.android.util.AppLog;
@@ -141,13 +141,13 @@ public class LeanoteDB extends SQLiteOpenHelper {
     }
 
     public void saveNotes(List<?> notesList) {
-        List<String> noteIds = getLocalNoteIds(AccountHelper.getDefaultAccount().getmUserId());
+        List<String> noteIds = getLocalNoteIds(AccountHelper.getDefaultAccount().getUserId());
         if (notesList != null && notesList.size() != 0) {
             db.beginTransaction();
             try {
                 for (int i = 0; i < notesList.size(); i++) {
 
-                    NoteDetail note = (NoteDetail) notesList.get(i);
+                    NoteInfo note = (NoteInfo) notesList.get(i);
 
                     String noteId = note.getNoteId();
                     if (noteIds.contains(noteId)) {
@@ -174,7 +174,7 @@ public class LeanoteDB extends SQLiteOpenHelper {
         Cursor c = db.query(NOTES_TABLE, null, "userId=?", args, null, null, "");
         try {
             while (c.moveToNext()) {
-                NoteDetail detail = fillNote(c);
+                NoteInfo detail = fillNote(c);
                 listPosts.add(detail);
             }
             return listPosts;
@@ -182,9 +182,6 @@ public class LeanoteDB extends SQLiteOpenHelper {
             SqlUtils.closeCursor(c);
         }
     }
-
-
-
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
@@ -208,12 +205,12 @@ public class LeanoteDB extends SQLiteOpenHelper {
         }
     }
 
-    public NoteDetail getLocalNoteById(long localNoteId) {
+    public NoteInfo getLocalNoteById(long localNoteId) {
         String[] args = {String.valueOf(localNoteId)};
         //Cursor c = db.query(NOTES_TABLE, null, null, null, null, null, "");
         Cursor c = db.query(NOTES_TABLE, null, "id=?", args, null, null, "");
 
-        NoteDetail detail = null;
+        NoteInfo detail = null;
         try {
             if (c.moveToNext()) {
                 detail = fillNote(c);
@@ -224,8 +221,8 @@ public class LeanoteDB extends SQLiteOpenHelper {
         }
     }
 
-    private NoteDetail fillNote(Cursor c) {
-        NoteDetail detail = new NoteDetail();
+    private NoteInfo fillNote(Cursor c) {
+        NoteInfo detail = new NoteInfo();
 
         detail.setId(c.getLong(0));
         detail.setNoteId(c.getString(1));
@@ -248,7 +245,6 @@ public class LeanoteDB extends SQLiteOpenHelper {
         detail.setIsUploading(c.getInt(18) != 0);
         return detail;
     }
-
 
 //    public NoteContent getNoteContentByNoteId(String noteId) {
 //        String[] args = {String.valueOf(noteId)};
@@ -306,7 +302,7 @@ public class LeanoteDB extends SQLiteOpenHelper {
     }
 
     public void saveNoteContent(String noteId, String content) {
-        if (org.apache.commons.lang.StringUtils.isEmpty(noteId)) {
+        if (TextUtils.isEmpty(noteId)) {
             return;
         }
 
@@ -317,9 +313,8 @@ public class LeanoteDB extends SQLiteOpenHelper {
 
     }
 
-    public long addNote(NoteDetail newNote) {
+    public long addNote(NoteInfo newNote) {
         ContentValues values = new ContentValues();
-
         values.put("noteId", newNote.getNoteId());
         values.put("notebookId", newNote.getNoteBookId());
         values.put("userId", newNote.getUserId());
@@ -333,20 +328,17 @@ public class LeanoteDB extends SQLiteOpenHelper {
         return result;
     }
 
-    public void updateNote(NoteDetail note) {
+    public void updateNote(NoteInfo note) {
         ContentValues values = getContentValuesFromNote(note);
-
         db.update(NOTES_TABLE, values, "id=?", new String[]{String.valueOf(note.getId())});
     }
 
-    public void updateNoteByNoteId(NoteDetail note) {
+    public void updateNoteByNoteId(NoteInfo note) {
         ContentValues values = getContentValuesFromNote(note);
-
         db.update(NOTES_TABLE, values, "noteId=?", new String[]{note.getNoteId()});
-
     }
 
-    private ContentValues getContentValuesFromNote(NoteDetail note) {
+    private ContentValues getContentValuesFromNote(NoteInfo note) {
         ContentValues values = new ContentValues();
 
         values.put("noteId", note.getNoteId());
@@ -372,12 +364,12 @@ public class LeanoteDB extends SQLiteOpenHelper {
     }
 
 
-    public NoteDetail getLocalNoteByNoteId(String noteId) {
+    public NoteInfo getLocalNoteByNoteId(String noteId) {
         String[] args = {String.valueOf(noteId)};
         //Cursor c = db.query(NOTES_TABLE, null, null, null, null, null, "");
         Cursor c = db.query(NOTES_TABLE, null, "noteId=?", args, null, null, "");
 
-        NoteDetail detail = null;
+        NoteInfo detail = null;
         try {
             if (c.moveToNext()) {
                 detail = fillNote(c);
@@ -569,7 +561,7 @@ public class LeanoteDB extends SQLiteOpenHelper {
             while (c.moveToNext()) {
                 String title = c.getString(4);
                 String updateTime = c.getString(12);
-                NoteDetail detail = new NoteDetail();
+                NoteInfo detail = new NoteInfo();
 
                 detail.setId(c.getLong(0));
                 detail.setNoteId(c.getString(1));
@@ -619,7 +611,7 @@ public class LeanoteDB extends SQLiteOpenHelper {
         return notebook;
     }
 
-    public void saveNoteSettings(NoteDetail note) {
+    public void saveNoteSettings(NoteInfo note) {
         ContentValues values = new ContentValues();
 
         values.put("isBlog", note.isPublicBlog() ? 1 : 0);
@@ -635,14 +627,14 @@ public class LeanoteDB extends SQLiteOpenHelper {
     }
 
 
-    public List<NoteDetail> getDirtyNotes() {
+    public List<NoteInfo> getDirtyNotes() {
         String[] args = {"1"};
         //Cursor c = db.query(NOTES_TABLE, null, null, null, null, null, "");
         Cursor c = db.query(NOTES_TABLE, null, "is_dirty=?", args, null, null, "");
-        List<NoteDetail> notes = new ArrayList<>();
+        List<NoteInfo> notes = new ArrayList<>();
         try {
             while (c.moveToNext()) {
-                NoteDetail note = fillNote(c);
+                NoteInfo note = fillNote(c);
 
                 notes.add(note);
             }
@@ -850,7 +842,7 @@ public class LeanoteDB extends SQLiteOpenHelper {
         Cursor c = db.query(NOTES_TABLE, null, "notebookId=? and userId=?", args, null, null, "");
         try {
             while (c.moveToNext()) {
-                NoteDetail detail = fillNote(c);
+                NoteInfo detail = fillNote(c);
                 notelist.add(detail);
             }
             return notelist;

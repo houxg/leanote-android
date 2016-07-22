@@ -6,13 +6,15 @@ import com.leanote.android.Leanote;
  * Created by binnchx on 8/26/15.
  */
 public class AccountModel {
+
+    private boolean isOk;
     private long localUserId;
-    private String mUserId;
-    private String mUserName;
-    private String mEmail;
+    private String userId;
+    private String userName;
+    private String email;
     private boolean verified;
-    private String mAvatar;
-    private String mAccessToken;
+    private String avatar;
+    private String accessToken;
     private boolean useMarkdown;
     private int lastSyncUsn;
     private String host;
@@ -22,17 +24,25 @@ public class AccountModel {
     }
 
     public void init() {
-        mUserId = "";
-        mUserName = "";
-        mEmail = "";
+        userId = "";
+        userName = "";
+        email = "";
         verified = false;
-        mAvatar = "";
-        mAccessToken = "";
+        avatar = "";
+        accessToken = "";
         lastSyncUsn = 0;
     }
 
+    public boolean isOk() {
+        return isOk;
+    }
+
+    public void setOk(boolean ok) {
+        isOk = ok;
+    }
+
     public void clearToken() {
-        mAccessToken = "";
+        accessToken = "";
     }
 
     public long getLocalUserId() {
@@ -43,28 +53,28 @@ public class AccountModel {
         this.localUserId = localUserId;
     }
 
-    public String getmUserId() {
-        return mUserId;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setmUserId(String mUserId) {
-        this.mUserId = mUserId;
+    public void setUserId(String mUserId) {
+        this.userId = mUserId;
     }
 
-    public String getmUserName() {
-        return mUserName;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setmUserName(String mUserName) {
-        this.mUserName = mUserName;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
-    public String getmEmail() {
-        return mEmail;
+    public String getEmail() {
+        return email;
     }
 
-    public void setmEmail(String mEmail) {
-        this.mEmail = mEmail;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public boolean isVerified() {
@@ -75,24 +85,24 @@ public class AccountModel {
         this.verified = verified;
     }
 
-    public String getmAvatar() {
-        return mAvatar;
+    public String getAvatar() {
+        return avatar;
     }
 
-    public void setmAvatar(String mAvatar) {
-        this.mAvatar = mAvatar;
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
-    public String getmAccessToken() {
-        return mAccessToken;
+    public String getAccessToken() {
+        return accessToken;
     }
 
-    public void setmAccessToken(String mAccessToken) {
-        this.mAccessToken = mAccessToken;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
     public int getLastSyncUsn() {
-        return Leanote.leaDB.getAccountUsn(mUserId);
+        return Leanote.leaDB.getAccountUsn(userId);
     }
 
     public void setLastSyncUsn(int lastSyncUsn) {

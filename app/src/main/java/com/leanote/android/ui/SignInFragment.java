@@ -34,7 +34,9 @@ import com.leanote.android.ui.accounts.NewAccountActivity;
 import com.leanote.android.util.ABTestingUtils;
 import com.leanote.android.util.AppLog;
 import com.leanote.android.util.EditTextUtils;
+import com.leanote.android.util.XLog;
 import com.leanote.android.widget.LeaTextView;
+import com.leanote.android.widget.OpenSansEditText;
 
 import org.apache.commons.lang.StringUtils;
 import org.wordpress.emailchecker.EmailChecker;
@@ -43,6 +45,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SignInFragment extends AbstractFragment implements TextWatcher {
+
     private static final String DOT_COM_BASE_URL = "https://leanote.com";
     private static final String FORGOT_PASSWORD_RELATIVE_URL = "/findPassword";
     private static final int WPCOM_ERRONEOUS_LOGIN_THRESHOLD = 3;
@@ -51,9 +54,9 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
     public static final String ENTERED_URL_KEY = "ENTERED_URL_KEY";
     public static final String ENTERED_USERNAME_KEY = "ENTERED_USERNAME_KEY";
 
-    private EditText mUsernameEditText;
-    private EditText mPasswordEditText;
-    private EditText mUrlEditText;
+    private OpenSansEditText mUsernameEditText;
+    private OpenSansEditText mPasswordEditText;
+    private OpenSansEditText mUrlEditText;
     //private EditText mTwoStepEditText;
 
     private LeaTextView mSignInButton;
@@ -141,16 +144,16 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         mPasswordLayout = (RelativeLayout) rootView.findViewById(R.id.nux_password_layout);
         mPasswordLayout.setOnClickListener(mOnLoginFormClickListener);
 
-        mUsernameEditText = (EditText) rootView.findViewById(R.id.nux_username);
+        mUsernameEditText = (OpenSansEditText) rootView.findViewById(R.id.nux_username);
         mUsernameEditText.addTextChangedListener(this);
         mUsernameEditText.setOnClickListener(mOnLoginFormClickListener);
 
-        mPasswordEditText = (EditText) rootView.findViewById(R.id.nux_password);
+        mPasswordEditText = (OpenSansEditText) rootView.findViewById(R.id.nux_password);
         mPasswordEditText.addTextChangedListener(this);
         mPasswordEditText.setOnClickListener(mOnLoginFormClickListener);
         mJetpackAuthLabel = (LeaTextView) rootView.findViewById(R.id.nux_jetpack_auth_label);
 
-        mUrlEditText = (EditText) rootView.findViewById(R.id.nux_url);
+        mUrlEditText = (OpenSansEditText) rootView.findViewById(R.id.nux_url);
         mUrlEditText.addTextChangedListener(this);
         mUrlEditText.setOnClickListener(mOnLoginFormClickListener);
 
@@ -192,8 +195,6 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         mPasswordEditText.setOnEditorActionListener(mEditorAction);
         mUrlEditText.setOnEditorActionListener(mEditorAction);
 
-
-
         mBottomButtonsLayout = (LinearLayout) rootView.findViewById(R.id.nux_bottom_buttons);
         initPasswordVisibilityButton(rootView, mPasswordEditText);
         //initInfoButtons(rootView);
@@ -205,7 +206,6 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
     protected void onDoneAction() {
         signIn();
     }
-
 
 //    private void moveBottomButtons() {
 //        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -225,8 +225,6 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
 //        mInfoButtonSecondary.setVisibility(visible ? View.VISIBLE : View.GONE);
 //        mInfoButton.setVisibility(visible ? View.GONE : View.VISIBLE);
 //    }
-
-
 
     protected void initPasswordVisibilityButton(View rootView, final EditText passwordEditText) {
         final ImageView passwordVisibility = (ImageView) rootView.findViewById(R.id.password_visibility);
@@ -250,7 +248,6 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
             }
         });
     }
-
 
 //    private void requestSMSTwoStepCode() {
 //        if (!isAdded()) return;
@@ -286,10 +283,6 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
             signIn();
         }
     };
-
-
-
-
 
     private final TextView.OnEditorActionListener mEditorAction = new TextView.OnEditorActionListener() {
         @Override
@@ -328,8 +321,6 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         return false;
     }
 
-
-
     private void signIn() {
         if (!isUserDataValid()) {
             return;
@@ -345,15 +336,14 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
             mHostUrl = EditTextUtils.getText(mUrlEditText).trim();
         }
 
-
         startProgress(getString(R.string.connecting_wpcom));
         signInServer();
 
     }
 
+    //登录到服务器
     private void signInServer() {
         LoginAbstract login;
-
         AppLog.i("isself:" + mSelfHosted);
         if (mSelfHosted) {
             login = new LoginSelfHost(mUsername, mPassword, mHostUrl);
@@ -364,10 +354,8 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         login.execute(new LoginAbstract.Callback() {
             @Override
             public void onSuccess() {
-                Log.i("login in success", "");
-
+                XLog.e(XLog.getTag(), XLog.TAG_GU + "login success");
                 finishCurrentActivity();
-                //NoteUpdateService.startServiceForNote(getActivity());
             }
 
             @Override
@@ -377,7 +365,6 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
                     public void run() {
                         signInError(R.string.username_or_password_incorrect, "client response");
                         endProgress();
-                        return;
                     }
                 });
             }
@@ -493,8 +480,6 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         mForgotPassword.setEnabled(false);
     }
 
-
-
     private boolean isLeaComLogin() {
         String selfHostedUrl = EditTextUtils.getText(mUrlEditText).trim();
         return !mSelfHosted || TextUtils.isEmpty(selfHostedUrl) || selfHostedUrl.contains("leanote.com");
@@ -538,8 +523,7 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         }
     }
 
-
-
+    //是否符合登陆条件
     protected boolean isUserDataValid() {
         final String username = EditTextUtils.getText(mUsernameEditText).trim();
         final String password = EditTextUtils.getText(mPasswordEditText).trim();

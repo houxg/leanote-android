@@ -46,7 +46,7 @@ public class ToggleListener implements OnCheckedChangeListener {
                 Leanote.leaDB.publicNote(noteId, true);
             } else if ("use_markdown".equals(settingName)) {
 //                params.addRule(RelativeLayout.ALIGN_LEFT, R.id.switch_markdown);
-                Leanote.leaDB.updateMarkdown(true, AccountHelper.getDefaultAccount().getmUserId());
+                Leanote.leaDB.updateMarkdown(true, AccountHelper.getDefaultAccount().getUserId());
             }
 
 
@@ -65,7 +65,7 @@ public class ToggleListener implements OnCheckedChangeListener {
                 Leanote.leaDB.publicNote(noteId, false);
             } else if ("use_markdown".equals(settingName)) {
 //                params.addRule(RelativeLayout.ALIGN_RIGHT, R.id.switch_markdown);
-                Leanote.leaDB.updateMarkdown(false, AccountHelper.getDefaultAccount().getmUserId());
+                Leanote.leaDB.updateMarkdown(false, AccountHelper.getDefaultAccount().getUserId());
             }
 
             params.addRule(RelativeLayout.ALIGN_LEFT, -1);

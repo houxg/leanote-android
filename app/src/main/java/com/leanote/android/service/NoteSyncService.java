@@ -7,7 +7,7 @@ import android.util.Log;
 
 import com.leanote.android.Leanote;
 import com.leanote.android.model.AccountHelper;
-import com.leanote.android.model.NoteDetail;
+import com.leanote.android.model.NoteInfo;
 import com.leanote.android.model.NoteDetailList;
 import com.leanote.android.model.NotebookInfo;
 import com.leanote.android.networking.NetworkRequest;
@@ -49,18 +49,18 @@ public class NoteSyncService {
             String host = AccountHelper.getDefaultAccount().getHost();
 
             String noteApi = String.format("%s/api/note/getSyncNotes?token=%s&maxEntry=%s",
-                    host, AccountHelper.getDefaultAccount().getmAccessToken(), MAX_SYNC_SIZE);
+                    host, AccountHelper.getDefaultAccount().getAccessToken(), MAX_SYNC_SIZE);
 
             getSyncNote(noteApi, lastSyncUsn);
 
             String notebookApi = String.format("%s/api/notebook/getNotebooks?token=%s&maxEntry=%s",
-                    host, AccountHelper.getDefaultAccount().getmAccessToken(), MAX_SYNC_SIZE);
+                    host, AccountHelper.getDefaultAccount().getAccessToken(), MAX_SYNC_SIZE);
 
             getSyncNotebook(notebookApi, lastSyncUsn);
 
             if (Leanote.isFirstSync()) {
                 //第一次全量pull笔记时才更新user usn
-                Leanote.leaDB.updateAccountUsn(serverUsn, AccountHelper.getDefaultAccount().getmUserId());
+                Leanote.leaDB.updateAccountUsn(serverUsn, AccountHelper.getDefaultAccount().getUserId());
                 Leanote.setIsFirstSync(false);
             }
         }
@@ -77,7 +77,7 @@ public class NoteSyncService {
         }
 
 
-        List<String> localNotebookIds = Leanote.leaDB.getLocalNotebookIds(AccountHelper.getDefaultAccount().getmUserId());
+        List<String> localNotebookIds = Leanote.leaDB.getLocalNotebookIds(AccountHelper.getDefaultAccount().getUserId());
         try {
             for (int m = 0; m < Integer.MAX_VALUE; m++) {
 
@@ -155,7 +155,7 @@ public class NoteSyncService {
 
         String host = AccountHelper.getDefaultAccount().getHost();
         String noteApi = String.format("%s/api/user/getSyncState?token=%s", host,
-                AccountHelper.getDefaultAccount().getmAccessToken());
+                AccountHelper.getDefaultAccount().getAccessToken());
 
         try {
             String response = NetworkRequest.syncGetRequest(noteApi);
@@ -172,13 +172,13 @@ public class NoteSyncService {
     }
 
 
-    public static NoteDetail getServerNote(String noteId) {
+    public static NoteInfo getServerNote(String noteId) {
         String api = String.format("%s/api/note/getNoteAndContent?token=%s&noteId=%s",
                 AccountHelper.getDefaultAccount().getHost(),
-                AccountHelper.getDefaultAccount().getmAccessToken(),
+                AccountHelper.getDefaultAccount().getAccessToken(),
                 noteId);
 
-        NoteDetail note = new NoteDetail();
+        NoteInfo note = new NoteInfo();
 
         try {
             String response = NetworkRequest.syncGetRequest(api);
@@ -236,7 +236,7 @@ public class NoteSyncService {
 
                 JSONArray jsonArray = new JSONArray(response);
 
-                List<String> localNoteIds = Leanote.leaDB.getLocalNoteIds(AccountHelper.getDefaultAccount().getmUserId());
+                List<String> localNoteIds = Leanote.leaDB.getLocalNoteIds(AccountHelper.getDefaultAccount().getUserId());
                 updateNoteToLocal(jsonArray, localNoteIds);
 
                 if (jsonArray.length() == MAX_SYNC_SIZE) {
@@ -301,7 +301,7 @@ public class NoteSyncService {
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject item = jsonArray.getJSONObject(i);
 
-            NoteDetail note = null;
+            NoteInfo note = null;
             try {
                 note = parseServerNote(item, localNoteIds);
             } catch (Exception e) {
@@ -317,7 +317,7 @@ public class NoteSyncService {
         Leanote.leaDB.saveNotes(syncNotes);
     }
 
-    public static NoteDetail parseServerNote(JSONObject item, List<String> localNoteIds)
+    public static NoteInfo parseServerNote(JSONObject item, List<String> localNoteIds)
             throws JSONException, ExecutionException, InterruptedException {
 
         boolean isDeleted = item.getBoolean("IsDeleted");
@@ -330,7 +330,7 @@ public class NoteSyncService {
             return null;
         }
 
-        NoteDetail serverNote = new NoteDetail();
+        NoteInfo serverNote = new NoteInfo();
 
         serverNote.setNoteId(noteId);
         serverNote.setNoteBookId(item.getString("NotebookId"));
@@ -353,7 +353,7 @@ public class NoteSyncService {
 
         String host = AccountHelper.getDefaultAccount().getHost();
         String noteContentApi = String.format("%s/api/note/getNoteAndContent?token=%s&noteId=%s", host,
-                AccountHelper.getDefaultAccount().getmAccessToken(), noteId);
+                AccountHelper.getDefaultAccount().getAccessToken(), noteId);
 
         String contentRes = NetworkRequest.syncGetRequest(noteContentApi);
 
@@ -418,7 +418,7 @@ public class NoteSyncService {
     public static void sendNotebookChanges() throws ExecutionException, InterruptedException {
         List<NotebookInfo> dirtyNotebooks = Leanote.leaDB.getDirtyNotebooks();
         String host = AccountHelper.getDefaultAccount().getHost();
-        String token = AccountHelper.getDefaultAccount().getmAccessToken();
+        String token = AccountHelper.getDefaultAccount().getAccessToken();
 
 
         List<String> notebookApis = new ArrayList<>();
@@ -486,7 +486,7 @@ public class NoteSyncService {
                         //冲突，重新拉取server notebook更新到本地
                         String notebookApi = String.format("%s/api/notebook/getNotebooks?token=%s",
                                 AccountHelper.getDefaultAccount().getHost(),
-                                AccountHelper.getDefaultAccount().getmAccessToken());
+                                AccountHelper.getDefaultAccount().getAccessToken());
 
                         String notebookRes = NetworkRequest.syncGetRequest(notebookApi);
                         JSONArray jsonArray = new JSONArray(notebookRes);

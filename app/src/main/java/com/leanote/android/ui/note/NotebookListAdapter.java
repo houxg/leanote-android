@@ -349,7 +349,7 @@ public class NotebookListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         @Override
         protected Boolean doInBackground(Void... voids) {
 
-            tmpNotebooks = Leanote.leaDB.getNotebookList(AccountHelper.getDefaultAccount().getmUserId());
+            tmpNotebooks = Leanote.leaDB.getNotebookList(AccountHelper.getDefaultAccount().getUserId());
             AppLog.i("loading notebooks:" + tmpNotebooks);
             for (NotebookInfo hiddenNote : mHiddenNotebooks) {
                 int index = -1;

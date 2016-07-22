@@ -309,7 +309,7 @@ public class NotebookFragment extends Fragment
         //final Post fullPost = WordPress.wpDB.getPostForLocalTablePostId(note.getNoteId());
 
         //non null notebook couldn't be deleted
-        NoteDetailList noteLists = Leanote.leaDB.getNotesListInNotebook(notebook.getId(), AccountHelper.getDefaultAccount().getmUserId());
+        NoteDetailList noteLists = Leanote.leaDB.getNotesListInNotebook(notebook.getId(), AccountHelper.getDefaultAccount().getUserId());
         if (noteLists.size() > 0) {
             ToastUtils.showToast(getActivity(), getString(R.string.NOT_NULL_NOTEBOOK_DELETED));
             return;
@@ -474,7 +474,7 @@ public class NotebookFragment extends Fragment
 
             String api = String.format("%s/api/notebook/deleteNotebook?token=%s&notebookId=%s&usn=%s",
                     AccountHelper.getDefaultAccount().getHost(),
-                    AccountHelper.getDefaultAccount().getmAccessToken(),
+                    AccountHelper.getDefaultAccount().getAccessToken(),
                     this.notebookId, this.usn);
 
             try {

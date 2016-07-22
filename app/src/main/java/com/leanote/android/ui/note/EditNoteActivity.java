@@ -34,7 +34,7 @@ import com.leanote.android.editor.EditorFragment;
 import com.leanote.android.editor.EditorFragmentAbstract;
 import com.leanote.android.editor.Utils;
 import com.leanote.android.model.AccountHelper;
-import com.leanote.android.model.NoteDetail;
+import com.leanote.android.model.NoteInfo;
 import com.leanote.android.networking.NetworkRequest;
 import com.leanote.android.networking.NetworkUtils;
 import com.leanote.android.ui.RequestCodes;
@@ -94,9 +94,9 @@ public class EditNoteActivity extends AppCompatActivity
 
     private boolean mHasSetNoteContent;
 
-    private NoteDetail mNote;
+    private NoteInfo mNote;
 
-    private NoteDetail mOriginalNote;
+    private NoteInfo mOriginalNote;
 
     private EditorFragment mEditorFragment;
 
@@ -146,8 +146,8 @@ public class EditNoteActivity extends AppCompatActivity
         } else {
             if (savedInstanceState.containsKey(STATE_KEY_ORIGINAL_NOTE)) {
                 try {
-                    mNote = (NoteDetail) savedInstanceState.getSerializable(STATE_KEY_CURRENT_NOTE);
-                    mOriginalNote = (NoteDetail) savedInstanceState.getSerializable(STATE_KEY_ORIGINAL_NOTE);
+                    mNote = (NoteInfo) savedInstanceState.getSerializable(STATE_KEY_CURRENT_NOTE);
+                    mOriginalNote = (NoteInfo) savedInstanceState.getSerializable(STATE_KEY_ORIGINAL_NOTE);
                 } catch (ClassCastException e) {
                     Log.e("editor error", ":", e);
                     mNote = null;
@@ -187,7 +187,7 @@ public class EditNoteActivity extends AppCompatActivity
 
                 invalidateOptionsMenu();
                 if (position == PAGE_CONTENT) {
-                    //setTitle(AccountHelper.getDefaultAccount().getmUserName());
+                    //setTitle(AccountHelper.getDefaultAccount().getUserName());
                     setTitle("leanote");
                 } else if (position == PAGE_SETTINGS) {
                     setTitle(R.string.note_settings);
@@ -437,21 +437,21 @@ public class EditNoteActivity extends AppCompatActivity
         mediaFile.setFileURL(leanoteImageUrl);
         //更新到db
         Leanote.leaDB.saveMediaFile(mediaFile);
-        mEditorFragment.appendMediaFile(mediaFile, mediaFile.getFilePath(), Leanote.imageLoader);
+        mEditorFragment.appendMediaFile(mediaFile, mediaFile.getFilePath(),null);
 
         return true;
     }
 
 
     private String fetchNoteContent(String noteId) {
-        NoteDetail note = Leanote.leaDB.getLocalNoteByNoteId(noteId);
+        NoteInfo note = Leanote.leaDB.getLocalNoteByNoteId(noteId);
         if (note != null && org.apache.commons.lang.StringUtils.isNotEmpty(note.getContent())) {
             return note.getContent();
         }
 
         String noteApi = String.format("%s/api/note/getNoteContent?noteId=%s&token=%s",
                 AccountHelper.getDefaultAccount().getHost(), noteId,
-                AccountHelper.getDefaultAccount().getmAccessToken());
+                AccountHelper.getDefaultAccount().getAccessToken());
 
 
         String response;
@@ -472,13 +472,13 @@ public class EditNoteActivity extends AppCompatActivity
 
     private void fillContentEditorFields() {
         // Needed blog settings needed by the editor
-        if (AccountHelper.getDefaultAccount().getmUserId() != null) {
+        if (AccountHelper.getDefaultAccount().getUserId() != null) {
             mEditorFragment.setFeaturedImageSupported(true);
             //mEditorFragment.setBlogSettingMaxImageWidth(WordPress.getCurrentBlog().getMaxImageWidth());
         }
 
         // Set post title and content
-        NoteDetail note = getNote();
+        NoteInfo note = getNote();
         if (note != null) {
             if (!TextUtils.isEmpty(note.getContent()) && !mHasSetNoteContent) {
                 mHasSetNoteContent = true;
@@ -611,12 +611,12 @@ public class EditNoteActivity extends AppCompatActivity
 
 
     private void updateNoteContent(boolean isAutoSave) {
-        NoteDetail note = getNote();
+        NoteInfo note = getNote();
 
         if (note == null) {
             return;
         }
-        String title = StringUtils.notNullStr((String) mEditorFragment.getTitle());
+        String title = com.leanote.android.util.StringUtils.notNullStr((String) mEditorFragment.getTitle());
         note.setTitle(title);
 
         AppLog.i("orginal content:" + note.getContent() + "---end");
@@ -774,7 +774,7 @@ public class EditNoteActivity extends AppCompatActivity
     }
 
 
-    public NoteDetail getNote() {
+    public NoteInfo getNote() {
         return mNote;
     }
 

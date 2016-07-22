@@ -9,7 +9,7 @@ import android.support.v4.app.ActivityOptionsCompat;
 import com.leanote.android.Leanote;
 import com.leanote.android.R;
 import com.leanote.android.model.AccountHelper;
-import com.leanote.android.model.NoteDetail;
+import com.leanote.android.model.NoteInfo;
 import com.leanote.android.model.NotebookInfo;
 import com.leanote.android.networking.SSLCertsViewActivity;
 import com.leanote.android.networking.SelfSignedSSLCertsManager;
@@ -63,7 +63,7 @@ public class ActivityLauncher {
     public static void addNewNoteForResult(Activity context) {
 
         // Create a new post object
-        NoteDetail newNote = new NoteDetail();
+        NoteInfo newNote = new NoteInfo();
         //WordPress.wpDB.savePost(newPost);
         Leanote.leaDB.addNote(newNote);
         Intent intent = new Intent(context, EditNoteActivity.class);
@@ -101,10 +101,9 @@ public class ActivityLauncher {
         }
     }
 
-
     public static void addNewNotebookForResult(Activity context) {
         NotebookInfo newNotebook = new NotebookInfo();
-        newNotebook.setUserId(AccountHelper.getDefaultAccount().getmUserId());
+        newNotebook.setUserId(AccountHelper.getDefaultAccount().getUserId());
         //WordPress.wpDB.savePost(newPost);
         Leanote.leaDB.addNotebook(newNotebook);
         Intent intent = new Intent(context, EditNotebookActivity.class);
@@ -114,7 +113,7 @@ public class ActivityLauncher {
     }
 
     public static void previewNoteForResult(Activity activity, Long id) {
-        NoteDetail note = Leanote.leaDB.getLocalNoteById(id);
+        NoteInfo note = Leanote.leaDB.getLocalNoteById(id);
         if (note == null) return;
 
         Intent intent = new Intent(activity, NotePreviewActivity.class);
@@ -136,7 +135,7 @@ public class ActivityLauncher {
         Intent intent = new Intent(activity,BlogHomeActivity.class);
         String url = String.format("%s/blog/%s",
                 AccountHelper.getDefaultAccount().getHost(),
-                AccountHelper.getDefaultAccount().getmUserName());
+                AccountHelper.getDefaultAccount().getUserName());
 
         intent.putExtra("url", url);
         activity.startActivity(intent);

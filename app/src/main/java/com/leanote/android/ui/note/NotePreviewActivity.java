@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import com.leanote.android.Leanote;
 import com.leanote.android.R;
-import com.leanote.android.model.NoteDetail;
+import com.leanote.android.model.NoteInfo;
 import com.leanote.android.networking.NetworkUtils;
 import com.leanote.android.service.NoteSyncService;
 import com.leanote.android.ui.ActivityLauncher;
@@ -36,7 +36,7 @@ public class NotePreviewActivity extends AppCompatActivity {
     private long mLocalNoteId;
     private boolean mIsUpdatingNote;
 
-    private NoteDetail mNote;
+    private NoteInfo mNote;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -272,7 +272,7 @@ public class NotePreviewActivity extends AppCompatActivity {
         protected Boolean doInBackground(String... noteIds) {
             //fetch note from server
             String noteId = noteIds[0];
-            NoteDetail serverNote = NoteSyncService.getServerNote(noteId);
+            NoteInfo serverNote = NoteSyncService.getServerNote(noteId);
             Leanote.leaDB.updateNoteByNoteId(serverNote);
             //NoteSyncService.syncPullNote();
             return true;

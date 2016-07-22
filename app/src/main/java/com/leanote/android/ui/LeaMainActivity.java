@@ -34,9 +34,7 @@ public class LeaMainActivity extends Activity {
     private LeaMainTabAdapter mTabAdapter;
     private TextView mConnectionBar;
 
-
     public static final String ARG_OPENED_FROM_PUSH = "opened_from_push";
-
 
     public interface OnScrollToTopListener {
         void onScrollToTop();
@@ -49,7 +47,6 @@ public class LeaMainActivity extends Activity {
         }
     }
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,14 +54,13 @@ public class LeaMainActivity extends Activity {
         setStatusBarColor();
 
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.main_activity);
-
 
         mViewPager = (LeaViewPager) findViewById(R.id.viewpager_main);
         mTabAdapter = new LeaMainTabAdapter(getFragmentManager());
         mViewPager.setAdapter(mTabAdapter);
 
+        //底部网络状态栏
         mConnectionBar = (TextView) findViewById(R.id.connection_bar);
         mConnectionBar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,10 +77,11 @@ public class LeaMainActivity extends Activity {
                 }, 2000);
             }
         });
+        //顶部Tab栏(包括:笔记,博客,类别,我)
         mTabLayout = (LeaMainTabLayout) findViewById(R.id.tab_layout);
         mTabLayout.createTabs();
 
-        mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(tab.getPosition());

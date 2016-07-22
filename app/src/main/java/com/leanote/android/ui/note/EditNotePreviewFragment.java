@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 import com.leanote.android.Leanote;
 import com.leanote.android.R;
-import com.leanote.android.model.NoteDetail;
+import com.leanote.android.model.NoteInfo;
 import com.leanote.android.util.AppLog;
 import com.leanote.android.util.LeaWebViewClient;
 import com.leanote.android.util.MediaFile;
@@ -165,7 +165,7 @@ public class EditNotePreviewFragment extends Fragment {
                 return null;
             }
 
-            NoteDetail note = mActivity.getNote();
+            NoteInfo note = mActivity.getNote();
 
             String postTitle = "<h1>" + note.getTitle() + "</h1>";
             String postContent = postTitle + note.getContent();

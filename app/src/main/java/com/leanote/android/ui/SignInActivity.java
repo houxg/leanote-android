@@ -9,6 +9,7 @@ import android.view.MenuItem;
 
 import com.leanote.android.R;
 
+//登陆界面
 public class SignInActivity extends Activity {
 
     public static final int SIGN_IN_REQUEST = 1;
@@ -25,9 +26,7 @@ public class SignInActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-
         //requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_sign_in);
 

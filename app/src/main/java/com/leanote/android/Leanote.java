@@ -7,18 +7,16 @@ import android.os.Build;
 import android.webkit.WebView;
 
 import com.android.volley.RequestQueue;
-import com.android.volley.VolleyLog;
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gcm.GCMRegistrar;
 import com.leanote.android.model.AccountHelper;
+import com.leanote.android.networking.retrofit.RetrofitUtil;
 import com.leanote.android.networking.SelfSignedSSLCertsManager;
 import com.leanote.android.ui.AppPrefs;
 import com.leanote.android.util.AppLog;
 import com.leanote.android.util.BitmapLruCache;
 import com.leanote.android.util.CoreEvents;
 import com.leanote.android.util.PackageUtils;
-import com.leanote.android.util.VolleyUtils;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.wordpress.rest.RestRequest;
 
 import java.io.IOException;
@@ -35,6 +33,8 @@ import de.greenrobot.event.EventBus;
 public class Leanote extends Application {
 
     public static RequestQueue requestQueue;
+
+    public static RetrofitUtil mRetrofitUtil;
 
     public static ImageLoader imageLoader;
 
@@ -55,7 +55,6 @@ public class Leanote extends Application {
         return mContext;
     }
 
-
     private Activity mCurrentActivity = null;
 
     public Activity getCurrentActivity(){
@@ -64,8 +63,6 @@ public class Leanote extends Application {
     public void setCurrentActivity(Activity mCurrentActivity){
         this.mCurrentActivity = mCurrentActivity;
     }
-
-
 
     @Override
     public void onCreate() {
@@ -81,9 +78,11 @@ public class Leanote extends Application {
                 .installDefaultEventBus();
         EventBus.getDefault().register(this);
 
-        setupVolleyQueue();
+        imageLoader = ImageLoader.getInstance();
 
         leaDB = new LeanoteDB(this);
+
+        mRetrofitUtil = RetrofitUtil.getInstance();
 
         if (downloadingFileUrls != null && downloadingFileUrls.size() > 0) {
             downloadingFileUrls.clear();
@@ -97,17 +96,8 @@ public class Leanote extends Application {
 
     }
 
-
     public static List<String> getDownloadingFileUrls() {
         return downloadingFileUrls;
-    }
-
-    public static void setupVolleyQueue() {
-        requestQueue = Volley.newRequestQueue(mContext, VolleyUtils.getHTTPClientStack(mContext));
-        imageLoader = new ImageLoader(requestQueue, getBitmapCache());
-        VolleyLog.setTag(AppLog.TAG);
-        // http://stackoverflow.com/a/17035814
-        imageLoader.setBatchedResponseDelay(0);
     }
 
     public static BitmapLruCache getBitmapCache() {
@@ -130,7 +120,6 @@ public class Leanote extends Application {
             EventBus.getDefault().post(new CoreEvents.RestApiUnauthorized());
         }
     };
-
 
 //    public static RestClientUtils getRestClientUtilsV1_1() {
 //        if (mRestClientUtilsVersion1_1 == null) {
@@ -167,7 +156,7 @@ public class Leanote extends Application {
     public static void removeWpComUserRelatedData(Context context) {
         // cancel all Volley requests - do this before unregistering push since that uses
         // a Volley request
-        VolleyUtils.cancelAllRequests(requestQueue);
+//        VolleyUtils.cancelAllRequests(requestQueue);
 
         try {
             GCMRegistrar.checkDevice(context);
@@ -179,8 +168,7 @@ public class Leanote extends Application {
         // delete wpcom blogs
 
         // reset default account, just clear access token
-        AccountHelper.getDefaultAccount().signout();
-
+        AccountHelper.getDefaultAccount().signOut();
 
         // reset all reader-related prefs & data
         AppPrefs.reset();
@@ -203,7 +191,6 @@ public class Leanote extends Application {
         } catch (IOException e) {
             AppLog.e(AppLog.T.UTILS, "Error while cleaning the Local KeyStore File", e);
         }
-
 
         // dangerously delete all content!
         //leaDB.dangerouslyDeleteAllContent();
