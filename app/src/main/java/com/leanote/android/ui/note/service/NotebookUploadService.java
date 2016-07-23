@@ -8,7 +8,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.leanote.android.Leanote;
+import com.leanote.android.db.LeanoteDbManager;
 import com.leanote.android.model.AccountHelper;
 import com.leanote.android.model.NotebookInfo;
 import com.leanote.android.networking.NetworkRequest;
@@ -206,7 +206,7 @@ public class NotebookUploadService extends Service {
             NotebookInfo notebook = NoteSyncService.parseServerNotebook(json);
             //加上本地id
             notebook.setId(localNotebookId);
-            Leanote.leaDB.updateNotebook(notebook);
+            LeanoteDbManager.getInstance().updateNotebook(notebook);
             return NoteSyncResultEnum.SUCCESS;
         } else if (!ok && "conflict".equals(msg)){
             //更新server端笔记本到本地
@@ -235,7 +235,7 @@ public class NotebookUploadService extends Service {
         }
 
         NotebookInfo serverNotebook = NoteSyncService.parseServerNotebook(notebook);
-        Leanote.leaDB.updateNotebook(serverNotebook);
+        LeanoteDbManager.getInstance().updateNotebook(serverNotebook);
     }
 
 }

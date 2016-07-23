@@ -38,7 +38,6 @@
                     android:layout_centerInParent="true"
                     android:src="@drawable/leanote_icon_circle" />
 
-
             </RelativeLayout>
 
             <com.leanote.android.widget.LeaTextView
@@ -66,6 +65,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/email"
+                    android:text="yuchuangu85@outlook.com"
                     android:inputType="textEmailAddress"
                     app:persistenceEnabled="true" />
 
@@ -98,6 +98,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginRight="38dp"
                     android:hint="@string/password"
+                    android:text="Gyc.198557"
                     android:inputType="textPassword" />
 
                 <ImageView

@@ -8,6 +8,7 @@ import android.webkit.WebView;
 
 import com.android.volley.RequestQueue;
 import com.google.android.gcm.GCMRegistrar;
+import com.leanote.android.db.LeanoteDB;
 import com.leanote.android.model.AccountHelper;
 import com.leanote.android.networking.retrofit.RetrofitUtil;
 import com.leanote.android.networking.SelfSignedSSLCertsManager;
@@ -38,8 +39,6 @@ public class Leanote extends Application {
 
     public static ImageLoader imageLoader;
 
-    public static LeanoteDB leaDB;
-
     private static Context mContext;
     private static BitmapLruCache mBitmapCache;
 
@@ -67,9 +66,7 @@ public class Leanote extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
         mContext = this;
-
         EventBus.TAG = "Leanote-EVENT";
         EventBus.builder()
                 .logNoSubscriberMessages(false)
@@ -79,8 +76,6 @@ public class Leanote extends Application {
         EventBus.getDefault().register(this);
 
         imageLoader = ImageLoader.getInstance();
-
-        leaDB = new LeanoteDB(this);
 
         mRetrofitUtil = RetrofitUtil.getInstance();
 

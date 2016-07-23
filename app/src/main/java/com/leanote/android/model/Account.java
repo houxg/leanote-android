@@ -1,6 +1,6 @@
 package com.leanote.android.model;
 
-import com.leanote.android.datasets.AccountTable;
+import com.leanote.android.db.LeanoteDbManager;
 
 /**
  * Class for managing logged in user informations.
@@ -14,6 +14,6 @@ public class Account extends AccountModel {
     }
 
     public void save() {
-        AccountTable.save(this);
+        LeanoteDbManager.getInstance().save(this);
     }
 }

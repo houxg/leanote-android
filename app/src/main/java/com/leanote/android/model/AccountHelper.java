@@ -3,8 +3,7 @@ package com.leanote.android.model;
 
 import android.text.TextUtils;
 
-import com.leanote.android.datasets.AccountTable;
-
+import com.leanote.android.db.LeanoteDbManager;
 
 
 /**
@@ -43,7 +42,7 @@ public class AccountHelper {
 
     public static Account getDefaultAccount() {
         if (sAccount == null) {
-            sAccount = AccountTable.getDefaultAccount();
+            sAccount = LeanoteDbManager.getInstance().getAccountByLocalId(0);
             if (sAccount == null) {
                 sAccount = new Account();
             }

@@ -44,6 +44,7 @@ import org.wordpress.emailchecker.EmailChecker;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+//登陆界面
 public class SignInFragment extends AbstractFragment implements TextWatcher {
 
     private static final String DOT_COM_BASE_URL = "https://leanote.com";
@@ -134,7 +135,7 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_sign_in, container, false);
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_sign_in, null);
 
         mUrlButtonLayout = (RelativeLayout) rootView.findViewById(R.id.url_button_layout);
         //mTwoStepLayout = (RelativeLayout) rootView.findViewById(R.id.two_factor_layout);
@@ -200,6 +201,7 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         //initInfoButtons(rootView);
         //moveBottomButtons();
 
+        mSignInButton.setEnabled(true);
         return rootView;
     }
 

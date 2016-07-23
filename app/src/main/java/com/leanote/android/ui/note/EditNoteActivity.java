@@ -28,8 +28,8 @@ import android.view.ViewGroup;
 import android.webkit.URLUtil;
 import android.widget.Toast;
 
-import com.leanote.android.Leanote;
 import com.leanote.android.R;
+import com.leanote.android.db.LeanoteDbManager;
 import com.leanote.android.editor.EditorFragment;
 import com.leanote.android.editor.EditorFragmentAbstract;
 import com.leanote.android.editor.Utils;
@@ -134,8 +134,8 @@ public class EditNoteActivity extends AppCompatActivity
                 long localNoteId = extras.getLong(EXTRA_NOTEID, 0L);
                 mIsNewNote = extras.getBoolean(EXTRA_IS_NEW_NOTE);
 
-                mNote = Leanote.leaDB.getLocalNoteById(localNoteId);
-                mOriginalNote = Leanote.leaDB.getLocalNoteById(localNoteId);
+                mNote = LeanoteDbManager.getInstance().getLocalNoteById(localNoteId);
+                mOriginalNote = LeanoteDbManager.getInstance().getLocalNoteById(localNoteId);
 
                 mEditorFragment = new EditorFragment();
             } else {
@@ -251,7 +251,7 @@ public class EditNoteActivity extends AppCompatActivity
 
     @Override
     public void saveMediaFile(MediaFile mediaFile) {
-        Leanote.leaDB.saveMediaFile(mediaFile);
+        LeanoteDbManager.getInstance().saveMediaFile(mediaFile);
     }
 
     private void launchCamera() {
@@ -436,7 +436,7 @@ public class EditNoteActivity extends AppCompatActivity
 
         mediaFile.setFileURL(leanoteImageUrl);
         //更新到db
-        Leanote.leaDB.saveMediaFile(mediaFile);
+        LeanoteDbManager.getInstance().saveMediaFile(mediaFile);
         mEditorFragment.appendMediaFile(mediaFile, mediaFile.getFilePath(),null);
 
         return true;
@@ -444,7 +444,7 @@ public class EditNoteActivity extends AppCompatActivity
 
 
     private String fetchNoteContent(String noteId) {
-        NoteInfo note = Leanote.leaDB.getLocalNoteByNoteId(noteId);
+        NoteInfo note = LeanoteDbManager.getInstance().getLocalNoteByNoteId(noteId);
         if (note != null && org.apache.commons.lang.StringUtils.isNotEmpty(note.getContent())) {
             return note.getContent();
         }
@@ -460,7 +460,7 @@ public class EditNoteActivity extends AppCompatActivity
             response = NetworkRequest.syncGetRequest(noteApi);
             JSONObject json = new JSONObject(response);
             content = json.getString("Content");
-            Leanote.leaDB.saveNoteContent(noteId, content);
+            LeanoteDbManager.getInstance().saveNoteContent(noteId, content);
 
         } catch (Exception e) {
             AppLog.e(AppLog.T.API, "fetch note content error", e);
@@ -689,7 +689,7 @@ public class EditNoteActivity extends AppCompatActivity
 //                mediaFile.setFileName(wpIS.getImageSource().toString());
 //                //mediaFile.setFilePath(wpIS.getImageSource().toString());
 //
-//                Leanote.leaDB.saveMediaFile(mediaFile);
+//                LeanoteDbManager.getInstance().saveMediaFile(mediaFile);
 //                AppLog.i("get media id:" + mediaFile.getId());
 //                fileIds.add(mediaFile.getId());
 //
@@ -712,7 +712,7 @@ public class EditNoteActivity extends AppCompatActivity
 //            String fileIdStr = org.apache.commons.lang.StringUtils.join(fileIds, ",");
 //            note.setFileIds(fileIdStr);
 //            AppLog.i("fileids:" + fileIdStr);
-//            //Leanote.leaDB.updateNote(note);
+//            //LeanoteDbManager.getInstance().updateNote(note);
 //        } else {
 //            //清空fileids
 //            note.setFileIds("");
@@ -753,7 +753,7 @@ public class EditNoteActivity extends AppCompatActivity
             if (m.find()) {
                 String imageUri = m.group(1);
                 if (!"".equals(imageUri)) {
-                    MediaFile mediaFile = Leanote.leaDB.getMediaFile(imageUri);
+                    MediaFile mediaFile = LeanoteDbManager.getInstance().getMediaFile(imageUri);
                     if (mediaFile == null) {
                         continue;
                     }
@@ -789,7 +789,7 @@ public class EditNoteActivity extends AppCompatActivity
         }
 
 
-        Leanote.leaDB.updateNote(mNote);
+        LeanoteDbManager.getInstance().updateNote(mNote);
     }
 
 
@@ -818,7 +818,7 @@ public class EditNoteActivity extends AppCompatActivity
                     return false;
                 }
 
-                mNote = Leanote.leaDB.getLocalNoteById(mNote.getId());
+                mNote = LeanoteDbManager.getInstance().getLocalNoteById(mNote.getId());
                 NoteUploadService.addNoteToUpload(mNote);
                 startService(new Intent(this, NoteUploadService.class));
             }
@@ -877,7 +877,7 @@ public class EditNoteActivity extends AppCompatActivity
         if (mEditorFragment != null && hasEmptyContentFields()) {
             // new and empty post? delete it
             if (mIsNewNote) {
-                Leanote.leaDB.deleteNote(mNote.getId());
+                LeanoteDbManager.getInstance().deleteNote(mNote.getId());
             }
         } else if (mOriginalNote != null && !mNote.hasChanges(mOriginalNote)) {
             // if no changes have been made to the post, set it back to the original don't save it

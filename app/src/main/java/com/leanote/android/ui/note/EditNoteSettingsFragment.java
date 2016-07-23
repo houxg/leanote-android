@@ -18,8 +18,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.leanote.android.Leanote;
 import com.leanote.android.R;
+import com.leanote.android.db.LeanoteDbManager;
 import com.leanote.android.model.AccountHelper;
 import com.leanote.android.model.NoteInfo;
 import com.leanote.android.model.NotebookInfo;
@@ -67,10 +67,10 @@ public class EditNoteSettingsFragment extends Fragment
         toggleButtonPublicBlog = (ImageButton) mRootView.findViewById(R.id.toggleButton_public_blog);
 
         String userId = AccountHelper.getDefaultAccount().getUserId();
-        mNotebooks = Leanote.leaDB.getNotebookTitles(userId);
-        mNotebookInfos = Leanote.leaDB.getNotebookList(userId);
+        mNotebooks = LeanoteDbManager.getInstance().getNotebookTitles(userId);
+        mNotebookInfos = LeanoteDbManager.getInstance().getNotebookList(userId);
 
-        Leanote.leaDB.getNotebookList(userId);
+        LeanoteDbManager.getInstance().getNotebookList(userId);
         mNotebookSpinner = (Spinner) mRootView.findViewById(R.id.notebook);
         mNotebookSpinner.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
@@ -232,7 +232,7 @@ public class EditNoteSettingsFragment extends Fragment
         NotebookInfo notebook = mNotebookInfos.get(mNotebookSpinner.getSelectedItemPosition());
         mNote.setNoteBookId(notebook.getNotebookId());
 
-        Leanote.leaDB.saveNoteSettings(mNote);
+        LeanoteDbManager.getInstance().saveNoteSettings(mNote);
         //((EditNoteActivity)getActivity()).reloadNote();
     }
 

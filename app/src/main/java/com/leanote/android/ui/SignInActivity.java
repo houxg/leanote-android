@@ -2,6 +2,7 @@ package com.leanote.android.ui;
 
 import android.app.Activity;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -31,7 +32,15 @@ public class SignInActivity extends Activity {
         setContentView(R.layout.activity_sign_in);
 
         FragmentManager fragmentManager = getFragmentManager();
-        mSignInFragment = (SignInFragment) fragmentManager.findFragmentById(R.id.sign_in_fragment);
+        FragmentTransaction ft = fragmentManager.beginTransaction();
+        mSignInFragment = (SignInFragment) fragmentManager.findFragmentByTag("SignInFragment");
+        if (mSignInFragment == null) {
+            mSignInFragment = new SignInFragment();
+            ft.add(R.id.sign_in_fragment, mSignInFragment, "SignInFragment");
+        }
+
+        ft.addToBackStack(null);
+        ft.commitAllowingStateLoss();
 //        actionMode(getIntent().getExtras());
 //        ActivityId.trackLastActivity(ActivityId.LOGIN);
     }

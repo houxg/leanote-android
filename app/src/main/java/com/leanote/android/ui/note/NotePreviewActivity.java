@@ -16,8 +16,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.leanote.android.Leanote;
 import com.leanote.android.R;
+import com.leanote.android.db.LeanoteDbManager;
 import com.leanote.android.model.NoteInfo;
 import com.leanote.android.networking.NetworkUtils;
 import com.leanote.android.service.NoteSyncService;
@@ -66,7 +66,7 @@ public class NotePreviewActivity extends AppCompatActivity {
         super.onResume();
         EventBus.getDefault().register(this);
 
-        mNote = Leanote.leaDB.getLocalNoteById(mLocalNoteId);
+        mNote = LeanoteDbManager.getInstance().getLocalNoteById(mLocalNoteId);
         if (hasPreviewFragment()) {
             refreshPreview();
         } else {
@@ -273,7 +273,7 @@ public class NotePreviewActivity extends AppCompatActivity {
             //fetch note from server
             String noteId = noteIds[0];
             NoteInfo serverNote = NoteSyncService.getServerNote(noteId);
-            Leanote.leaDB.updateNoteByNoteId(serverNote);
+            LeanoteDbManager.getInstance().updateNoteByNoteId(serverNote);
             //NoteSyncService.syncPullNote();
             return true;
         }

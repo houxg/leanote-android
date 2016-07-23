@@ -18,6 +18,7 @@ import android.webkit.MimeTypeMap;
 
 import com.leanote.android.Leanote;
 import com.leanote.android.R;
+import com.leanote.android.db.LeanoteDbManager;
 import com.leanote.android.model.AccountHelper;
 import com.leanote.android.model.NoteInfo;
 import com.leanote.android.networking.retrofit.RetrofitUtil;
@@ -232,7 +233,7 @@ public class NoteUploadService extends Service {
         }
 
 
-        Leanote.leaDB.updateNote(mNote);
+        LeanoteDbManager.getInstance().updateNote(mNote);
 
         if ("conflict".equals(msg)) {
             //server端note覆盖本地note
@@ -252,7 +253,7 @@ public class NoteUploadService extends Service {
                 //push成功后更新usn
                 int serverUsn = NoteSyncService.getServerSyncState();
                 AppLog.i("last serverUsn:" + serverUsn);
-                Leanote.leaDB.updateAccountUsn(serverUsn, AccountHelper.getDefaultAccount().getUserId());
+                LeanoteDbManager.getInstance().updateAccountUsn(serverUsn, AccountHelper.getDefaultAccount().getUserId());
 
                 return NoteSyncResultEnum.SUCCESS;
             }
@@ -336,7 +337,7 @@ public class NoteUploadService extends Service {
             //mediafile本地id
             String[] fileIdArray = fileIds.split(",");
             for (int i = 0; i < fileIdArray.length; i++) {
-                MediaFile mf = Leanote.leaDB.getMediaFileById(fileIdArray[i]);
+                MediaFile mf =LeanoteDbManager.getInstance().getMediaFileById(fileIdArray[i]);
                 if (mf != null) {
                     contentStruct.put(String.format("Files[%s][LocalFileId]", i), mf.getId());
                     contentStruct.put(String.format("Files[%s][IsAttach]", i), false);
@@ -388,7 +389,7 @@ public class NoteUploadService extends Service {
                 mimeType = cur.getString(mimeTypeColumn);
                 path = thumbData;
                 mf.setFilePath(thumbData);
-                Leanote.leaDB.saveMediaFile(mf);
+                LeanoteDbManager.getInstance().saveMediaFile(mf);
 
             }
         } else {
@@ -567,7 +568,7 @@ public class NoteUploadService extends Service {
         AppLog.i("push usn:" + usn);
 
         //新增笔记需要更新所有字段
-        List<String> localNoteIds = Leanote.leaDB.getLocalNoteIds(AccountHelper.getDefaultAccount().getUserId());
+        List<String> localNoteIds = LeanoteDbManager.getInstance().getLocalNoteIds(AccountHelper.getDefaultAccount().getUserId());
         try {
             //更新media表mediaId
             //更新服务端fileId 到 media表的 mediaId
@@ -577,7 +578,7 @@ public class NoteUploadService extends Service {
                     JSONObject file = files.getJSONObject(i);
                     String localFileId = file.getString("LocalFileId");
                     String serverFileId = file.getString("FileId");
-                    Leanote.leaDB.updateMedia(localFileId, serverFileId);
+                    LeanoteDbManager.getInstance().updateMedia(localFileId, serverFileId);
                 }
             }
 
@@ -585,7 +586,7 @@ public class NoteUploadService extends Service {
             //Leanote.leaDB.updateDirtyUsn(noteId, usn);
             if (note != null) {
                 note.setId(mNote.getId());
-                Leanote.leaDB.updateNote(note);
+                LeanoteDbManager.getInstance().updateNote(note);
             }
 
         } catch (Exception e) {
@@ -597,7 +598,7 @@ public class NoteUploadService extends Service {
     private void updateNoteToLocal(String noteId) throws JSONException {
         NoteInfo serverNote = NoteSyncService.getServerNote(noteId);
         serverNote.setIsDirty(false);
-        Leanote.leaDB.updateNoteByNoteId(serverNote);
+        LeanoteDbManager.getInstance().updateNoteByNoteId(serverNote);
     }
 
 }

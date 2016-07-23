@@ -18,11 +18,11 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.TextView;
 
-import com.leanote.android.Leanote;
 import com.leanote.android.R;
+import com.leanote.android.db.LeanoteDbManager;
 import com.leanote.android.model.AccountHelper;
-import com.leanote.android.model.NoteInfo;
 import com.leanote.android.model.NoteDetailList;
+import com.leanote.android.model.NoteInfo;
 import com.leanote.android.ui.note.service.NoteUploadService;
 import com.leanote.android.util.AppLog;
 import com.leanote.android.util.Constant;
@@ -413,9 +413,9 @@ public class NoteListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         protected Boolean doInBackground(Long... params) {
 
             if (params.length != 0 && params[0] != null) {
-                tmpNotes = Leanote.leaDB.getNotesListInNotebook(params[0], AccountHelper.getDefaultAccount().getUserId());
+                tmpNotes = LeanoteDbManager.getInstance().getNotesListInNotebook(params[0], AccountHelper.getDefaultAccount().getUserId());
             } else {
-                tmpNotes = Leanote.leaDB.getNotesList(AccountHelper.getDefaultAccount().getUserId());
+                tmpNotes = LeanoteDbManager.getInstance().getNotesList(AccountHelper.getDefaultAccount().getUserId());
             }
 
             // make sure we don't return any hidden posts

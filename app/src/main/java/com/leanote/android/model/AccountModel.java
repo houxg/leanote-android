@@ -1,6 +1,6 @@
 package com.leanote.android.model;
 
-import com.leanote.android.Leanote;
+import com.leanote.android.db.LeanoteDbManager;
 
 /**
  * Created by binnchx on 8/26/15.
@@ -102,7 +102,7 @@ public class AccountModel {
     }
 
     public int getLastSyncUsn() {
-        return Leanote.leaDB.getAccountUsn(userId);
+        return LeanoteDbManager.getInstance().getAccountUsn(userId);
     }
 
     public void setLastSyncUsn(int lastSyncUsn) {

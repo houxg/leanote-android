@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.leanote.android.Leanote;
 import com.leanote.android.R;
+import com.leanote.android.db.LeanoteDbManager;
 import com.leanote.android.model.AccountHelper;
 import com.leanote.android.model.NoteInfo;
 import com.leanote.android.model.NoteDetailList;
@@ -217,7 +218,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         @Override
         protected Boolean doInBackground(Void... voids) {
 
-            tmpNotes = Leanote.leaDB.getNoteisBlogList(AccountHelper.getDefaultAccount().getUserId());
+            tmpNotes = LeanoteDbManager.getInstance().getNoteisBlogList(AccountHelper.getDefaultAccount().getUserId());
 
             // make sure we don't return any hidden posts
             for (NoteInfo hiddenNote : mHiddenPosts) {

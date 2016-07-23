@@ -9,8 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 
-import com.leanote.android.Leanote;
 import com.leanote.android.R;
+import com.leanote.android.db.LeanoteDbManager;
 import com.leanote.android.model.NoteInfo;
 import com.leanote.android.util.AppLog;
 import com.leanote.android.util.HtmlUtils;
@@ -80,7 +80,7 @@ public class NotePreviewFragment extends Fragment
         new Thread() {
             @Override
             public void run() {
-                NoteInfo note = Leanote.leaDB.getLocalNoteById(mLocalNoteId);
+                NoteInfo note = LeanoteDbManager.getInstance().getLocalNoteById(mLocalNoteId);
                 final String htmlContent = formatPostContentForWebView(getActivity(), note);
                 AppLog.i("html:" + htmlContent);
                 AppLog.i("image callback...");
@@ -158,7 +158,7 @@ public class NotePreviewFragment extends Fragment
     @Override
     public void onImageLoaded(String localFileId) {
         //更新note的fileId字段
-        NoteInfo note = Leanote.leaDB.getLocalNoteById(mLocalNoteId);
+        NoteInfo note = LeanoteDbManager.getInstance().getLocalNoteById(mLocalNoteId);
         String fileIds = note.getFileIds();
         if (fileIds != null && fileIds.length() > 0) {
             fileIds += "," + localFileId;
@@ -166,7 +166,7 @@ public class NotePreviewFragment extends Fragment
             fileIds = localFileId;
         }
         note.setFileIds(fileIds);
-        Leanote.leaDB.updateNote(note);
+        LeanoteDbManager.getInstance().updateNote(note);
 
         refreshPreview();
     }
