@@ -1,4 +1,4 @@
-package com.leanote.android.ui;
+package com.leanote.android.ui.fragment;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;

@@ -13,7 +13,6 @@ import com.leanote.android.model.NoteInfo;
 import com.leanote.android.model.NotebookInfo;
 import com.leanote.android.networking.SSLCertsViewActivity;
 import com.leanote.android.networking.SelfSignedSSLCertsManager;
-import com.leanote.android.ui.accounts.NewAccountActivity;
 import com.leanote.android.ui.lea.LeaActivity;
 import com.leanote.android.ui.note.EditNoteActivity;
 import com.leanote.android.ui.note.EditNotebookActivity;
@@ -39,11 +38,9 @@ public class ActivityLauncher {
     }
 
     public static void newAccountForResult(Activity activity) {
-        Intent intent = new Intent(activity, NewAccountActivity.class);
+        Intent intent = new Intent(activity, SignUpActivity.class);
         activity.startActivityForResult(intent, SignInActivity.CREATE_ACCOUNT_REQUEST);
     }
-
-
 
     public static void viewSSLCerts(Context context) {
         try {

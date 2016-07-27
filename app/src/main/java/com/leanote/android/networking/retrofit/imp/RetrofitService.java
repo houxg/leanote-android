@@ -2,6 +2,7 @@ package com.leanote.android.networking.retrofit.imp;
 
 
 import com.leanote.android.model.Account;
+import com.leanote.android.networking.retrofit.bean.SuccessBean;
 
 import java.util.Map;
 
@@ -16,7 +17,7 @@ import retrofit2.http.QueryMap;
 
 /**
  * 网络数据请求接口,所有网络请求的方法均在此添加
- * <p/>
+ * <p>
  * Created by yuchuan
  * DATE 3/22/16
  * TIME 22:36
@@ -24,8 +25,14 @@ import retrofit2.http.QueryMap;
 public interface RetrofitService {
     String BASE_URL = "https://leanote.com/";
 
-    @GET("api/auth/login?")
+    String LEA_URL_LOGIN = "api/auth/login?";
+    String LEA_URL_REGISTER = "api/auth/register?";
+
+    @GET(LEA_URL_LOGIN)
     Call<Account> login(@QueryMap Map<String, String> map);
+
+    @GET(LEA_URL_REGISTER)
+    Call<SuccessBean> register(@QueryMap Map<String, String> map);
 
     /**
      * POST方法数据请求,Call中的参数为对象形式,由于加了转换器,所以使用对象形式
@@ -39,7 +46,6 @@ public interface RetrofitService {
     @FormUrlEncoded
     @POST("api/note/{url}")
     Call<String> uploadNoteToServer(@Path("url") String url, @FieldMap Map<String, Object> map);
-
 
 
 }

@@ -2,7 +2,9 @@ package com.leanote.android.networking.retrofit;
 
 
 import com.leanote.android.model.Account;
+import com.leanote.android.networking.retrofit.bean.SuccessBean;
 import com.leanote.android.networking.retrofit.imp.ImpLogin;
+import com.leanote.android.networking.retrofit.imp.ImpRegister;
 import com.leanote.android.networking.retrofit.imp.RetrofitService;
 
 import java.io.IOException;
@@ -23,7 +25,7 @@ import retrofit2.Response;
  * .setTimeout(10 * 1000)
  * .build()
  * .updateDeviceInfo();
- * <p/>
+ * <p>
  * Created by yuchuan
  * DATE 3/22/16
  * TIME 22:50
@@ -143,6 +145,32 @@ public class RetrofitUtil {
         });
     }
 
+    public void register(Map<String, String> map, final ImpRegister impRegister) {
+        Call<SuccessBean> call = sRetrofitService.register(map);
+        call.enqueue(new Callback<SuccessBean>() {
+            @Override
+            public void onResponse(Call<SuccessBean> call, Response<SuccessBean> response) {
+                SuccessBean bean = response.body();
+                if (bean != null && bean.isOk()) {
+                    if (impRegister != null) {
+                        impRegister.onSuccess(bean);
+                    }
+                } else {
+                    if (impRegister != null) {
+                        impRegister.onFail(bean == null ? "" : bean.getMsg());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SuccessBean> call, Throwable t) {
+                if (impRegister != null) {
+                    impRegister.onFail(t.getMessage());
+                }
+            }
+        });
+    }
+
     /**
      * upload note to server
      * 同步请求
@@ -164,7 +192,7 @@ public class RetrofitUtil {
 
     /**
      * 添加请求进行
-     * <p/>
+     * <p>
      * 管理
      *
      * @param key  键
