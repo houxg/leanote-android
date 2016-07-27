@@ -107,15 +107,6 @@ public class LeaMainActivity extends Activity {
             @Override
             public void onPageSelected(int position) {
                 AppPrefs.setMainTabIndex(position);
-
-//                switch (position) {
-//                    case LeaMainTabAdapter.TAB_NOTIFS:
-//                        if (getNotificationListFragment() != null) {
-//                            getNotificationListFragment().updateLastSeenTime();
-//                            mTabLayout.showNoteBadge(false);
-//                        }
-//                        break;
-//                }
                 trackLastVisibleTab(position);
             }
 
@@ -135,33 +126,25 @@ public class LeaMainActivity extends Activity {
         });
 
         if (savedInstanceState == null) {
-            if (AccountHelper.isSignedIn()) {
+            if (AccountHelper.isSignedIn()) {//如果已登录
                 // open note detail if activity called from a push, otherwise return to the tab
                 // that was showing last time
-                boolean openedFromPush = (getIntent() != null && getIntent().getBooleanExtra(ARG_OPENED_FROM_PUSH,
-                        false));
-
+                boolean openedFromPush = (getIntent() != null
+                        && getIntent().getBooleanExtra(ARG_OPENED_FROM_PUSH, false));
                 if (openedFromPush) {
                     getIntent().putExtra(ARG_OPENED_FROM_PUSH, false);
                     //launchWithNoteId();
                 } else {
                     int position = AppPrefs.getMainTabIndex();
-                    if (mTabAdapter.isValidPosition(position) && position != mViewPager.getCurrentItem()) {
+                    if (mTabAdapter.isValidPosition(position)
+                            && position != mViewPager.getCurrentItem()) {
                         mViewPager.setCurrentItem(position);
                     }
                 }
-            } else {
+            } else {//未登录,则显示登录界面
                 ActivityLauncher.showSignInForResult(this);
             }
         }
-//        if (AccountUtils.isSignedIn()) {
-//
-//
-//        } else {
-//            ActivityLauncher.showSignInForResult(this);
-//        }
-
-        //ActivityLauncher.showSignInForResult(this);
     }
 
     @Override
@@ -191,7 +174,7 @@ public class LeaMainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        Leanote app = (Leanote)this.getApplicationContext();
+        Leanote app = (Leanote) this.getApplicationContext();
         app.setCurrentActivity(this);
     }
 
@@ -264,7 +247,6 @@ public class LeaMainActivity extends Activity {
     public void onEventMainThread(CoreEvents.UserSignedOutWordPressCom event) {
         resetFragments();
     }
-
 
 
 }

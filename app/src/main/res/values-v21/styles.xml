@@ -6,24 +6,24 @@
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
         <item name="colorAccent">@color/color_accent</item>
-        <!--<item name="colorControlActivated">@color/color_control_activated</item>-->
-        <!--<item name="colorControlHighlight">@color/color_control_highlight</item>-->
+        <item name="colorControlActivated">@color/color_control_activated</item>
+        <item name="colorControlHighlight">@color/color_control_highlight</item>
 
-        <!--<item name="android:windowBackground">@color/grey_lighten_30</item>-->
-        <!--<item name="android:actionBarItemBackground">@drawable/selectable_background_leanote</item>-->
-        <!--<item name="android:popupMenuStyle">@style/PopupMenu.Leanote</item>-->
-        <!--<item name="android:dropDownListViewStyle">@style/DropDownListView.Light.Leanote</item>-->
-        <!--<item name="android:actionDropDownStyle">@style/DropDownNav.Leanote</item>-->
-        <!--<item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Leanote</item>-->
-        <!--<item name="android:actionModeBackground">@color/color_primary_dark</item>-->
-        <!--<item name="android:actionBarTabTextStyle">@style/TabTextStyle.Leanote</item>-->
-        <!--<item name="android:actionBarTabBarStyle">@style/TabBarStyle.Leanote</item>-->
-        <!--<item name="windowActionModeOverlay">true</item>-->
+        <item name="android:windowBackground">@color/grey_lighten_30</item>
+        <item name="android:actionBarItemBackground">@drawable/selectable_background_leanote</item>
+        <item name="android:popupMenuStyle">@style/PopupMenu.Leanote</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView.Light.Leanote</item>
+        <item name="android:actionDropDownStyle">@style/DropDownNav.Leanote</item>
+        <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Leanote</item>
+        <item name="android:actionModeBackground">@color/color_primary_dark</item>
+        <item name="android:actionBarTabTextStyle">@style/TabTextStyle.Leanote</item>
+        <item name="android:actionBarTabBarStyle">@style/TabBarStyle.Leanote</item>
+        <item name="windowActionModeOverlay">true</item>
 
         <!-- Light.DarkActionBar specific -->
-        <!--<item name="android:actionBarWidgetTheme">@style/Theme.Leanote.Widget</item>-->
+        <item name="android:actionBarWidgetTheme">@style/Theme.Leanote.Widget</item>
 
-        <!--<item name="swipeToRefreshStyle">@style/SwipeToRefresh</item>-->
+        <item name="swipeToRefreshStyle">@style/SwipeToRefresh</item>
 
     </style>
 
@@ -159,7 +159,7 @@
         <item name="android:layout_marginBottom">8dp</item>
         <item name="android:clickable">true</item>
         <item name="android:background">@drawable/nux_primary_button_selector</item>
-        <!--<item name="android:stateListAnimator">@anim/raise</item>-->
+        <item name="android:stateListAnimator">@anim/raise</item>
     </style>
 
     <style name="Leanote.NUXFlatButton" parent="@android:style/TextAppearance">
@@ -169,9 +169,10 @@
         <item name="android:clickable">true</item>
     </style>
 
-    <style name="Leanote.NUXWhiteButtonNoBg" parent="@android:style/TextAppearance.Holo.Widget.TextView">
+
+    <style name="Leanote.NUXWhiteButtonNoBg" parent="@android:style/TextAppearance">
         <!--<item name="android:textColor">@drawable/nux_white_button_nobg_selector</item>-->
-        <!--<item name="android:padding">8dp</item>-->
+        <item name="android:padding">8dp</item>
         <item name="android:clickable">true</item>
     </style>
 
@@ -219,7 +220,7 @@
     <!--
         moderation views on comment detail
     -->
-    <style name="Leanote.ModerateButton">
+    <style name="Leanote.ModerateButton" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/grey</item>
         <item name="android:textSize">@dimen/text_sz_small</item>
         <item name="android:singleLine">true</item>
@@ -368,13 +369,11 @@
         <item name="android:textColor">@color/image_options_label</item>
         <item name="android:textStyle">bold</item>
         <item name="android:paddingLeft">@dimen/image_settings_dialog_label_indent</item>
-        <item name="android:layout_marginBottom">@dimen/image_settings_dialog_label_margin_bottom
-        </item>
+        <item name="android:layout_marginBottom">@dimen/image_settings_dialog_label_margin_bottom</item>
     </style>
 
     <style name="ImageOptionsDialogInput">
-        <item name="android:layout_marginBottom">@dimen/image_settings_dialog_input_margin_bottom
-        </item>
+        <item name="android:layout_marginBottom">@dimen/image_settings_dialog_input_margin_bottom</item>
     </style>
 
 

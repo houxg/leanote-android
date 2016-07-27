@@ -11,7 +11,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -24,6 +23,7 @@ import com.leanote.android.util.EditTextUtils;
 import com.leanote.android.util.RegisterResult;
 import com.leanote.android.util.UserEmailUtils;
 import com.leanote.android.widget.LeaTextView;
+import com.leanote.android.widget.OpenSansEditText;
 import com.leanote.android.widget.PersistentEditTextHelper;
 
 import org.json.JSONObject;
@@ -36,8 +36,8 @@ import java.util.regex.Pattern;
  * Created by binnchx on 12/9/15.
  */
 public class NewUserFragment extends AbstractFragment implements TextWatcher {
-    private EditText mEmailTextField;
-    private EditText mPasswordTextField;
+    private OpenSansEditText mEmailTextField;
+    private OpenSansEditText mPasswordTextField;
     private LeaTextView mSignupButton;
     private LeaTextView mProgressTextSignIn;
     private RelativeLayout mProgressBarSignIn;
@@ -142,7 +142,6 @@ public class NewUserFragment extends AbstractFragment implements TextWatcher {
             return onDoneEvent(actionId, event);
         }
     };
-
 
     private void finishThisStuff(String username, String password) {
         final Activity activity = getActivity();
@@ -279,15 +278,13 @@ public class NewUserFragment extends AbstractFragment implements TextWatcher {
         mProgressTextSignIn = (LeaTextView) rootView.findViewById(R.id.nux_sign_in_progress_text);
         mProgressBarSignIn = (RelativeLayout) rootView.findViewById(R.id.nux_sign_in_progress_bar);
 
-        mEmailTextField = (EditText) rootView.findViewById(R.id.email_address);
+        mEmailTextField = (OpenSansEditText) rootView.findViewById(R.id.email_address);
         mEmailTextField.setText(UserEmailUtils.getPrimaryEmail(getActivity()));
         mEmailTextField.setSelection(EditTextUtils.getText(mEmailTextField).length());
-        mPasswordTextField = (EditText) rootView.findViewById(R.id.password);
+        mPasswordTextField = (OpenSansEditText) rootView.findViewById(R.id.password);
 
         mEmailTextField.addTextChangedListener(this);
         mPasswordTextField.addTextChangedListener(this);
-
-
 
         mEmailTextField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             public void onFocusChange(View v, boolean hasFocus) {

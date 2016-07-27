@@ -26,10 +26,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.leanote.android.R;
-import com.leanote.android.accounts.helpers.LoginAbstract;
-import com.leanote.android.accounts.helpers.LoginLeanote;
-import com.leanote.android.accounts.helpers.LoginSelfHost;
+import com.leanote.android.model.Account;
+import com.leanote.android.model.AccountHelper;
 import com.leanote.android.networking.NetworkUtils;
+import com.leanote.android.networking.retrofit.RetrofitUtil;
+import com.leanote.android.networking.retrofit.imp.ImpLogin;
+import com.leanote.android.networking.retrofit.imp.RetrofitService;
 import com.leanote.android.ui.accounts.NewAccountActivity;
 import com.leanote.android.util.ABTestingUtils;
 import com.leanote.android.util.AppLog;
@@ -41,6 +43,8 @@ import com.leanote.android.widget.OpenSansEditText;
 import org.apache.commons.lang.StringUtils;
 import org.wordpress.emailchecker.EmailChecker;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -107,9 +111,9 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         mPasswordEditText.setError(null);
         mUsernameEditText.setError(null);
         mUrlEditText.setError(null);
-
     }
 
+    //判断账号密码不为空
     private boolean fieldsFilled() {
         boolean usernamePass = EditTextUtils.getText(mUsernameEditText).trim().length() > 0
                 && EditTextUtils.getText(mPasswordEditText).trim().length() > 0;
@@ -119,7 +123,6 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
             return usernamePass && EditTextUtils.getText(mUrlEditText).trim().length() > 0;
         }
     }
-
 
     @Override
     public void afterTextChanged(Editable s) {
@@ -131,11 +134,10 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         mEmailChecker = new EmailChecker();
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_sign_in, null);
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_sign_in, container, false);
 
         mUrlButtonLayout = (RelativeLayout) rootView.findViewById(R.id.url_button_layout);
         //mTwoStepLayout = (RelativeLayout) rootView.findViewById(R.id.two_factor_layout);
@@ -157,7 +159,6 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         mUrlEditText = (OpenSansEditText) rootView.findViewById(R.id.nux_url);
         mUrlEditText.addTextChangedListener(this);
         mUrlEditText.setOnClickListener(mOnLoginFormClickListener);
-
 
         mSignInButton = (LeaTextView) rootView.findViewById(R.id.nux_sign_in_button);
         mSignInButton.setOnClickListener(mSignInClickListener);
@@ -188,7 +189,7 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         mUsernameEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
-                    autocorrectUsername();
+                    autoCorrectUsername();
                 }
             }
         });
@@ -205,6 +206,7 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         return rootView;
     }
 
+    @Override
     protected void onDoneAction() {
         signIn();
     }
@@ -337,7 +339,6 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         if (mSelfHosted) {
             mHostUrl = EditTextUtils.getText(mUrlEditText).trim();
         }
-
         startProgress(getString(R.string.connecting_wpcom));
         signInServer();
 
@@ -345,34 +346,51 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
 
     //登录到服务器
     private void signInServer() {
-        LoginAbstract login;
+        String loginUrl;
         AppLog.i("isself:" + mSelfHosted);
         if (mSelfHosted) {
-            login = new LoginSelfHost(mUsername, mPassword, mHostUrl);
-        } else {
-            login = new LoginLeanote(mUsername, mPassword);
-        }
-
-        login.execute(new LoginAbstract.Callback() {
-            @Override
-            public void onSuccess() {
-                XLog.e(XLog.getTag(), XLog.TAG_GU + "login success");
-                finishCurrentActivity();
+            loginUrl = mHostUrl;
+            if (!TextUtils.isEmpty(loginUrl) && !loginUrl.endsWith("/")) {
+                loginUrl = loginUrl + "/";
             }
-
-            @Override
-            public void onError() {
-                getActivity().runOnUiThread(new Runnable() {
+        } else {
+            loginUrl = RetrofitService.BASE_URL;
+        }
+        XLog.e(XLog.getTag(), XLog.TAG_GU + loginUrl);
+        XLog.e(XLog.getTag(), XLog.TAG_GU + mUsername);
+        XLog.e(XLog.getTag(), XLog.TAG_GU + mPassword);
+        Map<String, String> map = new HashMap<>();
+        map.put("email", mUsername);
+        map.put("pwd", mPassword);
+        RetrofitUtil.getInstance()
+                .setBaseUrl(loginUrl)
+                .setTimeout(10000)
+                .build()
+                .login(map, new ImpLogin() {
                     @Override
-                    public void run() {
+                    public void onSuccess(Account account) {
+                        XLog.e(XLog.getTag(), XLog.TAG_GU + account.toString());
+                        if (account.isOk()) {
+                            AccountHelper.getInstance().setAccount(account);
+                            XLog.e(XLog.getTag(), XLog.TAG_GU + "login success");
+                            finishCurrentActivity();
+                        } else {
+                            XLog.e(XLog.getTag(), XLog.TAG_GU + account.getMsg());
+                            signInError(R.string.username_or_password_incorrect, "client response");
+                            endProgress();
+                        }
+                    }
+
+                    @Override
+                    public void onFail() {
                         signInError(R.string.username_or_password_incorrect, "client response");
                         endProgress();
                     }
                 });
-            }
-        });
+
     }
 
+    //结束加载框
     protected void endProgress() {
         mProgressBarSignIn.setVisibility(View.GONE);
         mProgressTextSignIn.setVisibility(View.GONE);
@@ -399,6 +417,7 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         });
     }
 
+    //登陆错误提示
     protected void signInError(int messageId, String clientResponse) {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         SignInDialogFragment nuxAlert;
@@ -436,6 +455,7 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         endProgress();
     }
 
+    //显示登录不成功的提示
     protected void showInvalidUsernameOrPasswordDialog() {
         // Show a dialog
         FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -593,6 +613,7 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         }
     }
 
+    //忘记密码操作
     private final View.OnClickListener mForgotPasswordListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -601,13 +622,13 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         }
     };
 
+    //获取忘记密码的地址
     private String getForgotPasswordURL() {
         String baseUrl = DOT_COM_BASE_URL;
         return baseUrl + FORGOT_PASSWORD_RELATIVE_URL;
     }
 
-
-    private void autocorrectUsername() {
+    private void autoCorrectUsername() {
         if (mEmailAutoCorrected) {
             return;
         }
@@ -626,6 +647,5 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
             mUsernameEditText.setSelection(suggest.length());
         }
     }
-
 
 }
