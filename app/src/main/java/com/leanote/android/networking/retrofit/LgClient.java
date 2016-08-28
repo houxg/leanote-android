@@ -1,6 +1,7 @@
 package com.leanote.android.networking.retrofit;
 
 
+import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.leanote.android.networking.retrofit.imp.RetrofitService;
 
 import java.util.HashMap;
@@ -116,6 +117,7 @@ public class LgClient {
 
         public LgClient build() {
             if (okBuilder != null) {
+                okBuilder.addNetworkInterceptor(new StethoInterceptor());
                 client = okBuilder.build();
             }
             if (retrofitBuilder == null) {
