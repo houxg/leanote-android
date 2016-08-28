@@ -7,11 +7,12 @@ import android.os.Build;
 import android.webkit.WebView;
 
 import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
+import com.facebook.stetho.Stetho;
 import com.google.android.gcm.GCMRegistrar;
-import com.leanote.android.db.LeanoteDB;
 import com.leanote.android.model.AccountHelper;
-import com.leanote.android.networking.retrofit.RetrofitUtil;
 import com.leanote.android.networking.SelfSignedSSLCertsManager;
+import com.leanote.android.networking.retrofit.RetrofitUtil;
 import com.leanote.android.ui.AppPrefs;
 import com.leanote.android.util.AppLog;
 import com.leanote.android.util.BitmapLruCache;
@@ -90,6 +91,7 @@ public class Leanote extends Application {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
+        Stetho.initializeWithDefaults(this);
 
     }
 
