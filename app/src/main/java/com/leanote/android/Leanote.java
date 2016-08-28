@@ -75,6 +75,8 @@ public class Leanote extends Application {
                 .installDefaultEventBus();
         EventBus.getDefault().register(this);
 
+        requestQueue = Volley.newRequestQueue(this);
+
         imageLoader = ImageLoader.getInstance();
 
         mRetrofitUtil = RetrofitUtil.getInstance();
