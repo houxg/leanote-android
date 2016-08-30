@@ -66,7 +66,6 @@ public class LeanoteDbManager {
                 mDb.endTransaction();
             }
         }
-        mDb.close();
     }
 
     public synchronized NoteDetailList getNotesList(String userId) {
