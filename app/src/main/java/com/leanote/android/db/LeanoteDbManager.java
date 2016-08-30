@@ -81,7 +81,6 @@ public class LeanoteDbManager {
             return listPosts;
         } finally {
             SqlUtils.closeCursor(c);
-            mDb.close();
         }
     }
 
@@ -99,7 +98,6 @@ public class LeanoteDbManager {
             return noteIds;
         } finally {
             SqlUtils.closeCursor(c);
-            mDb.close();
         }
     }
 
@@ -116,7 +114,6 @@ public class LeanoteDbManager {
             return detail;
         } finally {
             SqlUtils.closeCursor(c);
-            mDb.close();
         }
     }
 
@@ -193,7 +190,6 @@ public class LeanoteDbManager {
             AppLog.i("insert new media:" + values);
             mDb.insert(LeanoteDB.MEDIA_TABLE, null, values);
         }
-        mDb.close();
     }
 
     public synchronized void saveNoteContent(String noteId, String content) {
@@ -204,7 +200,6 @@ public class LeanoteDbManager {
         ContentValues values = new ContentValues();
         values.put("content", content);
         mDb.update(LeanoteDB.NOTES_TABLE, values, "noteId=?", new String[]{noteId});
-        mDb.close();
     }
 
     public synchronized long addNote(NoteInfo newNote) {
@@ -219,7 +214,6 @@ public class LeanoteDbManager {
         if (result > 0) {
             newNote.setId(result);
         }
-        mDb.close();
         return result;
     }
 
@@ -227,14 +221,12 @@ public class LeanoteDbManager {
         mDb = mLeanoteDB.getWritableDatabase();
         ContentValues values = getContentValuesFromNote(note);
         mDb.update(LeanoteDB.NOTES_TABLE, values, "id=?", new String[]{String.valueOf(note.getId())});
-        mDb.close();
     }
 
     public synchronized void updateNoteByNoteId(NoteInfo note) {
         mDb = mLeanoteDB.getWritableDatabase();
         ContentValues values = getContentValuesFromNote(note);
         mDb.update(LeanoteDB.NOTES_TABLE, values, "noteId=?", new String[]{note.getNoteId()});
-        mDb.close();
     }
 
     private ContentValues getContentValuesFromNote(NoteInfo note) {
@@ -274,7 +266,6 @@ public class LeanoteDbManager {
             return detail;
         } finally {
             SqlUtils.closeCursor(c);
-            mDb.close();
         }
     }
 
@@ -289,7 +280,6 @@ public class LeanoteDbManager {
             return notebookTitles;
         } finally {
             SqlUtils.closeCursor(c);
-            mDb.close();
         }
     }
 
@@ -297,35 +287,30 @@ public class LeanoteDbManager {
         mDb = mLeanoteDB.getWritableDatabase();
         String sql = "delete from notes where id='" + id + "'";
         mDb.execSQL(sql);
-        mDb.close();
     }
 
     public synchronized void deleteNoteByNoteId(String noteId) {
         mDb = mLeanoteDB.getWritableDatabase();
         String sql = "delete from notes where noteId='" + noteId + "'";
         mDb.execSQL(sql);
-        mDb.close();
     }
 
     public synchronized void deleteNoteInLocal(String noteId) {
         mDb = mLeanoteDB.getWritableDatabase();
         String sql = "update notes set isDeleted = 1 and is_dirty = 1 where noteId='" + noteId + "'";
         mDb.execSQL(sql);
-        mDb.close();
     }
 
     public synchronized void deleteNotebook(String notebookId) {
         mDb = mLeanoteDB.getWritableDatabase();
         String sql = "delete from notebooks where notebookId='" + notebookId + "'";
         mDb.execSQL(sql);
-        mDb.close();
     }
 
     public synchronized void deletenotebookInLocal(long id) {
         mDb = mLeanoteDB.getWritableDatabase();
         String sql = "delete from notebooks where id = " + id;
         mDb.execSQL(sql);
-        mDb.close();
     }
 
     public synchronized List<String> getLocalNotebookIds(String userId) {
@@ -340,7 +325,6 @@ public class LeanoteDbManager {
             return notebookIds;
         } finally {
             SqlUtils.closeCursor(c);
-            mDb.close();
         }
     }
 
@@ -365,7 +349,6 @@ public class LeanoteDbManager {
 //            mDb.update(NOTEBOOKS_TABLE, values, "notebookId=?", new String[]{serverNotebook.getNotebookId()});
 //        }
         mDb.update(LeanoteDB.NOTEBOOKS_TABLE, values, "id=?", new String[]{String.valueOf(serverNotebook.getId())});
-        mDb.close();
     }
 
     public synchronized NotebookInfo getLocalNotebookByNotebookId(String notebookId) {
@@ -382,7 +365,6 @@ public class LeanoteDbManager {
             return notebook;
         } finally {
             SqlUtils.closeCursor(c);
-            mDb.close();
         }
     }
 
@@ -410,7 +392,6 @@ public class LeanoteDbManager {
                 mDb.setTransactionSuccessful();
             } finally {
                 mDb.endTransaction();
-                mDb.close();
             }
         }
     }
@@ -419,7 +400,6 @@ public class LeanoteDbManager {
         mDb = mLeanoteDB.getWritableDatabase();
         String sql = "update accounts set usn = " + usn + " where user_id = '" + userId + "'";
         mDb.execSQL(sql);
-        mDb.close();
     }
 
     public synchronized void dangerouslyDeleteAllContent() {
@@ -430,7 +410,6 @@ public class LeanoteDbManager {
         mDb.delete(LeanoteDB.NOTES_TABLE, null, null);
         mDb.delete(LeanoteDB.NOTEBOOKS_TABLE, null, null);
         mDb.delete(LeanoteDB.MEDIA_TABLE, null, null);
-        mDb.close();
     }
 
     public synchronized void publicNote(String noteId, boolean isPublic) {
@@ -438,7 +417,6 @@ public class LeanoteDbManager {
         int publicNote = isPublic ? 1 : 0;
         String sql = "update notes set isBlog = " + publicNote + " where noteId = '" + noteId + "'";
         mDb.execSQL(sql);
-        mDb.close();
     }
 
     public synchronized void updateMarkdown(boolean useMarkdown, String userId) {
@@ -446,7 +424,6 @@ public class LeanoteDbManager {
         int mkd = useMarkdown ? 1 : 0;
         String sql = "update accounts set isMarkDown = " + mkd + " where local_id = 0 and user_id='" + userId + "'";
         mDb.execSQL(sql);
-        mDb.close();
     }
 
     public synchronized List<String> getNoteisBlogIds() {
@@ -463,7 +440,6 @@ public class LeanoteDbManager {
             return notebookIds;
         } finally {
             SqlUtils.closeCursor(c);
-            mDb.close();
         }
     }
 
@@ -490,7 +466,6 @@ public class LeanoteDbManager {
             return listPosts;
         } finally {
             SqlUtils.closeCursor(c);
-            mDb.close();
         }
     }
 
@@ -506,7 +481,6 @@ public class LeanoteDbManager {
             return notebooks;
         } finally {
             SqlUtils.closeCursor(c);
-            mDb.close();
         }
 
     }
@@ -540,7 +514,6 @@ public class LeanoteDbManager {
         } else {
             mDb.update(LeanoteDB.NOTES_TABLE, values, "noteId=?", new String[]{note.getNoteId()});
         }
-        mDb.close();
     }
 
     public synchronized List<NoteInfo> getDirtyNotes() {
@@ -558,7 +531,6 @@ public class LeanoteDbManager {
             return notes;
         } finally {
             SqlUtils.closeCursor(c);
-            mDb.close();
         }
 
     }
@@ -586,7 +558,6 @@ public class LeanoteDbManager {
             return notebooks;
         } finally {
             SqlUtils.closeCursor(c);
-            mDb.close();
         }
     }
 
@@ -600,7 +571,6 @@ public class LeanoteDbManager {
         if (result > 0) {
             newNotebook.setId(result);
         }
-        mDb.close();
         return result;
     }
 
@@ -617,7 +587,6 @@ public class LeanoteDbManager {
             return notebook;
         } finally {
             SqlUtils.closeCursor(c);
-            mDb.close();
         }
     }
 
@@ -634,8 +603,7 @@ public class LeanoteDbManager {
                 return null;
             }
         } finally {
-            c.close();
-            mDb.close();
+            SqlUtils.closeCursor(c);
         }
     }
 
@@ -672,8 +640,7 @@ public class LeanoteDbManager {
                 return null;
             }
         } finally {
-            c.close();
-            mDb.close();
+            SqlUtils.closeCursor(c);
         }
     }
 
@@ -683,7 +650,6 @@ public class LeanoteDbManager {
         values.put("usn", usn);
         values.put("is_dirty", 0);
         mDb.update(LeanoteDB.NOTES_TABLE, values, "noteId=?", new String[]{noteId});
-        mDb.close();
     }
 
     public synchronized void updateAccountUsn(int serverUsn, String userId) {
@@ -691,7 +657,6 @@ public class LeanoteDbManager {
         ContentValues values = new ContentValues();
         values.put("usn", serverUsn);
         mDb.update(LeanoteDB.ACCOUNT_TABLE, values, "user_id=?", new String[]{userId});
-        mDb.close();
     }
 
     public synchronized int getAccountUsn(String userId) {
@@ -703,7 +668,6 @@ public class LeanoteDbManager {
             }
         } finally {
             SqlUtils.closeCursor(c);
-            mDb.close();
         }
         return 0;
     }
@@ -719,8 +683,7 @@ public class LeanoteDbManager {
                 return null;
             }
         } finally {
-            c.close();
-            mDb.close();
+            SqlUtils.closeCursor(c);
         }
     }
 
@@ -728,7 +691,6 @@ public class LeanoteDbManager {
         mDb = mLeanoteDB.getWritableDatabase();
         String sql = "delete from media where noteId='" + noteId + "'";
         mDb.execSQL(sql);
-        mDb.close();
     }
 
     public synchronized void updateMedia(String localFileId, String serverFileId) {
@@ -737,7 +699,6 @@ public class LeanoteDbManager {
         values.put(LeanoteDB.COLUMN_NAME_MEDIA_ID, serverFileId);
 
         mDb.update(LeanoteDB.MEDIA_TABLE, values, "id=?", new String[]{localFileId});
-        mDb.close();
     }
 
     public synchronized MediaFile getMediaFileByFileId(String fileId) {
@@ -751,8 +712,7 @@ public class LeanoteDbManager {
                 return null;
             }
         } finally {
-            c.close();
-            mDb.close();
+            SqlUtils.closeCursor(c);
         }
     }
 
@@ -775,7 +735,6 @@ public class LeanoteDbManager {
             return notelist;
         } finally {
             SqlUtils.closeCursor(c);
-            mDb.close();
         }
     }
 
@@ -789,7 +748,6 @@ public class LeanoteDbManager {
             }
         } finally {
             SqlUtils.closeCursor(c);
-            mDb.close();
         }
         return null;
     }
@@ -832,7 +790,6 @@ public class LeanoteDbManager {
         values.put("host", account.getHost());
 
         mDb.insertWithOnConflict(LeanoteDB.ACCOUNT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-        mDb.close();
     }
 
 
