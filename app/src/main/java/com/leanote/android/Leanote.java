@@ -77,7 +77,7 @@ public class Leanote extends Application {
                 .installDefaultEventBus();
         EventBus.getDefault().register(this);
 
-        requestQueue = Volley.newRequestQueue(this, new OkHttp3Stack());
+        requestQueue = Volley.newRequestQueue(this, new OkHttp3Stack(true));
 
         imageLoader = ImageLoader.getInstance();
 
