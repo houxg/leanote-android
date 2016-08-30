@@ -11,6 +11,7 @@ import com.android.volley.toolbox.Volley;
 import com.facebook.stetho.Stetho;
 import com.google.android.gcm.GCMRegistrar;
 import com.leanote.android.model.AccountHelper;
+import com.leanote.android.networking.OkHttp3Stack;
 import com.leanote.android.networking.SelfSignedSSLCertsManager;
 import com.leanote.android.networking.retrofit.RetrofitUtil;
 import com.leanote.android.ui.AppPrefs;
@@ -76,7 +77,7 @@ public class Leanote extends Application {
                 .installDefaultEventBus();
         EventBus.getDefault().register(this);
 
-        requestQueue = Volley.newRequestQueue(this);
+        requestQueue = Volley.newRequestQueue(this, new OkHttp3Stack());
 
         imageLoader = ImageLoader.getInstance();
 

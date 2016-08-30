@@ -7,6 +7,7 @@ package com.leanote.android.networking;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.toolbox.HttpStack;
+import com.facebook.stetho.okhttp3.StethoInterceptor;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -59,6 +60,7 @@ public class OkHttp3Stack implements HttpStack {
         } else {
             clientBuilder = new OkHttpClient.Builder();
         }
+        clientBuilder.addNetworkInterceptor(new StethoInterceptor());
     }
 
     private static HttpEntity entityFromOkHttpResponse(Response response) throws IOException {
