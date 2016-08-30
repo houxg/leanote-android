@@ -72,6 +72,8 @@ android {
 //        }
     }
 
+    useLibrary 'org.apache.http.legacy'
+
 }
 
 dependencies {
@@ -92,7 +94,6 @@ dependencies {
     compile 'commons-lang:commons-lang:2.6'
     compile 'de.greenrobot:eventbus:2.4.0'
     compile 'com.automattic:rest:1.0.2'
-    compile 'com.loopj.android:android-async-http:1.4.9'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     compile 'org.mongodb:mongo-java-driver:2.12.4'
     compile 'jp.wasabeef:richeditor-android:1.2.0'
