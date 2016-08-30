@@ -132,7 +132,8 @@ public class AccountModel {
     }
 
     public String getHost() {
-        return host;
+        return "https://leanote.com";
+//        return host;
     }
 
     public void setHost(String host) {
