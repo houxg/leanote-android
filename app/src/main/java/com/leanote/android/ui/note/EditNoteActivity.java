@@ -616,7 +616,7 @@ public class EditNoteActivity extends AppCompatActivity
         if (note == null) {
             return;
         }
-        String title = com.leanote.android.util.StringUtils.notNullStr((String) mEditorFragment.getTitle());
+        String title = StringUtils.notNullStr((String) mEditorFragment.getTitle());
         note.setTitle(title);
 
         AppLog.i("orginal content:" + note.getContent() + "---end");
