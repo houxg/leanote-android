@@ -482,7 +482,7 @@ public class EditNoteActivity extends AppCompatActivity
         if (note != null) {
             if (!TextUtils.isEmpty(note.getContent()) && !mHasSetNoteContent) {
                 mHasSetNoteContent = true;
-                if (!mIsNewNote && org.apache.commons.lang.StringUtils.isEmpty(note.getContent())) {
+                if (!mIsNewNote && TextUtils.isEmpty(note.getContent())) {
                     // Load local post content in the background, as it may take time to generate images
                     new LoadNoteContentTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
