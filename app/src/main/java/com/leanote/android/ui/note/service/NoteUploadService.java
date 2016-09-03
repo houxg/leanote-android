@@ -311,14 +311,12 @@ public class NoteUploadService extends Service {
 
         String content = mNote.getContent();
         contentStruct.put("title", mNote.getTitle());
-        contentStruct.put("NoteId", mNote.getNoteId());
         contentStruct.put("IsBlog", mNote.isPublicBlog());
         contentStruct.put("IsMarkdown", mNote.isMarkDown());
         //content = content.replaceAll("\uFFFC", "");
         contentStruct.put("Content", content);
         contentStruct.put("NotebookId", mNote.getNoteBookId());
-        contentStruct.put("CreatedTime", mNote.getCreatedTime());
-        contentStruct.put("UpdatedTime", mNote.getUpdatedTime());
+
         String tags = mNote.getTags();
         if (!TextUtils.isEmpty(tags)) {
             String[] tagArray = tags.split(",");
