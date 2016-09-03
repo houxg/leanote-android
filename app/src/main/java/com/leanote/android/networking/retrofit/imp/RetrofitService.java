@@ -6,6 +6,7 @@ import com.leanote.android.networking.retrofit.bean.SuccessBean;
 
 import java.util.Map;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
@@ -45,7 +46,7 @@ public interface RetrofitService {
      */
     @FormUrlEncoded
     @POST("api/note/{url}")
-    Call<String> uploadNoteToServer(@Path("url") String url, @FieldMap Map<String, Object> map);
 
 
+    Call<ResponseBody> uploadNoteToServer(@Path("url") String url, @FieldMap Map<String, Object> map);
 }

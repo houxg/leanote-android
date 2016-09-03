@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -181,9 +182,9 @@ public class RetrofitUtil {
      * @return
      */
     public String uploadNoteToServer(String url, Map<String, Object> map) {
-        Call<String> call = sRetrofitService.uploadNoteToServer(url, map);
+        Call<ResponseBody> call = sRetrofitService.uploadNoteToServer(url, map);
         try {
-            return call.execute().body();
+            return call.execute().body().string();
         } catch (IOException e) {
             e.printStackTrace();
         }
