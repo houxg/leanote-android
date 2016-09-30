@@ -66,7 +66,6 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/email"
                     android:inputType="textEmailAddress"
-                    android:text="yuchuangu85@outlook.com"
                     app:persistenceEnabled="true"/>
 
                 <ImageView
@@ -98,8 +97,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginRight="38dp"
                     android:hint="@string/password"
-                    android:inputType="textPassword"
-                    android:text="Gyc.198557"/>
+                    android:inputType="textPassword" />
 
                 <ImageView
                     android:id="@+id/imageView4"
