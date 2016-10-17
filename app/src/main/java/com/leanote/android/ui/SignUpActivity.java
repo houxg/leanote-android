@@ -18,6 +18,7 @@ import com.leanote.android.networking.retrofit.imp.ImpRegister;
 import com.leanote.android.util.AlertUtils;
 import com.leanote.android.util.EditTextUtils;
 import com.leanote.android.util.UserEmailUtils;
+import com.leanote.android.util.Validator;
 import com.leanote.android.widget.LeaTextView;
 import com.leanote.android.widget.OpenSansEditText;
 import com.leanote.android.widget.PersistentEditTextHelper;
@@ -165,7 +166,7 @@ public class SignUpActivity extends LeaAbstractActivity implements TextWatcher {
     }
 
     protected boolean specificShowError(int messageId) {
-        switch (getErrorType(messageId)) {
+        switch (Validator.getErrorType(messageId)) {
             case PASSWORD:
                 showPasswordError(messageId);
                 return true;
