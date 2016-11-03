@@ -20,6 +20,8 @@ import com.leanote.android.util.BitmapLruCache;
 import com.leanote.android.util.CoreEvents;
 import com.leanote.android.util.PackageUtils;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.raizlabs.android.dbflow.config.FlowConfig;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.wordpress.rest.RestRequest;
 
 import java.io.IOException;
@@ -93,7 +95,7 @@ public class Leanote extends Application {
             WebView.setWebContentsDebuggingEnabled(true);
         }
         Stetho.initializeWithDefaults(this);
-
+        FlowManager.init(new FlowConfig.Builder(this).build());
     }
 
     public static List<String> getDownloadingFileUrls() {

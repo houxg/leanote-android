@@ -1,82 +1,62 @@
 package com.leanote.android.model;
 
+import android.util.Log;
+
 import com.google.gson.annotations.SerializedName;
 import com.leanote.android.db.AppDataBase;
-import com.leanote.android.util.AppLog;
+import com.leanote.android.networking.retrofitapi.model.BaseResponse;
 import com.leanote.android.util.StringUtils;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.structure.BaseModel;
 
-import java.io.Serializable;
+import java.util.List;
 
-/**
- * Created by binnchx on 10/18/15.
- */
-@Table(name = "Notes", database = AppDataBase.class)
-public class NoteInfo extends BaseModel implements Serializable {
+@Table(name = "Note", database = AppDataBase.class)
+public class Note extends BaseResponse {
 
-    @SerializedName("Ok")
-    boolean isOk = true;
-    @SerializedName("Msg")
-    String msg;
+    private static final String TAG = "Note";
 
-    @Column(name = "noteId")
-    @SerializedName("NoteId")
-    String noteId;
-    @Column(name = "notebookId")
-    @SerializedName("NotebookId")
-    String noteBookId;
-    @Column(name = "userId")
-    @SerializedName("UserId")
-    String userId;
-    @Column(name = "title")
-    @SerializedName("Title")
-    String title;
-    @Column(name = "tags")
-    @SerializedName("Tags")
-    String tags;
-    @Column(name = "content")
-    @SerializedName("Content")
-    String content;
-    @Column(name = "isMarkDown")
-    @SerializedName("IsMarkdown")
-    boolean isMarkDown;
-    @Column(name = "isTrash")
-    @SerializedName("IsTrash")
-    boolean isTrash;
-    @Column(name = "isBlog")
-    @SerializedName("IsBlog")
-    boolean isPublicBlog;
-    @Column(name = "createdTime")
-    @SerializedName("CreatedTime")
-    String createdTime;
-    @Column(name = "updatedTime")
-    @SerializedName("UpdatedTime")
-    String updatedTime;
-    @Column(name = "publicTime")
-    @SerializedName("PublicTime")
-    String publicTime;
-    @Column(name = "usn")
-    @SerializedName("Usn")
-    int usn;
-
-    @Column(name = "id")
+    @Column(name = "localId")
     @PrimaryKey(autoincrement = true)
-    Long id;
+    Long localId;
     Long localNotebookId;
-    @Column(name = "desc")
     String desc;
-    @Column(name = "noteAbstract")
     String noteAbstract;
     String fileIds;
     boolean isDeleted;
-    @Column(name = "isDirty")
     boolean isDirty;
-    @Column(name = "isUploading")
     boolean isUploading;
     boolean uploadSucc = true;
+
+    @SerializedName("NoteId")
+    String noteId;
+    @SerializedName("NotebookId")
+    String noteBookId;
+    @SerializedName("UserId")
+    String userId;
+    @SerializedName("Title")
+    String title;
+    @SerializedName("Tags")
+    String[] tags;
+    @SerializedName("Content")
+    String content;
+    @SerializedName("IsMarkdown")
+    boolean isMarkDown;
+    @SerializedName("IsTrash")
+    boolean isDeletedOnServer;
+    @SerializedName("IsBlog")
+    boolean isPublicBlog;
+    @SerializedName("CreatedTime")
+    String createdTime;
+    @SerializedName("UpdatedTime")
+    String updatedTime;
+    @SerializedName("PublicTime")
+    String publicTime;
+    @SerializedName("Usn")
+    int usn;
+    @SerializedName("Files")
+    List<NoteFile> noteFiles;
 
     public String getCreatedTime() {
         return createdTime;
@@ -103,11 +83,11 @@ public class NoteInfo extends BaseModel implements Serializable {
     }
 
     public Long getId() {
-        return id;
+        return localId;
     }
 
     public void setId(Long id) {
-        this.id = id;
+        this.localId = id;
     }
 
     public String getNoteBookId() {
@@ -134,14 +114,20 @@ public class NoteInfo extends BaseModel implements Serializable {
         this.title = title;
     }
 
-    public String getTags() {
+    public String[] getTags() {
         return tags;
     }
 
-    public void setTags(String tags) {
+    public void setTags(String[] tags) {
         this.tags = tags;
     }
 
+    public List<NoteFile> getNoteFiles() {
+        if (noteFiles == null || noteFiles.isEmpty()) {
+
+        }
+        return noteFiles;
+    }
 
     public boolean isMarkDown() {
         return isMarkDown;
@@ -151,12 +137,12 @@ public class NoteInfo extends BaseModel implements Serializable {
         this.isMarkDown = isMarkDown;
     }
 
-    public boolean isTrash() {
-        return isTrash;
+    public boolean isDeletedOnServer() {
+        return isDeletedOnServer;
     }
 
     public void setIsTrash(boolean isTrash) {
-        this.isTrash = isTrash;
+        this.isDeletedOnServer = isTrash;
     }
 
     public int getUsn() {
@@ -186,7 +172,7 @@ public class NoteInfo extends BaseModel implements Serializable {
     @Override
     public String toString() {
         return "NoteInfo{" +
-                "id=" + id +
+                "id=" + localId +
                 ", noteId='" + noteId + '\'' +
                 ", noteBookId='" + noteBookId + '\'' +
                 ", userId='" + userId + '\'' +
@@ -197,7 +183,7 @@ public class NoteInfo extends BaseModel implements Serializable {
                 ", content='" + content + '\'' +
                 ", fileIds='" + fileIds + '\'' +
                 ", isMarkDown=" + isMarkDown +
-                ", isTrash=" + isTrash +
+                ", isTrash=" + isDeletedOnServer +
                 ", isDeleted=" + isDeleted +
                 ", isDirty=" + isDirty +
                 ", isPublicBlog=" + isPublicBlog +
@@ -208,21 +194,44 @@ public class NoteInfo extends BaseModel implements Serializable {
                 '}';
     }
 
-    public boolean hasChanges(NoteInfo otherNote) {
-
-        AppLog.i("title equals:" + !StringUtils.equals(title, otherNote.title));
-        AppLog.i("content equals:" + !StringUtils.equals(content, otherNote.content));
-        AppLog.i("notebookid equals:" + !(noteBookId.equals(otherNote.noteBookId)));
-        AppLog.i("isMarkDown equal:" + (isMarkDown != otherNote.isMarkDown));
-        AppLog.i("tags equals:" + !StringUtils.equals(tags, otherNote.tags));
-        AppLog.i("isblog equals:" + (isPublicBlog != otherNote.isPublicBlog));
+    public boolean hasChanges(Note otherNote) {
+        logDiff("title", title, otherNote.title);
+        logContentDiff(content, otherNote.content);
+        logDiff("notebookId", noteBookId, otherNote.noteBookId);
+        logDiff("isMarkdown", isMarkDown, otherNote.isMarkDown);
+        logDiff("tags", tags, otherNote.tags);
+        logDiff("isBlog", isPublicBlog, otherNote.isPublicBlog);
 
         return otherNote == null || !StringUtils.equals(title, otherNote.title)
                 || !StringUtils.equals(content, otherNote.content)
                 || !StringUtils.equals(noteBookId, otherNote.noteBookId)
                 || isMarkDown != otherNote.isMarkDown
-                || !StringUtils.equals(tags, otherNote.tags)
+//                || !StringUtils.equals(tags, otherNote.tags)
                 || isPublicBlog != otherNote.isPublicBlog;
+    }
+
+    private void logDiff(String name, Object oldObj, Object newObj) {
+        if (!oldObj.equals(newObj)) {
+            Log.i(TAG, String.format("%s changed, old=%s.", name, oldObj));
+            Log.i(TAG, String.format("%s changed, new=%s.", name, newObj));
+        }
+    }
+
+    private void logContentDiff(String oldContent, String newContent) {
+        if (oldContent.length() != newContent.length()) {
+            Log.i(TAG, "length has changed, old=" + oldContent.length() + ", new=" + newContent.length());
+        }
+
+        int minimum = Math.min(oldContent.length(), newContent.length());
+
+        for (int i = 0; i < minimum; i++) {
+            char oldChar = oldContent.charAt(i);
+            char newChar = newContent.charAt(i);
+            if (oldChar != newChar) {
+                Log.i(TAG, "not match from " + i);
+                break;
+            }
+        }
     }
 
     public boolean isPublicBlog() {
