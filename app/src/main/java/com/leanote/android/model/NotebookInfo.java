@@ -1,41 +1,60 @@
 package com.leanote.android.model;
 
 import com.google.gson.annotations.SerializedName;
+import com.leanote.android.db.AppDataBase;
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 
 /**
  * Created by binnchx on 11/1/15.
  */
-public class NotebookInfo {
+@Table(name = "Notebook", database = AppDataBase.class)
+public class NotebookInfo extends BaseModel {
 
     @SerializedName("Ok")
-    private boolean isOk = true;
+    boolean isOk = true;
     @SerializedName("Msg")
-    private String msg;
+    String msg;
 
-    private long id;
+    @Column(name = "id")
+    @PrimaryKey(autoincrement = true)
+    long id;
+    @Column(name = "notebookId")
     @SerializedName("NotebookId")
-    private String notebookId;
+    String notebookId;
+    @Column(name = "parentNotebookId")
     @SerializedName("ParentNotebookId")
-    private String parentNotebookId;
+    String parentNotebookId;
+    @Column(name = "userId")
     @SerializedName("UserId")
-    private String userId;
+    String userId;
+    @Column(name = "title")
     @SerializedName("Title")
-    private String title;
-    private String urlTitle;
+    String title;
+    String urlTitle;
+    @Column(name = "seq")
     @SerializedName("Seq")
-    private int seq;
+    int seq;
     @SerializedName("IsBlog")
-    private boolean isBlog;
+    boolean isBlog;
+    @Column(name = "createdTime")
     @SerializedName("CreatedTime")
-    private String createTime;
+    String createTime;
+    @Column(name = "updatedTime")
     @SerializedName("UpdatedTime")
-    private String updateTime;
-    private boolean isDirty;
+    String updateTime;
+    @Column(name = "isDirty")
+    boolean isDirty;
+    @Column(name = "isDeletedOnServer")
     @SerializedName("IsDeleted")
-    private boolean isDeleted;
-    private boolean isTrash;
-    @SerializedName("ParentNotebookId")
-    private int usn;
+    boolean isDeleted;
+    @Column(name = "isTrash")
+    boolean isTrash;
+    @Column(name = "usn")
+    @SerializedName("Usn")
+    int usn;
 
     public String getCreateTime() {
         return createTime;

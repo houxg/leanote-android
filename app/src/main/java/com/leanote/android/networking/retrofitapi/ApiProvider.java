@@ -77,4 +77,8 @@ public class ApiProvider {
         return mLeanoteRetrofit.create(UserApi.class);
     }
 
+    public NotebookApi getNotebookApi() {
+        return mLeanoteRetrofit.create(NotebookApi.class);
+    }
+
 }
