@@ -3,6 +3,7 @@ package com.leanote.android.model;
 import com.google.gson.annotations.SerializedName;
 import com.leanote.android.db.AppDataBase;
 import com.leanote.android.util.AppLog;
+import com.leanote.android.util.CollectionUtils;
 import com.leanote.android.util.StringUtils;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -10,6 +11,7 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by binnchx on 10/18/15.
@@ -35,15 +37,16 @@ public class NoteInfo extends BaseModel implements Serializable {
     @SerializedName("Title")
     String title;
     @Column(name = "tags")
-    @SerializedName("Tags")
     String tags;
+    @SerializedName("Tags")
+    List<String> tagData;
     @Column(name = "content")
     @SerializedName("Content")
     String content;
     @Column(name = "isMarkDown")
     @SerializedName("IsMarkdown")
     boolean isMarkDown;
-    @Column(name = "isTrash")
+    @Column(name = "IsDeletedOnServer")
     @SerializedName("IsTrash")
     boolean isTrash;
     @Column(name = "isBlog")
@@ -61,6 +64,9 @@ public class NoteInfo extends BaseModel implements Serializable {
     @Column(name = "usn")
     @SerializedName("Usn")
     int usn;
+
+    @SerializedName("Files")
+    List<NoteFile> noteFiles;
 
     @Column(name = "id")
     @PrimaryKey(autoincrement = true)
@@ -142,7 +148,6 @@ public class NoteInfo extends BaseModel implements Serializable {
         this.tags = tags;
     }
 
-
     public boolean isMarkDown() {
         return isMarkDown;
     }
@@ -181,6 +186,23 @@ public class NoteInfo extends BaseModel implements Serializable {
 
     public void setNoteId(String noteId) {
         this.noteId = noteId;
+    }
+
+    public void updateTags() {
+        if (CollectionUtils.isEmpty(tagData)) {
+            tags = "";
+            return;
+        }
+        StringBuilder tagBuilder = new StringBuilder();
+        int size = tagData.size();
+        int lastIndex = size - 1;
+        for (int i = 0; i < size; i++) {
+            tagBuilder.append(tagData.get(i));
+            if (i < lastIndex) {
+                tagBuilder.append(",");
+            }
+        }
+        tags = tagBuilder.toString();
     }
 
     @Override
