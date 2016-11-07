@@ -65,6 +65,7 @@ public class NoteInfo extends BaseModel implements Serializable {
     @SerializedName("Usn")
     int usn;
 
+    //TODO:handle files
     @SerializedName("Files")
     List<NoteFile> noteFiles;
 
@@ -317,5 +318,13 @@ public class NoteInfo extends BaseModel implements Serializable {
 
     public void setLocalNotebookId(Long localNotebookId) {
         this.localNotebookId = localNotebookId;
+    }
+
+    public boolean isOk() {
+        return isOk;
+    }
+
+    public String getMsg() {
+        return msg;
     }
 }

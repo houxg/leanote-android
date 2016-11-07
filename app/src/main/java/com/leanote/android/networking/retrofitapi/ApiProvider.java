@@ -12,7 +12,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 
 public class ApiProvider {
 
@@ -53,7 +52,6 @@ public class ApiProvider {
         mLeanoteRetrofit = new Retrofit.Builder()
                 .baseUrl("https://leanote.com/api/")
                 .client(client)
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .addConverterFactory(new LeaResponseConverterFactory())
                 .build();
     }
