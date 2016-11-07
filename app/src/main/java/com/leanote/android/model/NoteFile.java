@@ -105,4 +105,12 @@ public class NoteFile extends BaseModel {
     public void setIsAttach(boolean mIsAttach) {
         this.mIsAttach = mIsAttach;
     }
+
+    public boolean isDraft() {
+        return mIsDraft;
+    }
+
+    public void setIsDraft(boolean isDraft) {
+        this.mIsDraft = isDraft;
+    }
 }

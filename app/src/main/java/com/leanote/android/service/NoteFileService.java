@@ -5,11 +5,9 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.leanote.android.Leanote;
+import com.leanote.android.db.AppDataBase;
 import com.leanote.android.model.AccountHelper;
 import com.leanote.android.model.NoteFile;
-import com.leanote.android.model.NoteFile_Table;
-import com.leanote.android.util.CollectionUtils;
-import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import org.bson.types.ObjectId;
 
@@ -19,7 +17,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.List;
 import java.util.Locale;
 
 import okio.BufferedSource;
@@ -35,7 +32,7 @@ public class NoteFileService {
     private static final String IMAGE_PATH_WITH_SLASH = "/getImage";
 
     public static String convertFromServerIdToLocalId(String serverId) {
-        NoteFile noteFile = getNoteFileByServerId(serverId);
+        NoteFile noteFile = AppDataBase.getNoteFileByServerId(serverId);
         if (noteFile == null) {
             noteFile = new NoteFile();
             noteFile.setLocalId(new ObjectId().toString());
@@ -46,7 +43,7 @@ public class NoteFileService {
     }
 
     public static String convertFromLocalIdToServerId(String localId) {
-        NoteFile noteFile = getNoteFileByLocalId(localId);
+        NoteFile noteFile = AppDataBase.getNoteFileByLocalId(localId);
         return noteFile == null ? null : noteFile.getServerId();
     }
 
@@ -71,7 +68,7 @@ public class NoteFileService {
     }
 
     public static InputStream getImage(String localId) {
-        NoteFile noteFile = getNoteFileByLocalId(localId);
+        NoteFile noteFile = AppDataBase.getNoteFileByLocalId(localId);
         if (noteFile == null) {
             return null;
         }
@@ -100,29 +97,6 @@ public class NoteFileService {
             e.printStackTrace();
         }
         return inputStream;
-    }
-
-    public static List<NoteFile> getAllRelatedFile(String noteId) {
-        return SQLite.select()
-                .from(NoteFile.class)
-                .where(NoteFile_Table.noteId.eq(noteId))
-                .queryList();
-    }
-
-    private static NoteFile getNoteFileByLocalId(String localId) {
-        List<NoteFile> result = SQLite.select()
-                .from(NoteFile.class)
-                .where(NoteFile_Table.localId.eq(localId))
-                .queryList();
-        return CollectionUtils.isNotEmpty(result) ? result.get(0) : null;
-    }
-
-    private static NoteFile getNoteFileByServerId(String serverId) {
-        List<NoteFile> result = SQLite.select()
-                .from(NoteFile.class)
-                .where(NoteFile_Table.serverId.eq(serverId))
-                .queryList();
-        return CollectionUtils.isNotEmpty(result) ? result.get(0) : null;
     }
 
     private static String getImageFromServer(Uri targetUri, File parentDir) throws IOException {

@@ -5,10 +5,12 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import com.google.gson.Gson;
 import com.leanote.android.db.AppDataBase;
 import com.leanote.android.db.LeanoteDbManager;
 import com.leanote.android.model.AccountHelper;
 import com.leanote.android.model.NoteFile;
+import com.leanote.android.model.NoteFile_Table;
 import com.leanote.android.model.NoteInfo;
 import com.leanote.android.model.NotebookInfo;
 import com.leanote.android.model.UpdateRet;
@@ -16,6 +18,9 @@ import com.leanote.android.networking.retrofitapi.ApiProvider;
 import com.leanote.android.networking.retrofitapi.RetrofitUtils;
 import com.leanote.android.util.CollectionUtils;
 import com.leanote.android.util.StringUtils;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
+
+import org.bson.types.ObjectId;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -51,11 +56,11 @@ public class NoteService {
                     }
                     NoteInfo localNote = AppDataBase.getNoteByServerId(noteMeta.getNoteId());
                     //TODO: add convert to local protocol link
+                    handleFile(remoteNote);
                     if (localNote == null) {
                         Log.i(TAG, "note insert, usn=" + remoteNote.getUsn() + ", id=" + remoteNote.getNoteId());
                         remoteNote.insert();
                     } else {
-                        //FIXME: handle files
                         if (localNote.isDirty()) {
                             Log.w(TAG, "note conflict, usn=" + remoteNote.getUsn() + ", id=" + remoteNote.getNoteId());
                         } else {
@@ -104,6 +109,34 @@ public class NoteService {
         return true;
     }
 
+    private static void handleFile(NoteInfo noteInfo) {
+        List<NoteFile> remoteFiles = noteInfo.getNoteFiles();
+        Log.i(TAG, "file size=" + remoteFiles.size());
+        List<String> keepingIds = new ArrayList<>();
+        for (NoteFile remote : remoteFiles) {
+            NoteFile local = AppDataBase.getNoteFileByServerId(remote.getServerId());
+            if (local != null) {
+                Log.i(TAG, "has local file, id=" + remote.getServerId());
+                remote.setLocalId(local.getLocalId());
+                remote.setLocalPath(local.getLocalPath());
+            } else {
+                Log.i(TAG, "need to insert, id=" + remote.getServerId());
+                remote.setLocalId(new ObjectId().toString());
+            }
+            remote.setNoteId(noteInfo.getNoteId());
+            remote.setIsDraft(false);
+            remote.save();
+            keepingIds.add(remote.getLocalId());
+        }
+        Log.i(TAG, "delete exclude=" + new Gson().toJson(keepingIds));
+        SQLite.delete()
+                .from(NoteFile.class)
+                .where(NoteFile_Table.noteId.eq(noteInfo.getNoteId()))
+                .and(NoteFile_Table.localId.notIn(keepingIds))
+                .async()
+                .execute();
+    }
+
     public static Call<List<NoteInfo>> getSyncNotes(int afterUsn, int maxEntry) {
         return ApiProvider.getInstance().getNoteApi().getSyncNotes(afterUsn, maxEntry);
     }
@@ -131,7 +164,7 @@ public class NoteService {
         requestBodyMap.put("Title", createPartFromString(modified.getTitle()));
         requestBodyMap.put("Content", createPartFromString(modified.getContent()));
 
-        List<NoteFile> files = NoteFileService.getAllRelatedFile(noteId);
+        List<NoteFile> files = AppDataBase.getAllRelatedFile(noteId);
         if (CollectionUtils.isNotEmpty(files)) {
             int size = files.size();
             for (int index = 0; index < size; index++) {

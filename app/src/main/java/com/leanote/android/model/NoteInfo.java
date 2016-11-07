@@ -65,7 +65,6 @@ public class NoteInfo extends BaseModel implements Serializable {
     @SerializedName("Usn")
     int usn;
 
-    //TODO:handle files
     @SerializedName("Files")
     List<NoteFile> noteFiles;
 
@@ -204,6 +203,10 @@ public class NoteInfo extends BaseModel implements Serializable {
             }
         }
         tags = tagBuilder.toString();
+    }
+
+    public List<NoteFile> getNoteFiles() {
+        return noteFiles;
     }
 
     @Override

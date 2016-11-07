@@ -1,6 +1,8 @@
 package com.leanote.android.db;
 
 import com.leanote.android.model.NoteDetailList;
+import com.leanote.android.model.NoteFile;
+import com.leanote.android.model.NoteFile_Table;
 import com.leanote.android.model.NoteInfo;
 import com.leanote.android.model.NoteInfo_Table;
 import com.leanote.android.model.NotebookInfo;
@@ -45,7 +47,7 @@ public class AppDataBase {
     }
 
     public static NoteDetailList getNotesFromNotebook(String userId, String notebookId) {
-        List<NoteInfo> noteInfos =  SQLite.select()
+        List<NoteInfo> noteInfos = SQLite.select()
                 .from(NoteInfo.class)
                 .where(NoteInfo_Table.notebookId.eq(notebookId))
                 .and(NoteInfo_Table.userId.eq(userId))
@@ -94,5 +96,26 @@ public class AppDataBase {
                 .where(NoteInfo_Table.userId.eq(userId))
                 .and(NoteInfo_Table.isBlog.eq(true))
                 .queryList();
+    }
+
+    public static List<NoteFile> getAllRelatedFile(String noteId) {
+        return SQLite.select()
+                .from(NoteFile.class)
+                .where(NoteFile_Table.noteId.eq(noteId))
+                .queryList();
+    }
+
+    public static NoteFile getNoteFileByLocalId(String localId) {
+        return SQLite.select()
+                .from(NoteFile.class)
+                .where(NoteFile_Table.localId.eq(localId))
+                .querySingle();
+    }
+
+    public static NoteFile getNoteFileByServerId(String serverId) {
+        return SQLite.select()
+                .from(NoteFile.class)
+                .where(NoteFile_Table.serverId.eq(serverId))
+                .querySingle();
     }
 }
