@@ -46,13 +46,18 @@ public class AppDataBase {
                 .querySingle();
     }
 
-    public static NoteDetailList getNotesFromNotebook(String userId, String notebookId) {
+    public static NoteDetailList getNotesFromNotebook(String userId, long localNotebookId) {
+        NoteDetailList detailList = new NoteDetailList();
+        NotebookInfo notebookInfo = getNotebookByLocalId(localNotebookId);
+        if (notebookInfo == null) {
+            return detailList;
+        }
         List<NoteInfo> noteInfos = SQLite.select()
                 .from(NoteInfo.class)
-                .where(NoteInfo_Table.notebookId.eq(notebookId))
+                .where(NoteInfo_Table.notebookId.eq(notebookInfo.getNotebookId()))
                 .and(NoteInfo_Table.userId.eq(userId))
                 .queryList();
-        NoteDetailList detailList = new NoteDetailList();
+
         detailList.addAll(noteInfos);
         return detailList;
     }
@@ -71,6 +76,13 @@ public class AppDataBase {
         return SQLite.select()
                 .from(NotebookInfo.class)
                 .where(NotebookInfo_Table.notebookId.eq(serverId))
+                .querySingle();
+    }
+
+    public static NotebookInfo getNotebookByLocalId(long localId) {
+        return SQLite.select()
+                .from(NotebookInfo.class)
+                .where(NotebookInfo_Table.id.eq(localId))
                 .querySingle();
     }
 
