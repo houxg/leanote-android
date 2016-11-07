@@ -137,6 +137,36 @@ public class NoteService {
                 .execute();
     }
 
+    public static boolean updateNote(final NoteInfo modifiedNote) {
+        NoteInfo note;
+        if (modifiedNote.getUsn() == 0) {
+            note = RetrofitUtils.excute(addNote(modifiedNote));
+        } else {
+            NoteInfo remoteNote = RetrofitUtils.excute(getNoteByServerId(modifiedNote.getNoteId()));
+            if (remoteNote == null) {
+                return false;
+            }
+            note = RetrofitUtils.excute(updateNote(remoteNote, modifiedNote));
+        }
+        if (note == null) {
+            return false;
+        }
+        if (note.isOk()) {
+            note.setId(modifiedNote.getId());
+            note.setIsDirty(false);
+            note.setContent(modifiedNote.getContent());
+            handleFile(note);
+            note.save();
+            if (note.getUsn() - modifiedNote.getUsn() == 1) {
+                Log.d(TAG, "update usn=" + note.getUsn());
+                LeanoteDbManager.getInstance().updateAccountUsn(note.getUsn(), AccountHelper.getDefaultAccount().getUserId());
+            }
+        } else {
+            throw new IllegalArgumentException(note.getMsg());
+        }
+        return true;
+    }
+
     public static Call<List<NoteInfo>> getSyncNotes(int afterUsn, int maxEntry) {
         return ApiProvider.getInstance().getNoteApi().getSyncNotes(afterUsn, maxEntry);
     }
@@ -153,7 +183,7 @@ public class NoteService {
         return ApiProvider.getInstance().getNoteApi().add(noteInfo);
     }
 
-    public static Call<NoteInfo> updateNote(NoteInfo original, NoteInfo modified) {
+    private static Call<NoteInfo> updateNote(NoteInfo original, NoteInfo modified) {
         List<MultipartBody.Part> fileBodies = new ArrayList<>();
 
         Map<String, RequestBody> requestBodyMap = new HashMap<>();
