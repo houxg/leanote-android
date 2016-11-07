@@ -44,8 +44,12 @@ public class NoteService {
         do {
             notes = RetrofitUtils.excute(getSyncNotes(noteUsn, MAX_ENTRY));
             if (notes != null) {
-                for (NoteInfo remoteNote : notes) {
-                    NoteInfo localNote = AppDataBase.getNoteByServerId(remoteNote.getNoteId());
+                for (NoteInfo noteMeta : notes) {
+                    NoteInfo remoteNote = RetrofitUtils.excute(getNoteByServerId(noteMeta.getNoteId()));
+                    if (remoteNote == null) {
+                        return false;
+                    }
+                    NoteInfo localNote = AppDataBase.getNoteByServerId(noteMeta.getNoteId());
                     //TODO: add convert to local protocol link
                     if (localNote == null) {
                         Log.i(TAG, "note insert, usn=" + remoteNote.getUsn() + ", id=" + remoteNote.getNoteId());
@@ -124,6 +128,8 @@ public class NoteService {
         requestBodyMap.put("NoteId", createPartFromString(noteId));
         requestBodyMap.put("Usn", createPartFromString(String.valueOf(original.getUsn())));
         requestBodyMap.put("IsMarkdown", createPartFromString(getBooleanString(modified.isMarkDown())));
+        requestBodyMap.put("Title", createPartFromString(modified.getTitle()));
+        requestBodyMap.put("Content", createPartFromString(modified.getContent()));
 
         List<NoteFile> files = NoteFileService.getAllRelatedFile(noteId);
         if (CollectionUtils.isNotEmpty(files)) {
@@ -144,12 +150,7 @@ public class NoteService {
         if (!original.getNoteBookId().equals(modified.getNoteBookId())) {
             requestBodyMap.put("NotebookId", createPartFromString(modified.getNoteBookId()));
         }
-        if (!original.getTitle().equals(modified.getTitle())) {
-            requestBodyMap.put("Title", createPartFromString(modified.getTitle()));
-        }
-        if (!original.getContent().equals(modified.getContent())) {
-            requestBodyMap.put("Content", createPartFromString(modified.getContent()));
-        }
+
         if (original.isTrash() != modified.isTrash()) {
             requestBodyMap.put("IsTrash", createPartFromString(getBooleanString(modified.isTrash())));
         }
