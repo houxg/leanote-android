@@ -13,6 +13,7 @@ import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Database(name = "leanote_db", version = 1)
@@ -154,5 +155,14 @@ public class AppDataBase {
                 .from(NoteFile.class)
                 .where(NoteFile_Table.serverId.eq(serverId))
                 .querySingle();
+    }
+
+    public static void deleteFileExcept(long noteLocalId, Collection<String> excepts) {
+        SQLite.delete()
+                .from(NoteFile.class)
+                .where(NoteFile_Table.noteLocalId.eq(noteLocalId))
+                .and(NoteFile_Table.localId.notIn(excepts))
+                .async()
+                .execute();
     }
 }

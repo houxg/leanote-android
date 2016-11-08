@@ -10,7 +10,6 @@ import com.leanote.android.db.AppDataBase;
 import com.leanote.android.db.LeanoteDbManager;
 import com.leanote.android.model.AccountHelper;
 import com.leanote.android.model.NoteFile;
-import com.leanote.android.model.NoteFile_Table;
 import com.leanote.android.model.NoteInfo;
 import com.leanote.android.model.NotebookInfo;
 import com.leanote.android.model.UpdateRet;
@@ -18,7 +17,6 @@ import com.leanote.android.networking.retrofitapi.ApiProvider;
 import com.leanote.android.networking.retrofitapi.RetrofitUtils;
 import com.leanote.android.util.CollectionUtils;
 import com.leanote.android.util.StringUtils;
-import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import org.bson.types.ObjectId;
 
@@ -57,7 +55,7 @@ public class NoteService {
                         return false;
                     }
                     NoteInfo localNote = AppDataBase.getNoteByServerId(noteMeta.getNoteId());
-                    //TODO: add convert to local protocol link
+                    //TODO: need convert leanote link to local protocol link
                     if (localNote == null) {
                         long localId = remoteNote.insert();
                         Log.i(TAG, "note insert, usn=" + remoteNote.getUsn() + ", id=" + remoteNote.getNoteId() + ", local=" + localId);
@@ -118,7 +116,7 @@ public class NoteService {
             return;
         }
         Log.i(TAG, "file size=" + remoteFiles.size());
-        List<String> keepingIds = new ArrayList<>();
+        List<String> excepts = new ArrayList<>();
         for (NoteFile remote : remoteFiles) {
             NoteFile local = AppDataBase.getNoteFileByServerId(remote.getServerId());
             if (local != null) {
@@ -132,15 +130,10 @@ public class NoteService {
             remote.setNoteId(noteLocalId);
             remote.setIsDraft(false);
             remote.save();
-            keepingIds.add(remote.getLocalId());
+            excepts.add(remote.getLocalId());
         }
-        Log.i(TAG, "delete exclude=" + new Gson().toJson(keepingIds));
-        SQLite.delete()
-                .from(NoteFile.class)
-                .where(NoteFile_Table.noteLocalId.eq(noteLocalId))
-                .and(NoteFile_Table.localId.notIn(keepingIds))
-                .async()
-                .execute();
+        Log.i(TAG, "delete exclude=" + new Gson().toJson(excepts));
+        AppDataBase.deleteFileExcept(noteLocalId, excepts);
     }
 
     public static boolean updateNote(final NoteInfo modifiedNote) {
