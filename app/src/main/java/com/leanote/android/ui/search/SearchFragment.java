@@ -15,7 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.leanote.android.R;
-import com.leanote.android.db.LeanoteDbManager;
+import com.leanote.android.db.AppDataBase;
 import com.leanote.android.model.AccountHelper;
 import com.leanote.android.model.NoteInfo;
 import com.leanote.android.model.NotebookInfo;
@@ -60,14 +60,14 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
         if (extras != null) {
             type = extras.getInt("type");
             if (type == Constant.NOTEBOOK_SEARCH) {
-                allDatas = LeanoteDbManager.getInstance().getNotebookList(AccountHelper.getDefaultAccount().getUserId());
+                allDatas = AppDataBase.getAllNotebook(AccountHelper.getDefaultAccount().getUserId());
             } else if (type == Constant.BLOG_SEARCH) {
-                allDatas = LeanoteDbManager.getInstance().getNoteisBlogList(AccountHelper.getDefaultAccount().getUserId());
+                allDatas = AppDataBase.getNoteisBlogList(AccountHelper.getDefaultAccount().getUserId());
             } else {
-                allDatas = LeanoteDbManager.getInstance().getNotesList(AccountHelper.getDefaultAccount().getUserId());
+                allDatas = AppDataBase.getAllNotes(AccountHelper.getDefaultAccount().getUserId());
             }
         } else {
-            allDatas = LeanoteDbManager.getInstance().getNotesList(AccountHelper.getDefaultAccount().getUserId());
+            allDatas = AppDataBase.getAllNotes(AccountHelper.getDefaultAccount().getUserId());
         }
 
 

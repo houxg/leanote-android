@@ -19,7 +19,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.leanote.android.R;
-import com.leanote.android.db.LeanoteDbManager;
+import com.leanote.android.db.AppDataBase;
 import com.leanote.android.model.AccountHelper;
 import com.leanote.android.model.NoteInfo;
 import com.leanote.android.model.NotebookInfo;
@@ -67,10 +67,9 @@ public class EditNoteSettingsFragment extends Fragment
         toggleButtonPublicBlog = (ImageButton) mRootView.findViewById(R.id.toggleButton_public_blog);
 
         String userId = AccountHelper.getDefaultAccount().getUserId();
-        mNotebooks = LeanoteDbManager.getInstance().getNotebookTitles(userId);
-        mNotebookInfos = LeanoteDbManager.getInstance().getNotebookList(userId);
+        mNotebooks = AppDataBase.getAllNotebookTitles(userId);
+        mNotebookInfos = AppDataBase.getAllNotebook(userId);
 
-        LeanoteDbManager.getInstance().getNotebookList(userId);
         mNotebookSpinner = (Spinner) mRootView.findViewById(R.id.notebook);
         mNotebookSpinner.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
@@ -225,14 +224,10 @@ public class EditNoteSettingsFragment extends Fragment
 
         String tags = EditTextUtils.getText(mTagsEditText);
 
-        mNote.setIsPublicBlog(togglePublicBlog.isChecked());
-        mNote.setTags(tags);
-
         //保存notebookid和notebook name 关联
         NotebookInfo notebook = mNotebookInfos.get(mNotebookSpinner.getSelectedItemPosition());
-        mNote.setNoteBookId(notebook.getNotebookId());
 
-        LeanoteDbManager.getInstance().saveNoteSettings(mNote);
+        AppDataBase.updateNoteSettings(mNote.getId(), notebook.getNotebookId(), tags, togglePublicBlog.isChecked());
         //((EditNoteActivity)getActivity()).reloadNote();
     }
 

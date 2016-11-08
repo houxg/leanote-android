@@ -17,10 +17,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.leanote.android.R;
-import com.leanote.android.db.LeanoteDbManager;
+import com.leanote.android.db.AppDataBase;
 import com.leanote.android.model.NoteInfo;
 import com.leanote.android.networking.NetworkUtils;
-import com.leanote.android.service.NoteSyncService;
+import com.leanote.android.networking.retrofitapi.RetrofitUtils;
+import com.leanote.android.service.NoteService;
 import com.leanote.android.ui.ActivityLauncher;
 import com.leanote.android.ui.note.service.NoteEvents;
 import com.leanote.android.ui.note.service.NoteUploadService;
@@ -66,7 +67,7 @@ public class NotePreviewActivity extends AppCompatActivity {
         super.onResume();
         EventBus.getDefault().register(this);
 
-        mNote = LeanoteDbManager.getInstance().getLocalNoteById(mLocalNoteId);
+        mNote = AppDataBase.getNoteByLocalId(mLocalNoteId);
         if (hasPreviewFragment()) {
             refreshPreview();
         } else {
@@ -272,8 +273,13 @@ public class NotePreviewActivity extends AppCompatActivity {
         protected Boolean doInBackground(String... noteIds) {
             //fetch note from server
             String noteId = noteIds[0];
-            NoteInfo serverNote = NoteSyncService.getServerNote(noteId);
-            LeanoteDbManager.getInstance().updateNoteByNoteId(serverNote);
+            NoteInfo serverNote = RetrofitUtils.excute(NoteService.getNoteByServerId(noteId));
+            if (serverNote == null) {
+                return false;
+            }
+            NoteInfo localNote = AppDataBase.getNoteByServerId(noteId);
+            serverNote.setId(localNote.getId());
+            serverNote.save();
             //NoteSyncService.syncPullNote();
             return true;
         }

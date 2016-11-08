@@ -5,18 +5,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.leanote.android.model.AccountHelper;
-import com.leanote.android.service.NoteSyncService;
+import com.leanote.android.service.NoteService;
 
 import de.greenrobot.event.EventBus;
+import rx.Observable;
+import rx.Observer;
+import rx.Subscriber;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by binnchx on 10/19/15.
  */
 public class NoteUpdateService extends Service {
 
+    private static final String TAG = "NoteUpdateService";
 
     public static void startServiceForNote(Context context) {
         if (!AccountHelper.isSignedIn()) {
@@ -40,34 +44,44 @@ public class NoteUpdateService extends Service {
         return null;
     }
 
+
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
         if (intent == null) return START_NOT_STICKY;
 
+        Observable.create(
+                new Observable.OnSubscribe<Boolean>() {
+                    @Override
+                    public void call(Subscriber<? super Boolean> subscriber) {
+                        if (!subscriber.isUnsubscribed()) {
+                            subscriber.onNext(NoteService.fetchFromServer());
+                            subscriber.onCompleted();
+                        }
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(new Observer<Boolean>() {
+                    @Override
+                    public void onCompleted() {
 
-        new Thread() {
-            @Override
-            public void run() {
-                fetchNotes();
-            }
-        }.start();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        NoteEvents.RequestNotes event = new NoteEvents.RequestNotes();
+                        event.setmFailed(true);
+                        EventBus.getDefault().post(event);
+                    }
+
+                    @Override
+                    public void onNext(Boolean isSucceed) {
+                        NoteEvents.RequestNotes event = new NoteEvents.RequestNotes();
+                        event.setmFailed(!isSucceed);
+                        EventBus.getDefault().post(event);
+                    }
+                });
 
         return START_NOT_STICKY;
     }
-
-    private void fetchNotes() {
-
-        NoteEvents.RequestNotes event = new NoteEvents.RequestNotes();
-        event.setmFailed(false);
-        try {
-            NoteSyncService.syncPullNote();
-        } catch (Exception e) {
-            Log.e("note", "fetch note fail", e);
-            event.setmFailed(true);
-        }
-
-        EventBus.getDefault().post(event);
-    }
-
-
 }

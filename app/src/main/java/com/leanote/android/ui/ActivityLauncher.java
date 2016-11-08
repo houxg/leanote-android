@@ -7,6 +7,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 
 import com.leanote.android.R;
+import com.leanote.android.db.AppDataBase;
 import com.leanote.android.db.LeanoteDbManager;
 import com.leanote.android.model.AccountHelper;
 import com.leanote.android.model.NoteInfo;
@@ -62,7 +63,7 @@ public class ActivityLauncher {
         // Create a new post object
         NoteInfo newNote = new NoteInfo();
         //WordPress.wpDB.savePost(newPost);
-        LeanoteDbManager.getInstance().addNote(newNote);
+        newNote.save();
         Intent intent = new Intent(context, EditNoteActivity.class);
         intent.putExtra(EditNoteActivity.EXTRA_NOTEID, newNote.getId());
         intent.putExtra(EditNoteActivity.EXTRA_IS_NEW_NOTE, true);
@@ -110,7 +111,7 @@ public class ActivityLauncher {
     }
 
     public static void previewNoteForResult(Activity activity, Long id) {
-        NoteInfo note = LeanoteDbManager.getInstance().getLocalNoteById(id);
+        NoteInfo note = AppDataBase.getNoteByLocalId(id);
         if (note == null) return;
 
         Intent intent = new Intent(activity, NotePreviewActivity.class);

@@ -29,14 +29,16 @@ import android.webkit.URLUtil;
 import android.widget.Toast;
 
 import com.leanote.android.R;
+import com.leanote.android.db.AppDataBase;
 import com.leanote.android.db.LeanoteDbManager;
 import com.leanote.android.editor.EditorFragment;
 import com.leanote.android.editor.EditorFragmentAbstract;
 import com.leanote.android.editor.Utils;
 import com.leanote.android.model.AccountHelper;
 import com.leanote.android.model.NoteInfo;
-import com.leanote.android.networking.NetworkRequest;
 import com.leanote.android.networking.NetworkUtils;
+import com.leanote.android.networking.retrofitapi.RetrofitUtils;
+import com.leanote.android.service.NoteService;
 import com.leanote.android.ui.RequestCodes;
 import com.leanote.android.ui.media.LeaMediaUtils;
 import com.leanote.android.ui.note.service.NoteUploadService;
@@ -52,7 +54,6 @@ import com.leanote.android.util.helper.MediaGalleryImageSpan;
 import com.leanote.android.widget.LeaViewPager;
 
 import org.bson.types.ObjectId;
-import org.json.JSONObject;
 import org.wordpress.passcodelock.AppLockManager;
 
 import java.io.File;
@@ -60,6 +61,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import rx.Observable;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 
 public class EditNoteActivity extends AppCompatActivity
@@ -134,8 +141,8 @@ public class EditNoteActivity extends AppCompatActivity
                 long localNoteId = extras.getLong(EXTRA_NOTEID, 0L);
                 mIsNewNote = extras.getBoolean(EXTRA_IS_NEW_NOTE);
 
-                mNote = LeanoteDbManager.getInstance().getLocalNoteById(localNoteId);
-                mOriginalNote = LeanoteDbManager.getInstance().getLocalNoteById(localNoteId);
+                mNote = AppDataBase.getNoteByLocalId(localNoteId);
+                mOriginalNote = AppDataBase.getNoteByLocalId(localNoteId);
 
                 mEditorFragment = new EditorFragment();
             } else {
@@ -283,28 +290,6 @@ public class EditNoteActivity extends AppCompatActivity
         return mMaxThumbWidth;
     }
 
-
-    private class LoadNoteContentTask extends AsyncTask<Void, Spanned, Spanned> {
-
-        @Override
-        protected Spanned doInBackground(Void... params) {
-            String content = fetchNoteContent(getNote().getNoteId());
-
-            if (org.apache.commons.lang.StringUtils.isEmpty(content)) {
-                return new SpannableString("");
-            }
-            return LeaHtml.fromHtml(content, EditNoteActivity.this, getNote(), getMaximumThumbnailWidthForEditor());
-        }
-
-        @Override
-        protected void onPostExecute(Spanned spanned) {
-            if (spanned != null) {
-                mEditorFragment.setContent(spanned);
-            }
-        }
-    }
-
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -442,34 +427,6 @@ public class EditNoteActivity extends AppCompatActivity
         return true;
     }
 
-
-    private String fetchNoteContent(String noteId) {
-        NoteInfo note = LeanoteDbManager.getInstance().getLocalNoteByNoteId(noteId);
-        if (note != null && org.apache.commons.lang.StringUtils.isNotEmpty(note.getContent())) {
-            return note.getContent();
-        }
-
-        String noteApi = String.format("%s/api/note/getNoteContent?noteId=%s&token=%s",
-                AccountHelper.getDefaultAccount().getHost(), noteId,
-                AccountHelper.getDefaultAccount().getAccessToken());
-
-
-        String response;
-        String content = null;
-        try {
-            response = NetworkRequest.syncGetRequest(noteApi);
-            JSONObject json = new JSONObject(response);
-            content = json.getString("Content");
-            LeanoteDbManager.getInstance().saveNoteContent(noteId, content);
-
-        } catch (Exception e) {
-            AppLog.e(AppLog.T.API, "fetch note content error", e);
-            ToastUtils.showToast(this, R.string.fetch_note_content_fail);
-        }
-        return content;
-    }
-
-
     private void fillContentEditorFields() {
         // Needed blog settings needed by the editor
         if (AccountHelper.getDefaultAccount().getUserId() != null) {
@@ -484,9 +441,8 @@ public class EditNoteActivity extends AppCompatActivity
                 mHasSetNoteContent = true;
                 if (!mIsNewNote && TextUtils.isEmpty(note.getContent())) {
                     // Load local post content in the background, as it may take time to generate images
-                    new LoadNoteContentTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                }
-                else if (!TextUtils.isEmpty(note.getContent())){
+                    fetchNote();
+                } else if (!TextUtils.isEmpty(note.getContent())){
                     String content = note.getContent().replaceAll("\uFFFC", "").replace("<img&nbsp;", "<img")
                             .replace("</p><br>", "");
                     mEditorFragment.setContent(content);
@@ -498,8 +454,51 @@ public class EditNoteActivity extends AppCompatActivity
             // TODO: postSettingsButton.setText(post.isPage() ? R.string.page_settings : R.string.post_settings);
             mEditorFragment.setLocalDraft(note.getUsn() == 0);
         }
+    }
 
+    private void fetchNote() {
+        RetrofitUtils.create(NoteService.getNoteByServerId(getNote().getNoteId()))
+                .flatMap(new Func1<NoteInfo, Observable<Spanned>>() {
+                    @Override
+                    public Observable<Spanned> call(NoteInfo noteInfo) {
+                        NoteInfo local = AppDataBase.getNoteByServerId(noteInfo.getNoteId());
+                        if (local.getUsn() != noteInfo.getUsn()) {
+                            //TODO:fix conflict
+                        } else {
+                            noteInfo.setId(local.getId());
+                            noteInfo.save();
+                        }
+                        String content = noteInfo.getContent();
+                        Spanned spanned;
+                        if (TextUtils.isEmpty(content)) {
+                            spanned = new SpannableString("");
+                        } else {
+                            spanned = LeaHtml.fromHtml(content, EditNoteActivity.this, getNote(), getMaximumThumbnailWidthForEditor());
+                        }
+                        return Observable.just(spanned);
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Spanned>() {
+                    @Override
+                    public void onCompleted() {
 
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        AppLog.e(AppLog.T.API, "fetch note content error", e);
+                        ToastUtils.showToast(EditNoteActivity.this, R.string.fetch_note_content_fail);
+                    }
+
+                    @Override
+                    public void onNext(Spanned spanned) {
+                        if (spanned != null) {
+                            mEditorFragment.setContent(spanned);
+                        }
+                    }
+                });
     }
 
 
@@ -609,7 +608,6 @@ public class EditNoteActivity extends AppCompatActivity
         }
     }
 
-
     private void updateNoteContent(boolean isAutoSave) {
         NoteInfo note = getNote();
 
@@ -617,7 +615,7 @@ public class EditNoteActivity extends AppCompatActivity
             return;
         }
         String title = StringUtils.notNullStr((String) mEditorFragment.getTitle());
-        note.setTitle(title);
+        AppDataBase.updateNoteTitle(note.getId(), title);
 
         AppLog.i("orginal content:" + note.getContent() + "---end");
         AppLog.i("new content:" + mEditorFragment.getSpannedContent() + "---end");
@@ -724,8 +722,7 @@ public class EditNoteActivity extends AppCompatActivity
             content = noteContent.toString();
         }
         setNoteFileIds(content);
-        note.setContent(content);
-
+        AppDataBase.updateNoteContent(note.getId(), content);
     }
 
     private void setNoteFileIds(String content) {
@@ -780,18 +777,9 @@ public class EditNoteActivity extends AppCompatActivity
 
 
     private void saveNote(boolean isAutosave) {
-        saveNote(isAutosave, true);
+        updateNoteObject(isAutosave);
+        mNote = AppDataBase.getNoteByLocalId(mNote.getId());
     }
-
-    private void saveNote(boolean isAutosave, boolean updatePost) {
-        if (updatePost) {
-            updateNoteObject(isAutosave);
-        }
-
-
-        LeanoteDbManager.getInstance().updateNote(mNote);
-    }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -799,7 +787,7 @@ public class EditNoteActivity extends AppCompatActivity
 
         if (itemId == R.id.menu_save_post || itemId == android.R.id.home) {
             // If the post is new and there are no changes, don't publish
-            updateNoteObject(false);
+            saveNote(false);
 
             if (mViewPager.getCurrentItem() == PAGE_SETTINGS) {
                 mViewPager.setCurrentItem(PAGE_CONTENT);
@@ -812,13 +800,11 @@ public class EditNoteActivity extends AppCompatActivity
 //            }
 
             if (mNote.isDirty() || mNote.hasChanges(mOriginalNote) || !mNote.isUploadSucc()) {
-                saveNote(false, false);
                 if (!NetworkUtils.isNetworkAvailable(this)) {
                     ToastUtils.showToast(this, R.string.no_network_message, ToastUtils.Duration.SHORT);
                     return false;
                 }
 
-                mNote = LeanoteDbManager.getInstance().getLocalNoteById(mNote.getId());
                 NoteUploadService.addNoteToUpload(mNote);
                 startService(new Intent(this, NoteUploadService.class));
             }
@@ -877,7 +863,7 @@ public class EditNoteActivity extends AppCompatActivity
         if (mEditorFragment != null && hasEmptyContentFields()) {
             // new and empty post? delete it
             if (mIsNewNote) {
-                LeanoteDbManager.getInstance().deleteNote(mNote.getId());
+                AppDataBase.deleteNoteByLocalId(mNote.getId());
             }
         } else if (mOriginalNote != null && !mNote.hasChanges(mOriginalNote)) {
             // if no changes have been made to the post, set it back to the original don't save it

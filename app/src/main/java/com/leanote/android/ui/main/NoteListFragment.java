@@ -24,13 +24,13 @@ import android.widget.TextView;
 
 import com.leanote.android.Constants;
 import com.leanote.android.R;
+import com.leanote.android.db.AppDataBase;
 import com.leanote.android.db.LeanoteDbManager;
 import com.leanote.android.model.AccountHelper;
 import com.leanote.android.model.NoteDetailList;
 import com.leanote.android.model.NoteInfo;
 import com.leanote.android.networking.NetworkRequest;
 import com.leanote.android.networking.NetworkUtils;
-import com.leanote.android.service.NoteSyncService;
 import com.leanote.android.ui.ActivityLauncher;
 import com.leanote.android.ui.EmptyViewMessageType;
 import com.leanote.android.ui.RequestCodes;
@@ -297,18 +297,8 @@ public class NoteListFragment extends Fragment
             hideLoadMoreProgress();
 
             Log.i("is fail:", String.valueOf(event.ismFailed()));
-            if (!event.ismFailed()) {
-                loadNotes(null);
-                //请求笔记结束后更新本地syncstate
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        LeanoteDbManager.getInstance().updateAccountUsn(NoteSyncService.getServerSyncState(), AccountHelper.getDefaultAccount().getUserId());
-                    }
-                }).start();
-
-            } else {
-                loadNotes(null);
+            loadNotes(null);
+            if (event.ismFailed()) {
                 ToastUtils.showToast(getActivity(), getString(R.string.note_sync_fail));
             }
         }
@@ -394,7 +384,7 @@ public class NoteListFragment extends Fragment
         //Post fullPost = WordPress.wpDB.getPostForLocalTablePostId(post.getPostId());
         //load note detail
         AppLog.i("click note id:" + note.getId());
-        NoteInfo fullNote = LeanoteDbManager.getInstance().getLocalNoteById(note.getId());
+        NoteInfo fullNote = AppDataBase.getNoteByLocalId(note.getId());
         if (fullNote == null) {
             ToastUtils.showToast(getActivity(), R.string.note_not_found);
             return;
@@ -466,7 +456,7 @@ public class NoteListFragment extends Fragment
 
                 //delete note in local
                 AppLog.i("delete note id:" + note.getId());
-                LeanoteDbManager.getInstance().deleteNote(note.getId());
+                AppDataBase.deleteNoteByLocalId(note.getId());
                 LeanoteDbManager.getInstance().deleteMediaFileByNoteId(note.getNoteId());
                 //delete note in server
                 new DeleteNoteTask().execute(note);
