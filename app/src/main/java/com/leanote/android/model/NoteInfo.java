@@ -26,23 +26,23 @@ public class NoteInfo extends BaseModel implements Serializable {
 
     @Column(name = "noteId")
     @SerializedName("NoteId")
-    String noteId;
+    String noteId = "";
     @Column(name = "notebookId")
     @SerializedName("NotebookId")
-    String noteBookId;
+    String noteBookId = "";
     @Column(name = "userId")
     @SerializedName("UserId")
-    String userId;
+    String userId = "";
     @Column(name = "title")
     @SerializedName("Title")
-    String title;
+    String title = "";
     @Column(name = "tags")
-    String tags;
+    String tags = "";
     @SerializedName("Tags")
     List<String> tagData;
     @Column(name = "content")
     @SerializedName("Content")
-    String content;
+    String content = "";
     @Column(name = "isMarkDown")
     @SerializedName("IsMarkdown")
     boolean isMarkDown;
@@ -54,13 +54,13 @@ public class NoteInfo extends BaseModel implements Serializable {
     boolean isPublicBlog;
     @Column(name = "createdTime")
     @SerializedName("CreatedTime")
-    String createdTime;
+    String createdTime = "";
     @Column(name = "updatedTime")
     @SerializedName("UpdatedTime")
-    String updatedTime;
+    String updatedTime = "";
     @Column(name = "publicTime")
     @SerializedName("PublicTime")
-    String publicTime;
+    String publicTime = "";
     @Column(name = "usn")
     @SerializedName("Usn")
     int usn;
@@ -73,9 +73,9 @@ public class NoteInfo extends BaseModel implements Serializable {
     Long id;
     Long localNotebookId;
     @Column(name = "desc")
-    String desc;
+    String desc = "";
     @Column(name = "noteAbstract")
-    String noteAbstract;
+    String noteAbstract = "";
     String fileIds;
     boolean isDeleted;
     @Column(name = "isDirty")
