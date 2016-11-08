@@ -10,7 +10,6 @@ import java.util.Map;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
-import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -29,8 +28,9 @@ public interface NoteApi {
     @GET("note/getNoteAndContent")
     Call<NoteInfo> getNoteAndContent(@Query("noteId") String noteId);
 
+    @Multipart
     @POST("note/addNote")
-    Call<NoteInfo> add(@Body NoteInfo note);
+    Call<NoteInfo> add(@PartMap Map<String, RequestBody> body, @Part List<MultipartBody.Part> files);
 
     @Multipart
     @POST("note/updateNote")

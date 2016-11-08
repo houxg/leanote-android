@@ -10,8 +10,8 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 @Table(name = "NoteFile", database = AppDataBase.class)
 public class NoteFile extends BaseModel {
 
-    @Column(name = "noteId")
-    String noteId;
+    @Column(name = "noteLocalId")
+    long noteId;
 
     @Column(name = "serverId")
     @SerializedName("FileId")
@@ -42,11 +42,11 @@ public class NoteFile extends BaseModel {
     boolean mIsDraft;
 
 
-    public String getNoteId() {
+    public long getNoteId() {
         return noteId;
     }
 
-    public void setNoteId(String noteId) {
+    public void setNoteId(long noteId) {
         this.noteId = noteId;
     }
 
@@ -110,7 +110,7 @@ public class NoteFile extends BaseModel {
         return mIsDraft;
     }
 
-    public void setIsDraft(boolean isDraft) {
-        this.mIsDraft = isDraft;
+    public void setIsDraft(boolean mIsDraft) {
+        this.mIsDraft = mIsDraft;
     }
 }

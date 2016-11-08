@@ -1,5 +1,7 @@
 package com.leanote.android.db;
 
+import android.util.Log;
+
 import com.leanote.android.model.NoteDetailList;
 import com.leanote.android.model.NoteFile;
 import com.leanote.android.model.NoteFile_Table;
@@ -16,15 +18,38 @@ import java.util.List;
 @Database(name = "leanote_db", version = 1)
 public class AppDataBase {
 
-    public static void updateNoteSettings(String noteId, String notebookId, String tags, boolean isBlog) {
-        NoteInfo noteInfo = getNoteByServerId(noteId);
+    private static final String TAG = "AppDataBase";
+
+    public static void updateNoteSettings(long localId, String notebookId, String tags, boolean isBlog) {
+        NoteInfo noteInfo = getNoteByLocalId(localId);
         if (noteInfo == null) {
+            Log.i(TAG, "updateNoteSettings(), note not found");
             return;
         }
         noteInfo.setNoteBookId(notebookId);
         noteInfo.setIsPublicBlog(isBlog);
         noteInfo.setTags(tags);
-        noteInfo.update();
+        noteInfo.save();
+    }
+
+    public static void updateNoteTitle(long localId, String title) {
+        NoteInfo noteInfo = getNoteByLocalId(localId);
+        if (noteInfo == null) {
+            Log.i(TAG, "updateNote(), note not found");
+            return;
+        }
+        noteInfo.setTitle(title);
+        noteInfo.save();
+    }
+
+    public static void updateNoteContent(long localId, String content) {
+        NoteInfo noteInfo = getNoteByLocalId(localId);
+        if (noteInfo == null) {
+            Log.i(TAG, "updateNote(), note not found");
+            return;
+        }
+        noteInfo.setContent(content);
+        noteInfo.save();
     }
 
     public static void deleteNoteByLocalId(long localId) {
@@ -110,10 +135,10 @@ public class AppDataBase {
                 .queryList();
     }
 
-    public static List<NoteFile> getAllRelatedFile(String noteId) {
+    public static List<NoteFile> getAllRelatedFile(long noteLocalId) {
         return SQLite.select()
                 .from(NoteFile.class)
-                .where(NoteFile_Table.noteId.eq(noteId))
+                .where(NoteFile_Table.noteLocalId.eq(noteLocalId))
                 .queryList();
     }
 

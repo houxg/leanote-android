@@ -24,8 +24,10 @@ import org.bson.types.ObjectId;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import okhttp3.MediaType;
@@ -56,10 +58,10 @@ public class NoteService {
                     }
                     NoteInfo localNote = AppDataBase.getNoteByServerId(noteMeta.getNoteId());
                     //TODO: add convert to local protocol link
-                    handleFile(remoteNote);
                     if (localNote == null) {
-                        Log.i(TAG, "note insert, usn=" + remoteNote.getUsn() + ", id=" + remoteNote.getNoteId());
-                        remoteNote.insert();
+                        long localId = remoteNote.insert();
+                        Log.i(TAG, "note insert, usn=" + remoteNote.getUsn() + ", id=" + remoteNote.getNoteId() + ", local=" + localId);
+                        handleFile(localId, remoteNote.getNoteFiles());
                     } else {
                         if (localNote.isDirty()) {
                             Log.w(TAG, "note conflict, usn=" + remoteNote.getUsn() + ", id=" + remoteNote.getNoteId());
@@ -68,8 +70,10 @@ public class NoteService {
                             remoteNote.setId(localNote.getId());
                             remoteNote.setIsDirty(false);
                             remoteNote.update();
+                            handleFile(localNote.getId(), remoteNote.getNoteFiles());
                         }
                     }
+
                     noteUsn = remoteNote.getUsn();
                 }
             } else {
@@ -109,8 +113,10 @@ public class NoteService {
         return true;
     }
 
-    private static void handleFile(NoteInfo noteInfo) {
-        List<NoteFile> remoteFiles = noteInfo.getNoteFiles();
+    private static void handleFile(long noteLocalId, List<NoteFile> remoteFiles) {
+        if (CollectionUtils.isEmpty(remoteFiles)) {
+            return;
+        }
         Log.i(TAG, "file size=" + remoteFiles.size());
         List<String> keepingIds = new ArrayList<>();
         for (NoteFile remote : remoteFiles) {
@@ -123,7 +129,7 @@ public class NoteService {
                 Log.i(TAG, "need to insert, id=" + remote.getServerId());
                 remote.setLocalId(new ObjectId().toString());
             }
-            remote.setNoteId(noteInfo.getNoteId());
+            remote.setNoteId(noteLocalId);
             remote.setIsDraft(false);
             remote.save();
             keepingIds.add(remote.getLocalId());
@@ -131,7 +137,7 @@ public class NoteService {
         Log.i(TAG, "delete exclude=" + new Gson().toJson(keepingIds));
         SQLite.delete()
                 .from(NoteFile.class)
-                .where(NoteFile_Table.noteId.eq(noteInfo.getNoteId()))
+                .where(NoteFile_Table.noteLocalId.eq(noteLocalId))
                 .and(NoteFile_Table.localId.notIn(keepingIds))
                 .async()
                 .execute();
@@ -155,7 +161,7 @@ public class NoteService {
             note.setId(modifiedNote.getId());
             note.setIsDirty(false);
             note.setContent(modifiedNote.getContent());
-            handleFile(note);
+            handleFile(modifiedNote.getId(), note.getNoteFiles());
             note.save();
             if (note.getUsn() - modifiedNote.getUsn() == 1) {
                 Log.d(TAG, "update usn=" + note.getUsn());
@@ -179,8 +185,46 @@ public class NoteService {
         return ApiProvider.getInstance().getNoteApi().getNoteAndContent(serverId);
     }
 
-    public static Call<NoteInfo> addNote(NoteInfo noteInfo) {
-        return ApiProvider.getInstance().getNoteApi().add(noteInfo);
+    public static Call<NoteInfo> addNote(NoteInfo note) {
+        List<MultipartBody.Part> fileBodies = new ArrayList<>();
+
+        Map<String, RequestBody> requestBodyMap = new HashMap<>();
+        requestBodyMap.put("Content", createPartFromString(note.getContent()));
+        requestBodyMap.put("CreatedTime", createPartFromString(getTime(System.currentTimeMillis())));
+        requestBodyMap.put("UpdatedTime", createPartFromString(getTime(System.currentTimeMillis())));
+        requestBodyMap.put("IsMarkdown", createPartFromString(getBooleanString(note.isMarkDown())));
+        requestBodyMap.put("IsBlog", createPartFromString(getBooleanString(note.isPublicBlog())));
+        requestBodyMap.put("NotebookId", createPartFromString(note.getNoteBookId()));
+        requestBodyMap.put("Title", createPartFromString(note.getTitle()));
+
+        List<NoteFile> files = AppDataBase.getAllRelatedFile(note.getId());
+        if (CollectionUtils.isNotEmpty(files)) {
+            int size = files.size();
+            for (int index = 0; index < size; index++) {
+                NoteFile noteFile = files.get(index);
+                requestBodyMap.put(String.format("Files[%s][LocalFileId]", index), createPartFromString(noteFile.getLocalId()));
+                requestBodyMap.put(String.format("Files[%s][IsAttach]", index), createPartFromString(getBooleanString(noteFile.isAttach())));
+                requestBodyMap.put(String.format("Files[%s][FileId]", index), createPartFromString(StringUtils.notNullStr(noteFile.getServerId())));
+                boolean shouldUploadFile = TextUtils.isEmpty(noteFile.getServerId());
+                requestBodyMap.put(String.format("Files[%s][HasBody]", index), createPartFromString(getBooleanString(!shouldUploadFile)));
+                if (shouldUploadFile) {
+                    fileBodies.add(createFilePart(noteFile));
+                }
+            }
+        }
+        return ApiProvider.getInstance().getNoteApi().add(requestBodyMap, fileBodies);
+    }
+
+    private static String getTime(long time) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(time);
+        return String.format(Locale.US, "%d-%d-%d %d:%d:%d",
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH) + 1,
+                calendar.get(Calendar.DAY_OF_MONTH),
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                calendar.get(Calendar.SECOND));
     }
 
     private static Call<NoteInfo> updateNote(NoteInfo original, NoteInfo modified) {
@@ -193,8 +237,9 @@ public class NoteService {
         requestBodyMap.put("IsMarkdown", createPartFromString(getBooleanString(modified.isMarkDown())));
         requestBodyMap.put("Title", createPartFromString(modified.getTitle()));
         requestBodyMap.put("Content", createPartFromString(modified.getContent()));
+        requestBodyMap.put("UpdatedTime", createPartFromString(getTime(System.currentTimeMillis())));
 
-        List<NoteFile> files = AppDataBase.getAllRelatedFile(noteId);
+        List<NoteFile> files = AppDataBase.getAllRelatedFile(modified.getId());
         if (CollectionUtils.isNotEmpty(files)) {
             int size = files.size();
             for (int index = 0; index < size; index++) {
