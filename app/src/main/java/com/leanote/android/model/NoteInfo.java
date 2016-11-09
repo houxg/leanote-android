@@ -1,10 +1,10 @@
 package com.leanote.android.model;
 
+import android.util.Log;
+
 import com.google.gson.annotations.SerializedName;
 import com.leanote.android.db.AppDataBase;
-import com.leanote.android.util.AppLog;
 import com.leanote.android.util.CollectionUtils;
-import com.leanote.android.util.StringUtils;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
@@ -236,19 +236,26 @@ public class NoteInfo extends BaseModel implements Serializable {
 
     public boolean hasChanges(NoteInfo otherNote) {
 
-        AppLog.i("title equals:" + !StringUtils.equals(title, otherNote.title));
-        AppLog.i("content equals:" + !StringUtils.equals(content, otherNote.content));
-        AppLog.i("notebookid equals:" + !(noteBookId.equals(otherNote.noteBookId)));
-        AppLog.i("isMarkDown equal:" + (isMarkDown != otherNote.isMarkDown));
-        AppLog.i("tags equals:" + !StringUtils.equals(tags, otherNote.tags));
-        AppLog.i("isblog equals:" + (isPublicBlog != otherNote.isPublicBlog));
+        logDiff("title" , title, otherNote.title);
+        logDiff("content", content, otherNote.content);
+        logDiff("notebookId" , noteBookId, otherNote.noteBookId);
+        logDiff("isMarkDown", isMarkDown, otherNote.isMarkDown);
+        logDiff("tags" , tags, otherNote.tags);
+        logDiff("isBlog", isPublicBlog, otherNote.isPublicBlog);
 
-        return otherNote == null || !StringUtils.equals(title, otherNote.title)
-                || !StringUtils.equals(content, otherNote.content)
-                || !StringUtils.equals(noteBookId, otherNote.noteBookId)
+        return otherNote == null
+                || title.equals(otherNote.title)
+                || content.equals(otherNote.content)
+                || noteBookId.equals(otherNote.noteBookId)
                 || isMarkDown != otherNote.isMarkDown
-                || !StringUtils.equals(tags, otherNote.tags)
+                || tags.equals(otherNote.tags)
                 || isPublicBlog != otherNote.isPublicBlog;
+    }
+
+    private void logDiff(String message, Object l, Object r) {
+        if (!l.equals(r)) {
+            Log.i("NoteInfo", message + " changed, origin=" + l + ", modified=" + r);
+        }
     }
 
     public boolean isPublicBlog() {
