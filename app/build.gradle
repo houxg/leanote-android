@@ -133,5 +133,6 @@ dependencies {
     compile group: 'com.squareup.retrofit2', name: 'adapter-rxjava', version: '2.1.0'
     compile 'com.jakewharton:butterknife:8.4.0'
     apt 'com.jakewharton:butterknife-compiler:8.4.0'
+    compile project(':img-selector')
 }
 

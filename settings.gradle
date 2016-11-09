@@ -1,1 +1,2 @@
-include ':app'
+include ':app', ':img-selector'
+project(':img-selector').projectDir = new File('img-selector')
