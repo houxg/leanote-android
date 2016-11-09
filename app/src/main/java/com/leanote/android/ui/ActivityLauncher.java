@@ -15,10 +15,10 @@ import com.leanote.android.model.NotebookInfo;
 import com.leanote.android.networking.SSLCertsViewActivity;
 import com.leanote.android.networking.SelfSignedSSLCertsManager;
 import com.leanote.android.ui.lea.LeaActivity;
-import com.leanote.android.ui.note.EditNoteActivity;
 import com.leanote.android.ui.note.EditNotebookActivity;
 import com.leanote.android.ui.note.NotePreviewActivity;
 import com.leanote.android.ui.note.NotesInNotebookActivity;
+import com.leanote.android.ui.note.refact.EditActivity;
 import com.leanote.android.ui.post.BlogHomeActivity;
 import com.leanote.android.ui.search.SearchActivity;
 import com.leanote.android.util.AppLog;
@@ -62,18 +62,21 @@ public class ActivityLauncher {
 
         // Create a new post object
         NoteInfo newNote = new NoteInfo();
-        //WordPress.wpDB.savePost(newPost);
+        NotebookInfo notebook = AppDataBase.getRecentNoteBook(AccountHelper.getDefaultAccount().getUserId());
+        newNote.setNoteBookId(notebook.getNotebookId());
         newNote.save();
-        Intent intent = new Intent(context, EditNoteActivity.class);
-        intent.putExtra(EditNoteActivity.EXTRA_NOTEID, newNote.getId());
-        intent.putExtra(EditNoteActivity.EXTRA_IS_NEW_NOTE, true);
+//        Intent intent = new Intent(context, EditNoteActivity.class);
+        Intent intent = EditActivity.getOpenIntent(context, newNote.getId());
+//        intent.putExtra(EditNoteActivity.EXTRA_NOTEID, newNote.getId());
+//        intent.putExtra(EditNoteActivity.EXTRA_IS_NEW_NOTE, true);
         context.startActivityForResult(intent, RequestCodes.EDIT_NOTE);
     }
 
     public static void editNoteForResult(Activity activity, long noteId) {
-        Intent intent = new Intent(activity.getApplicationContext(), EditNoteActivity.class);
-        intent.putExtra(EditNoteActivity.EXTRA_NOTEID, noteId);
-        intent.putExtra(EditNoteActivity.EXTRA_IS_NEW_NOTE, false);
+//        Intent intent = new Intent(activity.getApplicationContext(), EditNoteActivity.class);
+        Intent intent = EditActivity.getOpenIntent(activity, noteId);
+//        intent.putExtra(EditNoteActivity.EXTRA_NOTEID, noteId);
+//        intent.putExtra(EditNoteActivity.EXTRA_IS_NEW_NOTE, false);
         activity.startActivityForResult(intent, RequestCodes.EDIT_NOTE);
     }
 

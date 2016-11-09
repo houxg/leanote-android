@@ -131,6 +131,7 @@ dependencies {
     // https://mvnrepository.com/artifact/com.squareup.okhttp3/logging-interceptor
     compile group: 'com.squareup.okhttp3', name: 'logging-interceptor', version: '3.4.1'
     compile group: 'com.squareup.retrofit2', name: 'adapter-rxjava', version: '2.1.0'
-
+    compile 'com.jakewharton:butterknife:8.4.0'
+    apt 'com.jakewharton:butterknife-compiler:8.4.0'
 }
 

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_tag"
+        app:showAsAction="always"
+        android:title="tag"/>
+
+    <item
+        android:id="@+id/action_save"
+        app:showAsAction="always"
+        android:title="@string/save_note"/>
+
+    <item
+        android:id="@+id/action_notebook"
+        app:showAsAction="never"
+        android:title="Notebook"/>
+</menu>

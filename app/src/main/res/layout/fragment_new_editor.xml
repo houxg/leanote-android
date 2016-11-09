@@ -1,0 +1,48 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.leanote.android.editor.EditorFragment">
+
+    <com.leanote.android.widget.LeaWebView
+        android:id="@+id/web_editor"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/format_bar_height"
+        android:background="@color/light_gray"
+        android:layout_alignParentBottom="true">
+
+        <Button
+            android:id="@+id/btn_insert_link"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="link"/>
+
+        <Button
+            android:id="@+id/btn_insert_img"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="img"/>
+
+        <Button
+            android:id="@+id/btn_redo"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="redo"/>
+
+        <Button
+            android:id="@+id/btn_undo"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="undo"/>
+
+    </LinearLayout>
+</RelativeLayout>

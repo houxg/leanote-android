@@ -159,6 +159,7 @@
             android:name=".ui.note.NotesInNotebookActivity"
             android:label="@string/title_activity_notes_in_notebook" >
         </activity>
+        <activity android:name=".ui.note.refact.EditActivity" />
     </application>
 
 </manifest>
