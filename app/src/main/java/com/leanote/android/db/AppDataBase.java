@@ -54,8 +54,10 @@ public class AppDataBase {
     }
 
     public static void deleteNoteByLocalId(long localId) {
-        NoteInfo info = getNoteByLocalId(localId);
-        info.delete();
+        SQLite.delete().from(NoteInfo.class)
+                .where(NoteInfo_Table.id.eq(localId))
+                .async()
+                .execute();
     }
 
     public static NoteInfo getNoteByServerId(String serverId) {
@@ -109,6 +111,14 @@ public class AppDataBase {
         return SQLite.select()
                 .from(NotebookInfo.class)
                 .where(NotebookInfo_Table.id.eq(localId))
+                .querySingle();
+    }
+
+    public static NotebookInfo getRecentNoteBook(String userId) {
+        //FIXME:get recent notebook
+        return SQLite.select()
+                .from(NotebookInfo.class)
+                .where(NotebookInfo_Table.userId.eq(userId))
                 .querySingle();
     }
 
