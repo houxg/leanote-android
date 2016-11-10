@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 import rx.Observable;
+import rx.Observer;
 import rx.Subscriber;
 import rx.functions.Action0;
 import rx.schedulers.Schedulers;
@@ -119,14 +120,23 @@ public class NoteUploadService extends Service {
                                     EventBus.getDefault().post(new NoteEvents.PostUploadStarted());
                                 }
                             })
-                            .doOnCompleted(new Action0() {
+                            .subscribe(new Observer<Boolean>() {
                                 @Override
-                                public void call() {
+                                public void onCompleted() {
                                     EventBus.getDefault().post(new NoteEvents.PostUploadEnded(NoteSyncResultEnum.SUCCESS));
                                     noteUploaded();
                                 }
-                            })
-                            .subscribe();
+
+                                @Override
+                                public void onError(Throwable e) {
+                                    e.printStackTrace();
+                                }
+
+                                @Override
+                                public void onNext(Boolean aBoolean) {
+
+                                }
+                            });
                 } else {
                     stopSelf();
                 }

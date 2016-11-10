@@ -69,6 +69,7 @@ public class NoteUpdateService extends Service {
 
                     @Override
                     public void onError(Throwable e) {
+                        e.printStackTrace();
                         NoteEvents.RequestNotes event = new NoteEvents.RequestNotes();
                         event.setmFailed(true);
                         EventBus.getDefault().post(event);
