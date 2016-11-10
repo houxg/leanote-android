@@ -60,7 +60,7 @@ public class RichTextEditor extends Editor implements OnJsEditorStateChangedList
 
     @Override
     public String getTitle() {
-        return new JsRunner().get(mWebView, "ZSSEditor.getField('zss_field_title').getHTML()");
+        return Utils.unescapeHtml(new JsRunner().get(mWebView, "ZSSEditor.getField('zss_field_title').getHTML()"));
     }
 
     @Override
@@ -71,7 +71,24 @@ public class RichTextEditor extends Editor implements OnJsEditorStateChangedList
 
     @Override
     public String getContent() {
-        return new JsRunner().get(mWebView, "ZSSEditor.getField('zss_field_content').getHTML()");
+        String content = Utils.unescapeHtml(new JsRunner().get(mWebView, "ZSSEditor.getField('zss_field_content').getHTML()"));
+        content = appendPTag(content);
+        return content;
+    }
+
+    private String appendPTag(String source) {
+        String[] segments = source.split("\n\n");
+        StringBuilder contentBuilder = new StringBuilder();
+        if (segments.length > 0) {
+            for (String segment : segments) {
+                contentBuilder.append("<p>");
+                contentBuilder.append(segment);
+                contentBuilder.append("</p>");
+            }
+            return contentBuilder.toString();
+        } else {
+            return source;
+        }
     }
 
 
