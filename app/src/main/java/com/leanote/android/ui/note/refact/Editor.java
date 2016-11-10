@@ -32,6 +32,8 @@ public abstract class Editor {
 
     public abstract String getContent();
 
+    public abstract void insertImage(String title, String url);
+
     public interface EditorListener {
         void onPageLoaded();
     }

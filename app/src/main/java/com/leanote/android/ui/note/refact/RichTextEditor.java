@@ -12,6 +12,7 @@ import com.leanote.android.editor.Utils;
 
 import org.json.JSONObject;
 
+import java.util.Locale;
 import java.util.Map;
 
 import static android.view.View.SCROLLBARS_OUTSIDE_OVERLAY;
@@ -54,26 +55,29 @@ public class RichTextEditor extends Editor implements OnJsEditorStateChangedList
 
     @Override
     public void setTitle(String title) {
-        execJs("ZSSEditor.getField('zss_field_title').setPlainText('" +
-                Utils.escapeHtml(title) + "');");
+        execJs(String.format(Locale.US, "ZSSEditor.getField('zss_field_title').setPlainText('%s');", Utils.escapeHtml(title)));
     }
 
     @Override
     public String getTitle() {
-        return Utils.unescapeHtml(new JsRunner().get(mWebView, "ZSSEditor.getField('zss_field_title').getHTML()"));
+        return Utils.unescapeHtml(new JsRunner().get(mWebView, "ZSSEditor.getField('zss_field_title').getHTML();"));
     }
 
     @Override
     public void setContent(String content) {
-        execJs("ZSSEditor.getField('zss_field_content').setHTML('" +
-                Utils.escapeHtml(content) + "');");
+        execJs(String.format(Locale.US, "ZSSEditor.getField('zss_field_content').setHTML('%s');", Utils.escapeHtml(content)));
     }
 
     @Override
     public String getContent() {
-        String content = Utils.unescapeHtml(new JsRunner().get(mWebView, "ZSSEditor.getField('zss_field_content').getHTML()"));
+        String content = Utils.unescapeHtml(new JsRunner().get(mWebView, "ZSSEditor.getField('zss_field_content').getHTML();"));
         content = appendPTag(content);
         return content;
+    }
+
+    @Override
+    public void insertImage(String title, String url) {
+        execJs(String.format(Locale.US, "ZSSEditor.insertImage('%s', '%s');", url, title));
     }
 
     private String appendPTag(String source) {

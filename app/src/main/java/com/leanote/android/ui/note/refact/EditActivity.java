@@ -5,6 +5,7 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -15,14 +16,13 @@ import android.view.MenuItem;
 import com.leanote.android.R;
 import com.leanote.android.db.AppDataBase;
 import com.leanote.android.model.AccountHelper;
-import com.leanote.android.model.NoteFile;
 import com.leanote.android.model.NoteInfo;
 import com.leanote.android.model.NotebookInfo;
 import com.leanote.android.networking.NetworkUtils;
+import com.leanote.android.service.NoteFileService;
 import com.leanote.android.service.NoteService;
 import com.leanote.android.util.ToastUtils;
 
-import java.io.File;
 import java.util.List;
 
 import rx.Observable;
@@ -184,12 +184,12 @@ public class EditActivity extends AppCompatActivity implements EditorFragment.Ed
     }
 
     @Override
-    public NoteFile createImage(File file) {
-        return null;
+    public Uri createImage(String filePath) {
+        return NoteFileService.createImageFile(mModified.getId(), filePath);
     }
 
     @Override
-    public NoteFile createAttach(File file) {
+    public Uri createAttach(String filePath) {
         return null;
     }
 

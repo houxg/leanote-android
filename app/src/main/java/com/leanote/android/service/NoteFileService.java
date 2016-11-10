@@ -47,10 +47,12 @@ public class NoteFileService {
         return noteFile == null ? null : noteFile.getServerId();
     }
 
-    public static Uri newLocalImage(String filePath) {
+    public static Uri createImageFile(long noteLocalId, String filePath) {
         NoteFile noteFile = new NoteFile();
+        noteFile.setNoteId(noteLocalId);
         noteFile.setLocalId(new ObjectId().toString());
         noteFile.setLocalPath(filePath);
+        noteFile.setIsAttach(false);
         noteFile.save();
         return getLocalImageUri(noteFile.getLocalId());
     }
