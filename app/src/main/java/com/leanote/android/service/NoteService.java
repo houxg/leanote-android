@@ -281,6 +281,9 @@ public class NoteService {
                         Uri linkUri = Uri.parse(original.substring(1, original.length() - 1));
                         String localId = linkUri.getQueryParameter("id");
                         String serverId = NoteFileService.convertFromLocalIdToServerId(localId);
+                        if (TextUtils.isEmpty(serverId)) {
+                            serverId = localId;
+                        }
                         return String.format(Locale.US, "(%s)", NoteFileService.getServerImageUri(serverId).toString());
                     }
                 });
@@ -296,6 +299,9 @@ public class NoteService {
                         Uri linkUri = Uri.parse(original.substring(6, original.length() - 1));
                         String localId = linkUri.getQueryParameter("id");
                         String serverId = NoteFileService.convertFromLocalIdToServerId(localId);
+                        if (TextUtils.isEmpty(serverId)) {
+                            serverId = localId;
+                        }
                         return String.format(Locale.US, " src=\"%s\"", NoteFileService.getServerImageUri(serverId).toString());
                     }
                 });
