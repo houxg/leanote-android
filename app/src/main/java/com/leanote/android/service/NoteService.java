@@ -169,6 +169,25 @@ public class NoteService {
         return contentBuilder.toString();
     }
 
+    public static void find(String content, String tagExp, String targetExp, Finder finder, Object... extraData) {
+        Pattern tagPattern = Pattern.compile(tagExp);
+        Pattern targetPattern = Pattern.compile(targetExp);
+        Matcher tagMather = tagPattern.matcher(content);
+        while (tagMather.find()) {
+            String tag = tagMather.group();
+            Matcher targetMatcher = targetPattern.matcher(tag);
+            if (!targetMatcher.find()) {
+                continue;
+            }
+            String original = targetMatcher.group();
+            finder.onFound(original);
+        }
+    }
+
+    public interface Finder {
+        void onFound(String original, Object... extraData);
+    }
+
     public interface Replacer {
         String replaceWith(String original, Object... extraData);
     }
@@ -336,6 +355,15 @@ public class NoteService {
         requestBodyMap.put("CreatedTime", createPartFromString(getTime(System.currentTimeMillis())));
         requestBodyMap.put("UpdatedTime", createPartFromString(getTime(System.currentTimeMillis())));
 
+        List<String> imageLocalIds;
+        if (note.isMarkDown()) {
+            imageLocalIds = getImagesFromContentForMD(note.getContent());
+        } else {
+            imageLocalIds = getImagesFromContentForRichText(note.getContent());
+        }
+        if (imageLocalIds.size() > 0) {
+            AppDataBase.deleteFileExcept(note.getId(), imageLocalIds);
+        }
         List<NoteFile> files = AppDataBase.getAllRelatedFile(note.getId());
         if (CollectionUtils.isNotEmpty(files)) {
             int size = files.size();
@@ -352,6 +380,38 @@ public class NoteService {
             }
         }
         return ApiProvider.getInstance().getNoteApi().add(requestBodyMap, fileBodies);
+    }
+
+    private static List<String> getImagesFromContentForRichText(String noteContent) {
+        final List<String> localIds = new ArrayList<>();
+        find(noteContent,
+                "<img[^>]+src\\s*=\\s*['\"]([^'\"]+)['\"][^>]*>",
+                "\\ssrc\\s*=\\s*\"file:/getImage\\?id=.*?\"",
+                new Finder() {
+                    @Override
+                    public void onFound(String original, Object... extraData) {
+                        Uri linkUri = Uri.parse(original.substring(6, original.length() - 1));
+                        String localId = linkUri.getQueryParameter("id");
+                        localIds.add(localId);
+                    }
+                });
+        return localIds;
+    }
+
+    private static List<String> getImagesFromContentForMD(String noteContent) {
+        final List<String> localIds = new ArrayList<>();
+        find(noteContent,
+                "!\\[.*?\\]\\(file:/getImage\\?id=.*?\\)",
+                "\\(file:/getImage\\?id=.*?\\)",
+                new Finder() {
+                    @Override
+                    public void onFound(String original, Object... extraData) {
+                        Uri linkUri = Uri.parse(original.substring(1, original.length() - 1));
+                        String localId = linkUri.getQueryParameter("id");
+                        localIds.add(localId);
+                    }
+                });
+        return localIds;
     }
 
     private static String getTime(long time) {
@@ -386,6 +446,15 @@ public class NoteService {
         requestBodyMap.put("IsBlog", createPartFromString(getBooleanString(modified.isPublicBlog())));
         requestBodyMap.put("UpdatedTime", createPartFromString(getTime(System.currentTimeMillis())));
 
+        List<String> imageLocalIds;
+        if (modified.isMarkDown()) {
+            imageLocalIds = getImagesFromContentForMD(modified.getContent());
+        } else {
+            imageLocalIds = getImagesFromContentForRichText(modified.getContent());
+        }
+        if (imageLocalIds.size() > 0) {
+            AppDataBase.deleteFileExcept(modified.getId(), imageLocalIds);
+        }
         List<NoteFile> files = AppDataBase.getAllRelatedFile(modified.getId());
         if (CollectionUtils.isNotEmpty(files)) {
             int size = files.size();
