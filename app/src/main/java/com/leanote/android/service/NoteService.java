@@ -1,6 +1,7 @@
 package com.leanote.android.service;
 
 
+import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
@@ -27,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -55,24 +58,31 @@ public class NoteService {
                         return false;
                     }
                     NoteInfo localNote = AppDataBase.getNoteByServerId(noteMeta.getNoteId());
-                    //TODO: need convert leanote link to local protocol link
+                    noteUsn = remoteNote.getUsn();
+                    long localId;
                     if (localNote == null) {
-                        long localId = remoteNote.insert();
+                        localId = remoteNote.insert();
+                        remoteNote.setId(localId);
                         Log.i(TAG, "note insert, usn=" + remoteNote.getUsn() + ", id=" + remoteNote.getNoteId() + ", local=" + localId);
-                        handleFile(localId, remoteNote.getNoteFiles());
                     } else {
                         if (localNote.isDirty()) {
                             Log.w(TAG, "note conflict, usn=" + remoteNote.getUsn() + ", id=" + remoteNote.getNoteId());
+                            continue;
                         } else {
                             Log.i(TAG, "note update, usn=" + remoteNote.getUsn() + ", id=" + remoteNote.getNoteId());
                             remoteNote.setId(localNote.getId());
-                            remoteNote.setIsDirty(false);
-                            remoteNote.update();
-                            handleFile(localNote.getId(), remoteNote.getNoteFiles());
+                            localId = localNote.getId();
                         }
                     }
-
-                    noteUsn = remoteNote.getUsn();
+                    remoteNote.setIsDirty(false);
+                    if (remoteNote.isMarkDown()) {
+                        remoteNote.setContent(convertToLocalImageLinkForMD(localId, remoteNote.getContent()));
+                    } else {
+                        remoteNote.setContent(convertToLocalImageLinkForRichText(localId, remoteNote.getContent()));
+                    }
+                    Log.i(TAG, "content=" + remoteNote.getContent());
+                    remoteNote.update();
+                    handleFile(localId, remoteNote.getNoteFiles());
                 }
             } else {
                 return false;
@@ -136,6 +146,82 @@ public class NoteService {
         AppDataBase.deleteFileExcept(noteLocalId, excepts);
     }
 
+    public static String replace(String content, String tagExp, String targetExp, Replacer replacer, Object... extraData) {
+        Pattern tagPattern = Pattern.compile(tagExp);
+        Pattern targetPattern = Pattern.compile(targetExp);
+        Matcher tagMather = tagPattern.matcher(content);
+        StringBuilder contentBuilder = new StringBuilder(content);
+        int offset = 0;
+        while (tagMather.find()) {
+            String tag = tagMather.group();
+            Matcher targetMatcher = targetPattern.matcher(tag);
+            if (!targetMatcher.find()) {
+                continue;
+            }
+            String original = targetMatcher.group();
+            int originalLen = original.length();
+            String modified = replacer.replaceWith(original, extraData);
+            contentBuilder.replace(tagMather.start() + targetMatcher.start() + offset,
+                    tagMather.end() - (tag.length() - targetMatcher.end()) + offset,
+                    modified);
+            offset += modified.length() - originalLen;
+        }
+        return contentBuilder.toString();
+    }
+
+    public interface Replacer {
+        String replaceWith(String original, Object... extraData);
+    }
+
+    private static String convertToLocalImageLinkForRichText(long noteLocalId, String noteContent) {
+        return replace(noteContent,
+                "<img[^>]+src\\s*=\\s*['\"]([^'\"]+)['\"][^>]*>",
+                "\\ssrc\\s*=\\s*\"https://leanote.com/api/file/getImage\\?fileId=.*?\"",
+                new Replacer() {
+                    @Override
+                    public String replaceWith(String original, Object... extraData) {
+                        Log.i(TAG, "in=" + original);
+                        Uri linkUri = Uri.parse(original.substring(6, original.length() - 1));
+                        String serverId = linkUri.getQueryParameter("fileId");
+                        NoteFile noteFile = AppDataBase.getNoteFileByServerId(serverId);
+                        if (noteFile == null) {
+                            noteFile = new NoteFile();
+                            noteFile.setNoteId((Long) extraData[0]);
+                            noteFile.setLocalId(new ObjectId().toString());
+                            noteFile.setServerId(serverId);
+                            noteFile.save();
+                        }
+                        String localId = noteFile.getLocalId();
+                        String result = String.format(Locale.US, " src=\"%s\"", NoteFileService.getLocalImageUri(localId).toString());
+                        Log.i(TAG, "out=" + result);
+                        return result;
+                    }
+                }, noteLocalId);
+    }
+
+    private static String convertToLocalImageLinkForMD(long noteLocalId, String noteContent) {
+        return replace(noteContent,
+                "!\\[.*?\\]\\(https://leanote.com/api/file/getImage\\?fileId=.*?\\)",
+                "\\(https://leanote.com/api/file/getImage\\?fileId=.*?\\)",
+                new Replacer() {
+                    @Override
+                    public String replaceWith(String original, Object... extraData) {
+                        Uri linkUri = Uri.parse(original.substring(1, original.length() - 1));
+                        String serverId = linkUri.getQueryParameter("fileId");
+                        NoteFile noteFile = AppDataBase.getNoteFileByServerId(serverId);
+                        if (noteFile == null) {
+                            noteFile = new NoteFile();
+                            noteFile.setNoteId((Long) extraData[0]);
+                            noteFile.setLocalId(new ObjectId().toString());
+                            noteFile.setServerId(serverId);
+                            noteFile.save();
+                        }
+                        String localId = noteFile.getLocalId();
+                        return String.format(Locale.US, "(%s)", NoteFileService.getLocalImageUri(localId).toString());
+                    }
+                }, noteLocalId);
+    }
+
     public static boolean updateNote(final NoteInfo modifiedNote) {
         NoteInfo note;
         if (modifiedNote.getUsn() == 0) {
@@ -152,6 +238,7 @@ public class NoteService {
         }
         if (note.isOk()) {
             note.setId(modifiedNote.getId());
+            note.setNoteBookId(modifiedNote.getNoteBookId());
             note.setIsDirty(false);
             note.setContent(modifiedNote.getContent());
             handleFile(modifiedNote.getId(), note.getNoteFiles());
@@ -166,11 +253,41 @@ public class NoteService {
         return true;
     }
 
-    public static Call<List<NoteInfo>> getSyncNotes(int afterUsn, int maxEntry) {
+    private static String convertToServerImageLinkForMD(String noteContent) {
+        return replace(noteContent,
+                "!\\[.*?\\]\\(file:/getImage\\?id=.*?\\)",
+                "\\(file:/getImage\\?id=.*?\\)",
+                new Replacer() {
+                    @Override
+                    public String replaceWith(String original, Object... extraData) {
+                        Uri linkUri = Uri.parse(original.substring(1, original.length() - 1));
+                        String localId = linkUri.getQueryParameter("id");
+                        String serverId = NoteFileService.convertFromLocalIdToServerId(localId);
+                        return String.format(Locale.US, "(%s)", NoteFileService.getServerImageUri(serverId).toString());
+                    }
+                });
+    }
+
+    private static String convertToServerImageLinkForRichText(String noteContent) {
+        return replace(noteContent,
+                "<img[^>]+src\\s*=\\s*['\"]([^'\"]+)['\"][^>]*>",
+                "\\ssrc\\s*=\\s*\"file:/getImage\\?id=.*?\"",
+                new Replacer() {
+                    @Override
+                    public String replaceWith(String original, Object... extraData) {
+                        Uri linkUri = Uri.parse(original.substring(6, original.length() - 1));
+                        String localId = linkUri.getQueryParameter("id");
+                        String serverId = NoteFileService.convertFromLocalIdToServerId(localId);
+                        return String.format(Locale.US, " src=\"%s\"", NoteFileService.getServerImageUri(serverId).toString());
+                    }
+                });
+    }
+
+    private static Call<List<NoteInfo>> getSyncNotes(int afterUsn, int maxEntry) {
         return ApiProvider.getInstance().getNoteApi().getSyncNotes(afterUsn, maxEntry);
     }
 
-    public static Call<List<NotebookInfo>> getSyncNotebooks(int afterUsn, int maxEntry) {
+    private static Call<List<NotebookInfo>> getSyncNotebooks(int afterUsn, int maxEntry) {
         return ApiProvider.getInstance().getNotebookApi().getSyncNotebooks(afterUsn, maxEntry);
     }
 
@@ -178,17 +295,46 @@ public class NoteService {
         return ApiProvider.getInstance().getNoteApi().getNoteAndContent(serverId);
     }
 
+    public static boolean revertNote(String serverId) {
+        NoteInfo serverNote = RetrofitUtils.excute(NoteService.getNoteByServerId(serverId));
+        if (serverNote == null) {
+            return false;
+        }
+        NoteInfo localNote = AppDataBase.getNoteByServerId(serverId);
+        long localId;
+        if (localNote == null) {
+            localId = serverNote.insert();
+        } else {
+            localId = localNote.getId();
+        }
+        serverNote.setId(localId);
+        if (serverNote.isMarkDown()) {
+            serverNote.setContent(convertToLocalImageLinkForMD(localId, serverNote.getContent()));
+        } else {
+            serverNote.setContent(convertToLocalImageLinkForRichText(localId, serverNote.getContent()));
+        }
+        handleFile(localId, serverNote.getNoteFiles());
+        serverNote.save();
+        return true;
+    }
+
     public static Call<NoteInfo> addNote(NoteInfo note) {
         List<MultipartBody.Part> fileBodies = new ArrayList<>();
 
         Map<String, RequestBody> requestBodyMap = new HashMap<>();
-        requestBodyMap.put("Content", createPartFromString(note.getContent()));
-        requestBodyMap.put("CreatedTime", createPartFromString(getTime(System.currentTimeMillis())));
-        requestBodyMap.put("UpdatedTime", createPartFromString(getTime(System.currentTimeMillis())));
-        requestBodyMap.put("IsMarkdown", createPartFromString(getBooleanString(note.isMarkDown())));
-        requestBodyMap.put("IsBlog", createPartFromString(getBooleanString(note.isPublicBlog())));
+        String content = note.getContent();
+        if (note.isMarkDown()) {
+            content = convertToServerImageLinkForMD(content);
+        } else {
+            content = convertToServerImageLinkForRichText(content);
+        }
         requestBodyMap.put("NotebookId", createPartFromString(note.getNoteBookId()));
         requestBodyMap.put("Title", createPartFromString(note.getTitle()));
+        requestBodyMap.put("Content", createPartFromString(content));
+        requestBodyMap.put("IsMarkdown", createPartFromString(getBooleanString(note.isMarkDown())));
+        requestBodyMap.put("IsBlog", createPartFromString(getBooleanString(note.isPublicBlog())));
+        requestBodyMap.put("CreatedTime", createPartFromString(getTime(System.currentTimeMillis())));
+        requestBodyMap.put("UpdatedTime", createPartFromString(getTime(System.currentTimeMillis())));
 
         List<NoteFile> files = AppDataBase.getAllRelatedFile(note.getId());
         if (CollectionUtils.isNotEmpty(files)) {
@@ -199,7 +345,7 @@ public class NoteService {
                 requestBodyMap.put(String.format("Files[%s][IsAttach]", index), createPartFromString(getBooleanString(noteFile.isAttach())));
                 requestBodyMap.put(String.format("Files[%s][FileId]", index), createPartFromString(StringUtils.notNullStr(noteFile.getServerId())));
                 boolean shouldUploadFile = TextUtils.isEmpty(noteFile.getServerId());
-                requestBodyMap.put(String.format("Files[%s][HasBody]", index), createPartFromString(getBooleanString(!shouldUploadFile)));
+                requestBodyMap.put(String.format("Files[%s][HasBody]", index), createPartFromString(getBooleanString(shouldUploadFile)));
                 if (shouldUploadFile) {
                     fileBodies.add(createFilePart(noteFile));
                 }
@@ -225,11 +371,19 @@ public class NoteService {
 
         Map<String, RequestBody> requestBodyMap = new HashMap<>();
         String noteId = original.getNoteId();
+        String content = modified.getContent();
+        if (modified.isMarkDown()) {
+            content = convertToServerImageLinkForMD(content);
+        } else {
+            content = convertToServerImageLinkForRichText(content);
+        }
         requestBodyMap.put("NoteId", createPartFromString(noteId));
+        requestBodyMap.put("NotebookId", createPartFromString(modified.getNoteBookId()));
         requestBodyMap.put("Usn", createPartFromString(String.valueOf(original.getUsn())));
-        requestBodyMap.put("IsMarkdown", createPartFromString(getBooleanString(modified.isMarkDown())));
         requestBodyMap.put("Title", createPartFromString(modified.getTitle()));
-        requestBodyMap.put("Content", createPartFromString(modified.getContent()));
+        requestBodyMap.put("Content", createPartFromString(content));
+        requestBodyMap.put("IsMarkdown", createPartFromString(getBooleanString(modified.isMarkDown())));
+        requestBodyMap.put("IsBlog", createPartFromString(getBooleanString(modified.isPublicBlog())));
         requestBodyMap.put("UpdatedTime", createPartFromString(getTime(System.currentTimeMillis())));
 
         List<NoteFile> files = AppDataBase.getAllRelatedFile(modified.getId());
@@ -241,7 +395,7 @@ public class NoteService {
                 requestBodyMap.put(String.format("Files[%s][IsAttach]", index), createPartFromString(getBooleanString(noteFile.isAttach())));
                 requestBodyMap.put(String.format("Files[%s][FileId]", index), createPartFromString(StringUtils.notNullStr(noteFile.getServerId())));
                 boolean shouldUploadFile = TextUtils.isEmpty(noteFile.getServerId());
-                requestBodyMap.put(String.format("Files[%s][HasBody]", index), createPartFromString(getBooleanString(!shouldUploadFile)));
+                requestBodyMap.put(String.format("Files[%s][HasBody]", index), createPartFromString(getBooleanString(shouldUploadFile)));
                 if (shouldUploadFile) {
                     fileBodies.add(createFilePart(noteFile));
                 }
@@ -258,8 +412,8 @@ public class NoteService {
         return ApiProvider.getInstance().getNoteApi().update(requestBodyMap, fileBodies);
     }
 
-    public static Call<UpdateRet> deleteNote(NoteInfo note) {
-        return ApiProvider.getInstance().getNoteApi().delete(note.getNoteId(), note.getUsn());
+    public static Call<UpdateRet> deleteNote(String noteId, int usn) {
+        return ApiProvider.getInstance().getNoteApi().delete(noteId, usn);
     }
 
     private static RequestBody createPartFromString(String content) {

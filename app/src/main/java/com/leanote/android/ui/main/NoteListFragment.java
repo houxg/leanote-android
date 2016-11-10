@@ -26,11 +26,11 @@ import com.leanote.android.Constants;
 import com.leanote.android.R;
 import com.leanote.android.db.AppDataBase;
 import com.leanote.android.db.LeanoteDbManager;
-import com.leanote.android.model.AccountHelper;
 import com.leanote.android.model.NoteDetailList;
 import com.leanote.android.model.NoteInfo;
-import com.leanote.android.networking.NetworkRequest;
 import com.leanote.android.networking.NetworkUtils;
+import com.leanote.android.networking.retrofitapi.RetrofitUtils;
+import com.leanote.android.service.NoteService;
 import com.leanote.android.ui.ActivityLauncher;
 import com.leanote.android.ui.EmptyViewMessageType;
 import com.leanote.android.ui.RequestCodes;
@@ -475,18 +475,7 @@ public class NoteListFragment extends Fragment
             if (TextUtils.isEmpty(note.getNoteId())) {
                 return null;
             }
-            String api = String.format("%s/api/note/deleteTrash?token=%s&usn=%s&noteId=%s",
-                    AccountHelper.getDefaultAccount().getHost(),
-                    AccountHelper.getDefaultAccount().getAccessToken(),
-                    note.getUsn(),
-                    note.getNoteId());
-
-            try {
-                NetworkRequest.syncGetRequest(api);
-            } catch (Exception e) {
-                e.printStackTrace();
-                //ToastUtils.showToast(getActivity(), getString(R.string.delete_note_fail));
-            }
+            RetrofitUtils.excute(NoteService.deleteNote(note.getNoteId(), note.getUsn()));
             //ToastUtils.showToast(getActivity(), getString(R.string.delete_note_succ));
             return null;
         }
