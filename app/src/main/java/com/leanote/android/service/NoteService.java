@@ -138,7 +138,6 @@ public class NoteService {
                 remote.setLocalId(new ObjectId().toString());
             }
             remote.setNoteId(noteLocalId);
-            remote.setIsDraft(false);
             remote.save();
             excepts.add(remote.getLocalId());
         }
@@ -361,9 +360,7 @@ public class NoteService {
         } else {
             imageLocalIds = getImagesFromContentForRichText(note.getContent());
         }
-        if (imageLocalIds.size() > 0) {
-            AppDataBase.deleteFileExcept(note.getId(), imageLocalIds);
-        }
+        AppDataBase.deleteFileExcept(note.getId(), imageLocalIds);
         List<NoteFile> files = AppDataBase.getAllRelatedFile(note.getId());
         if (CollectionUtils.isNotEmpty(files)) {
             int size = files.size();
@@ -452,9 +449,7 @@ public class NoteService {
         } else {
             imageLocalIds = getImagesFromContentForRichText(modified.getContent());
         }
-        if (imageLocalIds.size() > 0) {
-            AppDataBase.deleteFileExcept(modified.getId(), imageLocalIds);
-        }
+        AppDataBase.deleteFileExcept(modified.getId(), imageLocalIds);
         List<NoteFile> files = AppDataBase.getAllRelatedFile(modified.getId());
         if (CollectionUtils.isNotEmpty(files)) {
             int size = files.size();
