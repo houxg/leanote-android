@@ -38,9 +38,6 @@ public class NoteFile extends BaseModel {
     @SerializedName("IsAttach")
     boolean mIsAttach;
 
-    @Column(name = "isDraft")
-    boolean mIsDraft;
-
 
     public long getNoteId() {
         return noteId;
@@ -104,13 +101,5 @@ public class NoteFile extends BaseModel {
 
     public void setIsAttach(boolean mIsAttach) {
         this.mIsAttach = mIsAttach;
-    }
-
-    public boolean isDraft() {
-        return mIsDraft;
-    }
-
-    public void setIsDraft(boolean mIsDraft) {
-        this.mIsDraft = mIsDraft;
     }
 }
