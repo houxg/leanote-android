@@ -235,27 +235,21 @@ public class NoteInfo extends BaseModel implements Serializable {
     }
 
     public boolean hasChanges(NoteInfo otherNote) {
-
-        logDiff("title" , title, otherNote.title);
-        logDiff("content", content, otherNote.content);
-        logDiff("notebookId" , noteBookId, otherNote.noteBookId);
-        logDiff("isMarkDown", isMarkDown, otherNote.isMarkDown);
-        logDiff("tags" , tags, otherNote.tags);
-        logDiff("isBlog", isPublicBlog, otherNote.isPublicBlog);
-
         return otherNote == null
-                || title.equals(otherNote.title)
-                || content.equals(otherNote.content)
-                || noteBookId.equals(otherNote.noteBookId)
-                || isMarkDown != otherNote.isMarkDown
-                || tags.equals(otherNote.tags)
-                || isPublicBlog != otherNote.isPublicBlog;
+                || isChanged("title", title, otherNote.title)
+                || isChanged("content", content, otherNote.content)
+                || isChanged("notebookId" , noteBookId, otherNote.noteBookId)
+                || isChanged("isMarkDown", isMarkDown, otherNote.isMarkDown)
+                || isChanged("tags" , tags, otherNote.tags)
+                || isChanged("isBlog", isPublicBlog, otherNote.isPublicBlog);
     }
 
-    private void logDiff(String message, Object l, Object r) {
-        if (!l.equals(r)) {
+    private boolean isChanged(String message, Object l, Object r) {
+        boolean isEqual = l.equals(r);
+        if (!isEqual) {
             Log.i("NoteInfo", message + " changed, origin=" + l + ", modified=" + r);
         }
+        return !isEqual;
     }
 
     public boolean isPublicBlog() {
