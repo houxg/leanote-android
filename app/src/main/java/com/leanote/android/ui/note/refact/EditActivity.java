@@ -70,11 +70,6 @@ public class EditActivity extends AppCompatActivity implements EditorFragment.Ed
         return super.onCreateOptionsMenu(menu);
     }
 
-    private String getNotebookTitle(NoteInfo note) {
-        return AppDataBase.getNotebookByServerId(note.getNoteBookId())
-                .getTitle();
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -90,6 +85,7 @@ public class EditActivity extends AppCompatActivity implements EditorFragment.Ed
                             @Override
                             public void call(NoteInfo noteInfo) {
                                 saveAsDraft(noteInfo);
+                                setResult(RESULT_OK);
                                 if (NetworkUtils.isNetworkAvailable(EditActivity.this)) {
                                     boolean isSucceed = NoteService.updateNote(AppDataBase.getNoteByLocalId(mModified.getId()));
                                     if (isSucceed) {
@@ -121,6 +117,7 @@ public class EditActivity extends AppCompatActivity implements EditorFragment.Ed
                     .subscribe(new Action1<NoteInfo>() {
                         @Override
                         public void call(NoteInfo note) {
+                            setResult(RESULT_OK);
                             if (!isNewNote(note) || !(TextUtils.isEmpty(note.getTitle()) || TextUtils.isEmpty(note.getContent()))) {
                                 saveAsDraft(note);
                             } else {

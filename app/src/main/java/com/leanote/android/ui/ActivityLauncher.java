@@ -16,9 +16,9 @@ import com.leanote.android.networking.SSLCertsViewActivity;
 import com.leanote.android.networking.SelfSignedSSLCertsManager;
 import com.leanote.android.ui.lea.LeaActivity;
 import com.leanote.android.ui.note.EditNotebookActivity;
-import com.leanote.android.ui.note.NotePreviewActivity;
 import com.leanote.android.ui.note.NotesInNotebookActivity;
 import com.leanote.android.ui.note.refact.EditActivity;
+import com.leanote.android.ui.note.refact.PreviewActivity;
 import com.leanote.android.ui.post.BlogHomeActivity;
 import com.leanote.android.ui.search.SearchActivity;
 import com.leanote.android.util.AppLog;
@@ -114,13 +114,8 @@ public class ActivityLauncher {
     }
 
     public static void previewNoteForResult(Activity activity, Long id) {
-        NoteInfo note = AppDataBase.getNoteByLocalId(id);
-        if (note == null) return;
-
-        Intent intent = new Intent(activity, NotePreviewActivity.class);
-        intent.putExtra(NotePreviewActivity.ARG_LOCAL_NOTE_ID, id);
+        Intent intent = PreviewActivity.getOpenIntent(activity, id);
         slideInFromRightForResult(activity, intent, RequestCodes.PREVIEW_NOTE);
-
     }
 
     public static void slideInFromRightForResult(Activity activity, Intent intent, int requestCode) {

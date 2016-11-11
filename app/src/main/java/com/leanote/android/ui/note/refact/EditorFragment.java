@@ -41,6 +41,10 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
     ImageButton mBoldBtn;
     @BindView(R.id.btn_italic)
     ImageButton mItalicBtn;
+    @BindView(R.id.ll_tools)
+    View mToolContainer;
+
+    private boolean isEdittingEnabled = true;
 
     public EditorFragment() {
     }
@@ -146,6 +150,13 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
         mEditor.toggleItalic();
     }
 
+    public void setEditingEnabled(boolean enabled) {
+        isEdittingEnabled = enabled;
+        mEditor.setEditingEnabled(enabled);
+        //TODO: add slide animation
+        mToolContainer.setVisibility(enabled ? View.VISIBLE : View.GONE);
+    }
+
     @Override
     public void onPageLoaded() {
         mListener.onInitialized();
@@ -153,12 +164,16 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
 
     @Override
     public void onClickedLink(String title, String url) {
-        DialogUtils.editLink(getActivity(), title, url, new DialogUtils.ChangedListener() {
-            @Override
-            public void onChanged(String title, String link) {
-                mEditor.updateLink(title, link);
-            }
-        });
+        if (isEdittingEnabled) {
+            DialogUtils.editLink(getActivity(), title, url, new DialogUtils.ChangedListener() {
+                @Override
+                public void onChanged(String title, String link) {
+                    mEditor.updateLink(title, link);
+                }
+            });
+        } else {
+            //TODO: go to link
+        }
     }
 
     @Override

@@ -50,7 +50,13 @@ public class RichTextEditor extends Editor implements OnJsEditorStateChangedList
 
     @Override
     public void setEditingEnabled(boolean enabled) {
-
+        if (enabled) {
+            execJs("ZSSEditor.getField('zss_field_title').enableEditing();");
+            execJs("ZSSEditor.getField('zss_field_content').enableEditing();");
+        } else {
+            execJs("ZSSEditor.getField('zss_field_title').disableEditing();");
+            execJs("ZSSEditor.getField('zss_field_content').disableEditing();");
+        }
     }
 
     @Override
