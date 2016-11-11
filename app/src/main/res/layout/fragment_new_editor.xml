@@ -8,41 +8,51 @@
     <com.leanote.android.widget.LeaWebView
         android:id="@+id/web_editor"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/format_bar_height"
-        android:background="@color/light_gray"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:background="@color/light_gray">
 
-        <Button
-            android:id="@+id/btn_insert_link"
+        <ImageButton
+            android:id="@+id/btn_img"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="link"/>
+            android:background="@drawable/format_bar_button_media_selector" />
 
-        <Button
-            android:id="@+id/btn_insert_img"
+        <ImageButton
+            android:id="@+id/btn_link"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="img"/>
+            android:background="@drawable/format_bar_button_link"
+            android:text="link" />
 
-        <Button
-            android:id="@+id/btn_redo"
+        <ImageButton
+            android:id="@+id/btn_bold"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="redo"/>
+            android:background="@drawable/format_bar_button_bold"
+            android:text="link" />
 
-        <Button
-            android:id="@+id/btn_undo"
+        <ImageButton
+            android:id="@+id/btn_italic"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="undo"/>
+            android:background="@drawable/format_bar_button_italic"
+            android:text="link" />
 
+        <ImageButton
+            android:id="@+id/btn_order_list"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/format_bar_button_ol" />
+
+        <ImageButton
+            android:id="@+id/btn_unorder_list"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/format_bar_button_ul" />
     </LinearLayout>
 </RelativeLayout>

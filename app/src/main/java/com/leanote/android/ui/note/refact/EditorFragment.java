@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -24,6 +25,7 @@ import com.yuyh.library.imgsel.ImgSelConfig;
 
 import java.util.List;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -34,6 +36,11 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
 
     protected EditorFragmentListener mListener;
     private Editor mEditor;
+
+    @BindView(R.id.btn_bold)
+    ImageButton mBoldBtn;
+    @BindView(R.id.btn_italic)
+    ImageButton mItalicBtn;
 
     public EditorFragment() {
     }
@@ -71,7 +78,7 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
         return mEditor.getContent();
     }
 
-    @OnClick(R.id.btn_insert_img)
+    @OnClick(R.id.btn_img)
     void handleInsertImage() {
         ImgSelConfig config = new ImgSelConfig.Builder(
                 new com.yuyh.library.imgsel.ImageLoader() {
@@ -87,6 +94,17 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
                 .needCamera(true)
                 .build();
         ImgSelActivity.startActivity(this, config, REQ_SELECT_IMAGE);
+    }
+
+    @OnClick(R.id.btn_link)
+    void insertLink() {
+        DialogUtils.editLink(getActivity(), "", "", new DialogUtils.ChangedListener() {
+            @Override
+            public void onChanged(String title, String link) {
+                Log.i(TAG, "title=" + title + ", url=" + link);
+                mEditor.insertLink(title, link);
+            }
+        });
     }
 
     @Override
@@ -108,9 +126,64 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
         }
     }
 
+    @OnClick(R.id.btn_order_list)
+    void toggleOrderList() {
+        mEditor.toggleOrderList();
+    }
+
+    @OnClick(R.id.btn_unorder_list)
+    void toggleUnorderList() {
+        mEditor.toggleUnorderList();
+    }
+
+    @OnClick(R.id.btn_bold)
+    void toggleBold() {
+        mEditor.toggleBold();
+    }
+
+    @OnClick(R.id.btn_italic)
+    void toggleItalic() {
+        mEditor.toggleItalic();
+    }
+
     @Override
     public void onPageLoaded() {
         mListener.onInitialized();
+    }
+
+    @Override
+    public void onClickedLink(String title, String url) {
+        DialogUtils.editLink(getActivity(), title, url, new DialogUtils.ChangedListener() {
+            @Override
+            public void onChanged(String title, String link) {
+                mEditor.updateLink(title, link);
+            }
+        });
+    }
+
+    @Override
+    public void onStyleChanged(final Editor.Style style, final boolean enabled) {
+        mBoldBtn.post(new Runnable() {
+            @Override
+            public void run() {
+                switch (style) {
+                    case BOLD:
+                        setStyleButton(mBoldBtn, enabled, R.drawable.format_bar_button_bold_highlighted, R.drawable.format_bar_button_bold);
+                        break;
+                    case ITALIC:
+                        setStyleButton(mItalicBtn, enabled, R.drawable.format_bar_button_italic_highlighted, R.drawable.format_bar_button_italic);
+                        break;
+                }
+            }
+        });
+    }
+
+    private void setStyleButton(ImageButton button, boolean enabled, int enabledRes, int disabledRes) {
+        if (enabled) {
+            button.setBackgroundResource(enabledRes);
+        } else {
+            button.setBackgroundResource(disabledRes);
+        }
     }
 
     public interface EditorFragmentListener {

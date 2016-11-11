@@ -80,6 +80,36 @@ public class RichTextEditor extends Editor implements OnJsEditorStateChangedList
         execJs(String.format(Locale.US, "ZSSEditor.insertImage('%s', '%s');", url, title));
     }
 
+    @Override
+    public void insertLink(String title, String url) {
+        execJs(String.format(Locale.US, "ZSSEditor.insertLink('%s', '%s');", url, title));
+    }
+
+    @Override
+    public void updateLink(String title, String url) {
+        execJs(String.format(Locale.US, "ZSSEditor.updateLink('%s', '%s');", url, title));
+    }
+
+    @Override
+    public void toggleOrderList() {
+        execJs("ZSSEditor.setOrderedList();");
+    }
+
+    @Override
+    public void toggleUnorderList() {
+        execJs("ZSSEditor.setUnorderedList();");
+    }
+
+    @Override
+    public void toggleBold() {
+        execJs("ZSSEditor.setBold();");
+    }
+
+    @Override
+    public void toggleItalic() {
+        execJs("ZSSEditor.setItalic();");
+    }
+
     private String appendPTag(String source) {
         String[] segments = source.split("\n\n");
         StringBuilder contentBuilder = new StringBuilder();
@@ -110,6 +140,16 @@ public class RichTextEditor extends Editor implements OnJsEditorStateChangedList
     @Override
     public void onSelectionStyleChanged(Map<String, Boolean> changeSet) {
         Log.i(TAG, "onSelectionStyleChanged(), data=" + new Gson().toJson(changeSet));
+        for (Map.Entry<String, Boolean> entry : changeSet.entrySet()) {
+            switch (entry.getKey()) {
+                case "bold":
+                    mListener.onStyleChanged(Style.BOLD, entry.getValue());
+                    break;
+                case "italic":
+                    mListener.onStyleChanged(Style.ITALIC, entry.getValue());
+                    break;
+            }
+        }
     }
 
     @Override
@@ -119,13 +159,7 @@ public class RichTextEditor extends Editor implements OnJsEditorStateChangedList
     @Override
     public void onLinkTapped(String url, String title) {
         Log.i(TAG, "onLinkTapped(), title=" + title + ", url=" + url);
-
-        DialogUtils.editLink(mWebView.getContext(), title, url, new DialogUtils.ChangedListener() {
-            @Override
-            public void onChanged(String title, String link) {
-                Log.i(TAG, "change, title=" + title + ", link=" + link);
-            }
-        });
+        mListener.onClickedLink(title, url);
     }
 
     @Override

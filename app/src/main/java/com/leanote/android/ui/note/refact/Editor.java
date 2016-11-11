@@ -14,6 +14,11 @@ import com.leanote.android.service.NoteFileService;
 
 public abstract class Editor {
 
+    public enum Style {
+        BOLD,
+        ITALIC
+    }
+
     protected EditorListener mListener;
 
     public Editor(EditorListener listener) {
@@ -34,8 +39,22 @@ public abstract class Editor {
 
     public abstract void insertImage(String title, String url);
 
+    public abstract void insertLink(String title, String url);
+
+    public abstract void updateLink(String title, String url);
+
+    public abstract void toggleOrderList();
+
+    public abstract void toggleUnorderList();
+
+    public abstract void toggleBold();
+
+    public abstract void toggleItalic();
+
     public interface EditorListener {
         void onPageLoaded();
+        void onClickedLink(String title, String url);
+        void onStyleChanged(Style style, boolean enabled);
     }
 
     protected class EditorClient extends WebViewClient {
