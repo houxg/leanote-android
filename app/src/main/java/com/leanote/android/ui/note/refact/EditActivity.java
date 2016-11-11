@@ -27,6 +27,7 @@ import java.util.List;
 
 import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
@@ -83,15 +84,19 @@ public class EditActivity extends AppCompatActivity implements EditorFragment.Ed
         switch (item.getItemId()) {
             case R.id.action_save:
                 checkChangeOrDirty()
+                        .doOnCompleted(new Action0() {
+                            @Override
+                            public void call() {
+                                finish();
+                            }
+                        })
                         .subscribe(new Action1<NoteInfo>() {
                             @Override
                             public void call(NoteInfo noteInfo) {
                                 saveAsDraft(noteInfo);
                                 if (NetworkUtils.isNetworkAvailable(EditActivity.this)) {
                                     boolean isSucceed = NoteService.updateNote(AppDataBase.getNoteByLocalId(mModified.getId()));
-                                    if (isSucceed) {
-                                        finish();
-                                    } else {
+                                    if (!isSucceed) {
                                         ToastUtils.showToast(EditActivity.this, R.string.upload_fail, ToastUtils.Duration.SHORT);
                                     }
                                 } else {
