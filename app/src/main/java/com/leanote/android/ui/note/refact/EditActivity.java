@@ -96,7 +96,11 @@ public class EditActivity extends AppCompatActivity implements EditorFragment.Ed
                                 saveAsDraft(noteInfo);
                                 if (NetworkUtils.isNetworkAvailable(EditActivity.this)) {
                                     boolean isSucceed = NoteService.updateNote(AppDataBase.getNoteByLocalId(mModified.getId()));
-                                    if (!isSucceed) {
+                                    if (isSucceed) {
+                                        NoteInfo note = AppDataBase.getNoteByLocalId(mModified.getId());
+                                        note.setIsDirty(false);
+                                        note.save();
+                                    } else {
                                         ToastUtils.showToast(EditActivity.this, R.string.upload_fail, ToastUtils.Duration.SHORT);
                                     }
                                 } else {
