@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import com.google.gson.Gson;
 import com.leanote.android.db.AppDataBase;
 import com.leanote.android.db.LeanoteDbManager;
 import com.leanote.android.model.AccountHelper;
@@ -43,7 +42,6 @@ public class NoteService {
     private static final String FALSE = "0";
     private static final String MULTIPART_FORM_DATA = "multipart/form-data";
     private static final int MAX_ENTRY = 20;
-
 
     public static boolean fetchFromServer() {
         int noteUsn = AccountHelper.getDefaultAccount().getLastSyncUsn();
@@ -128,20 +126,25 @@ public class NoteService {
         Log.i(TAG, "file size=" + remoteFiles.size());
         List<String> excepts = new ArrayList<>();
         for (NoteFile remote : remoteFiles) {
-            NoteFile local = AppDataBase.getNoteFileByServerId(remote.getServerId());
+            NoteFile local;
+            if (TextUtils.isEmpty(remote.getLocalId())) {
+                local = AppDataBase.getNoteFileByServerId(remote.getServerId());
+            } else {
+                local = AppDataBase.getNoteFileByLocalId(remote.getLocalId());
+            }
             if (local != null) {
                 Log.i(TAG, "has local file, id=" + remote.getServerId());
-                remote.setLocalId(local.getLocalId());
-                remote.setLocalPath(local.getLocalPath());
+                local.setServerId(remote.getServerId());
             } else {
                 Log.i(TAG, "need to insert, id=" + remote.getServerId());
-                remote.setLocalId(new ObjectId().toString());
+                local = new NoteFile();
+                local.setLocalId(new ObjectId().toString());
             }
-            remote.setNoteId(noteLocalId);
-            remote.save();
-            excepts.add(remote.getLocalId());
+            local.setServerId(remote.getServerId());
+            local.setNoteId(noteLocalId);
+            local.save();
+            excepts.add(local.getLocalId());
         }
-        Log.i(TAG, "delete exclude=" + new Gson().toJson(excepts));
         AppDataBase.deleteFileExcept(noteLocalId, excepts);
     }
 

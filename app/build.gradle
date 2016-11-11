@@ -134,5 +134,6 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.4.0'
     apt 'com.jakewharton:butterknife-compiler:8.4.0'
     compile project(':img-selector')
+    compile 'com.github.bumptech.glide:glide:3.7.0'
 }
 
