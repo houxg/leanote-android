@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,7 +31,9 @@ import butterknife.OnClick;
 public class EditorFragment extends Fragment implements Editor.EditorListener {
 
     private static final String TAG = "EditorFragment";
+    private static final String EXT_IS_MARKDOWN = "ext_is_markdown";
     protected static final int REQ_SELECT_IMAGE = 879;
+
 
     protected EditorFragmentListener mListener;
     private Editor mEditor;
@@ -48,20 +49,19 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
     ImageButton mOrderListBtn;
     @BindView(R.id.btn_unorder_list)
     ImageButton mUnorderListBtn;
+    @BindView(R.id.web_editor)
+    WebView mWebView;
 
     private boolean isEditingEnabled = true;
 
     public EditorFragment() {
     }
 
-    public static EditorFragment getNewInstance(boolean isMarkdown, @NonNull EditorFragmentListener listener) {
+    public static EditorFragment getNewInstance(boolean isMarkdown) {
         EditorFragment fragment = new EditorFragment();
-        fragment.mListener = listener;
-        if (isMarkdown) {
-            fragment.mEditor = new MarkdownEditor(fragment);
-        } else {
-            fragment.mEditor = new RichTextEditor(fragment);
-        }
+        Bundle arguments = new Bundle();
+        arguments.putBoolean(EXT_IS_MARKDOWN, isMarkdown);
+        fragment.setArguments(arguments);
         return fragment;
     }
 
@@ -69,10 +69,38 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_new_editor, container, false);
-        WebView webView = (WebView) view.findViewById(R.id.web_editor);
-        mEditor.init(webView);
         ButterKnife.bind(this, view);
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (getActivity() instanceof EditorFragmentListener) {
+            mListener = (EditorFragmentListener) getActivity();
+        } else {
+            throw new IllegalArgumentException("Current activity is not the EditorFragmentListener");
+        }
+
+        boolean isMarkdown;
+        if (savedInstanceState == null) {
+            isMarkdown = getArguments().getBoolean(EXT_IS_MARKDOWN, true);
+        } else {
+            isMarkdown = savedInstanceState.getBoolean(EXT_IS_MARKDOWN, true);
+        }
+        
+        if (isMarkdown) {
+            mEditor = new MarkdownEditor(this);
+        } else {
+            mEditor = new RichTextEditor(this);
+        }
+        mEditor.init(mWebView);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(EXT_IS_MARKDOWN, mEditor instanceof MarkdownEditor);
     }
 
     public void setTitle(String title) {

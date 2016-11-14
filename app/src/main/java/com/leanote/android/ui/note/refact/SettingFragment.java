@@ -26,7 +26,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class SettingFragment extends Fragment{
+public class SettingFragment extends Fragment {
 
     private static final String TAG = "SettingFragment";
 
@@ -42,9 +42,8 @@ public class SettingFragment extends Fragment{
     public SettingFragment() {
     }
 
-    public static SettingFragment getNewInstance(String currentNotebookId) {
+    public static SettingFragment getNewInstance() {
         SettingFragment fragment = new SettingFragment();
-        fragment.mNoteBookId = currentNotebookId;
         return fragment;
     }
 
@@ -53,13 +52,35 @@ public class SettingFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
         ButterKnife.bind(this, view);
+        return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (getActivity() instanceof SettingFragmentListener) {
+            ((SettingFragmentListener) getActivity()).onFragmentInitialized();
+        } else {
+            throw new IllegalArgumentException("Activity doesn't implement SettingFragmentListener yet.");
+        }
+    }
+
+    public void setTags(String tags) {
+        mTagEt.setText(tags);
+    }
+
+    public void setShouldPublic(boolean shouldPublic) {
+        mPublicSw.setChecked(shouldPublic);
+    }
+
+    public void setNotebookId(String notebookId) {
+        mNoteBookId = notebookId;
         if (!TextUtils.isEmpty(mNoteBookId)) {
             NotebookInfo notebook = AppDataBase.getNotebookByServerId(mNoteBookId);
             if (notebook != null) {
                 mNotebookTv.setText(notebook.getTitle());
             }
         }
-        return view;
     }
 
     public String getNotebookId() {
@@ -99,5 +120,9 @@ public class SettingFragment extends Fragment{
                 })
                 .setCancelable(true)
                 .show();
+    }
+
+    public interface SettingFragmentListener {
+        void onFragmentInitialized();
     }
 }

@@ -34,10 +34,12 @@ import rx.schedulers.Schedulers;
 
 //TODO: hide action bar
 //TODO: onSaveInstance
-public class NoteEditActivity extends AppCompatActivity implements EditorFragment.EditorFragmentListener {
+public class NoteEditActivity extends AppCompatActivity implements EditorFragment.EditorFragmentListener, SettingFragment.SettingFragmentListener {
 
     private static final String TAG = "NoteEditActivity";
     public static final String EXT_NOTE_LOCAL_ID = "ext_note_local_id";
+    public static final String TAG_EDITOR = "tag_editor_tag";
+    public static final String TAG_SETTING = "tag_setting_tag";
     public static final int FRAG_EDITOR = 0;
     public static final int FRAG_SETTINGS = 1;
 
@@ -53,14 +55,26 @@ public class NoteEditActivity extends AppCompatActivity implements EditorFragmen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
 
-        long noteLocalId = getIntent().getLongExtra(EXT_NOTE_LOCAL_ID, -1);
-        mOriginal = AppDataBase.getNoteByLocalId(noteLocalId);
-        mModified = AppDataBase.getNoteByLocalId(noteLocalId);
-
         mPager = (LeaViewPager) findViewById(R.id.pager);
         mPager.setPagingEnabled(false);
         mPager.setAdapter(new SectionAdapter(getFragmentManager()));
         mPager.setOffscreenPageLimit(2);
+
+        long noteLocalId;
+        if (savedInstanceState == null) {
+            noteLocalId = getIntent().getLongExtra(EXT_NOTE_LOCAL_ID, -1);
+        } else {
+            noteLocalId = savedInstanceState.getLong(EXT_NOTE_LOCAL_ID, -1);
+            mEditorFragment = (EditorFragment) getFragmentManager().findFragmentByTag(savedInstanceState.getString(TAG_EDITOR));
+            mSettingsFragment = (SettingFragment) getFragmentManager().findFragmentByTag(savedInstanceState.getString(TAG_SETTING));
+        }
+
+        if (noteLocalId == -1) {
+            finish();
+            return;
+        }
+        mOriginal = AppDataBase.getNoteByLocalId(noteLocalId);
+        mModified = AppDataBase.getNoteByLocalId(noteLocalId);
         setResult(RESULT_CANCELED);
     }
 
@@ -68,6 +82,14 @@ public class NoteEditActivity extends AppCompatActivity implements EditorFragmen
         Intent intent = new Intent(context, NoteEditActivity.class);
         intent.putExtra(EXT_NOTE_LOCAL_ID, noteLocalId);
         return intent;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong(EXT_NOTE_LOCAL_ID, mModified.getId());
+        outState.putString(TAG_EDITOR, mEditorFragment.getTag());
+        outState.putString(TAG_SETTING, mSettingsFragment.getTag());
     }
 
     @Override
@@ -131,7 +153,8 @@ public class NoteEditActivity extends AppCompatActivity implements EditorFragmen
                         @Override
                         public void call(NoteInfo note) {
                             setResult(RESULT_OK);
-                            if (!isNewNote(note) || !(TextUtils.isEmpty(note.getTitle()) || TextUtils.isEmpty(note.getContent()))) {
+                            if (!isNewNote(note) ||
+                                    !(TextUtils.isEmpty(note.getTitle()) || TextUtils.isEmpty(note.getContent()))) {
                                 saveAsDraft(note);
                             } else {
                                 Log.i(TAG, "remove empty note, id=" + note.getId());
@@ -201,6 +224,13 @@ public class NoteEditActivity extends AppCompatActivity implements EditorFragmen
         mEditorFragment.setContent(mModified.getContent());
     }
 
+    @Override
+    public void onFragmentInitialized() {
+        mSettingsFragment.setNotebookId(mModified.getNoteBookId());
+        mSettingsFragment.setShouldPublic(mModified.isPublicBlog());
+        mSettingsFragment.setTags(mModified.getTags());
+    }
+
     private class SectionAdapter extends FragmentPagerAdapter {
 
         public SectionAdapter(FragmentManager fm) {
@@ -211,9 +241,9 @@ public class NoteEditActivity extends AppCompatActivity implements EditorFragmen
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return EditorFragment.getNewInstance(mModified.isMarkDown(), NoteEditActivity.this);
+                    return EditorFragment.getNewInstance(mModified.isMarkDown());
                 case 1:
-                    return SettingFragment.getNewInstance(mModified.getNoteBookId());
+                    return SettingFragment.getNewInstance();
                 default:
                     return null;
             }
