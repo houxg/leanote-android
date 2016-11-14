@@ -125,11 +125,6 @@
             android:name=".editor.legacy.EditLinkActivity"
             android:label="@string/edit_link_activity" >
         </activity>
-        <activity
-            android:name=".ui.note.NotePreviewActivity"
-            android:label="@string/title_activity_note_preview"
-            android:theme="@style/AppTheme4Preview" >
-        </activity>
 
         <service
             android:name=".ui.note.service.NoteUploadService"
