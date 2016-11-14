@@ -282,4 +282,6 @@
     <string name="search_notebook_hint">搜索笔记本</string>
     <string name="search_blog_hint">搜索博客</string>
 
+    <string name="reverting">恢复中</string>
+
 </resources>

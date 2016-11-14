@@ -117,6 +117,12 @@ public class EditActivity extends AppCompatActivity implements EditorFragment.Ed
         } else {
             checkChangeOrDirty()
                     .observeOn(AndroidSchedulers.mainThread())
+                    .doOnCompleted(new Action0() {
+                        @Override
+                        public void call() {
+                            EditActivity.super.onBackPressed();
+                        }
+                    })
                     .subscribe(new Action1<NoteInfo>() {
                         @Override
                         public void call(NoteInfo note) {
@@ -127,7 +133,6 @@ public class EditActivity extends AppCompatActivity implements EditorFragment.Ed
                                 Log.i(TAG, "remove empty note, id=" + note.getId());
                                 AppDataBase.deleteNoteByLocalId(note.getId());
                             }
-                            EditActivity.super.onBackPressed();
                         }
                     });
         }

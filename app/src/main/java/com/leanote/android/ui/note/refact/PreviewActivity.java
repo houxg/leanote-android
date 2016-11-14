@@ -1,5 +1,6 @@
 package com.leanote.android.ui.note.refact;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -22,6 +23,7 @@ import butterknife.OnClick;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
@@ -38,6 +40,8 @@ public class PreviewActivity extends AppCompatActivity implements EditorFragment
     View mActionContainer;
     @BindView(R.id.tv_revert)
     View mRevertBtn;
+
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +108,18 @@ public class PreviewActivity extends AppCompatActivity implements EditorFragment
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe(new Action0() {
+                    @Override
+                    public void call() {
+                        showProgress(getString(R.string.note_uploading));
+                    }
+                })
+                .doOnCompleted(new Action0() {
+                    @Override
+                    public void call() {
+                        dismissProgress();
+                    }
+                })
                 .subscribe(new Action1<Boolean>() {
                     @Override
                     public void call(Boolean isSucceed) {
@@ -138,6 +154,18 @@ public class PreviewActivity extends AppCompatActivity implements EditorFragment
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe(new Action0() {
+                    @Override
+                    public void call() {
+                        showProgress(getString(R.string.reverting));
+                    }
+                })
+                .doOnCompleted(new Action0() {
+                    @Override
+                    public void call() {
+                        dismissProgress();
+                    }
+                })
                 .subscribe(new Action1<Boolean>() {
                     @Override
                     public void call(Boolean isSucceed) {
@@ -150,6 +178,17 @@ public class PreviewActivity extends AppCompatActivity implements EditorFragment
 
     }
 
+    private void showProgress(String message) {
+        dismissProgress();
+        mProgressDialog = ProgressDialog.show(PreviewActivity.this, "", message, false);
+    }
+
+    private void dismissProgress() {
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
+            mProgressDialog = null;
+        }
+    }
 
     @Override
     public Uri createImage(String filePath) {
