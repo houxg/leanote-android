@@ -16,9 +16,9 @@ import com.leanote.android.networking.SSLCertsViewActivity;
 import com.leanote.android.networking.SelfSignedSSLCertsManager;
 import com.leanote.android.ui.lea.LeaActivity;
 import com.leanote.android.ui.note.EditNotebookActivity;
-import com.leanote.android.ui.note.refact.PreviewActivity;
+import com.leanote.android.ui.note.NotePreviewActivity;
 import com.leanote.android.ui.note.NotesInNotebookActivity;
-import com.leanote.android.ui.note.refact.EditActivity;
+import com.leanote.android.ui.note.NoteEditActivity;
 import com.leanote.android.ui.post.BlogHomeActivity;
 import com.leanote.android.ui.search.SearchActivity;
 import com.leanote.android.util.AppLog;
@@ -65,18 +65,12 @@ public class ActivityLauncher {
         NotebookInfo notebook = AppDataBase.getRecentNoteBook(AccountHelper.getDefaultAccount().getUserId());
         newNote.setNoteBookId(notebook.getNotebookId());
         newNote.save();
-//        Intent intent = new Intent(context, LegacyEditNoteActivity.class);
-        Intent intent = EditActivity.getOpenIntent(context, newNote.getId());
-//        intent.putExtra(LegacyEditNoteActivity.EXTRA_NOTEID, newNote.getId());
-//        intent.putExtra(LegacyEditNoteActivity.EXTRA_IS_NEW_NOTE, true);
+        Intent intent = NoteEditActivity.getOpenIntent(context, newNote.getId());
         context.startActivityForResult(intent, RequestCodes.EDIT_NOTE);
     }
 
     public static void editNoteForResult(Activity activity, long noteId) {
-//        Intent intent = new Intent(activity.getApplicationContext(), LegacyEditNoteActivity.class);
-        Intent intent = EditActivity.getOpenIntent(activity, noteId);
-//        intent.putExtra(LegacyEditNoteActivity.EXTRA_NOTEID, noteId);
-//        intent.putExtra(LegacyEditNoteActivity.EXTRA_IS_NEW_NOTE, false);
+        Intent intent = NoteEditActivity.getOpenIntent(activity, noteId);
         activity.startActivityForResult(intent, RequestCodes.EDIT_NOTE);
     }
 
@@ -114,7 +108,7 @@ public class ActivityLauncher {
     }
 
     public static void previewNoteForResult(Activity activity, Long id) {
-        Intent intent = PreviewActivity.getOpenIntent(activity, id);
+        Intent intent = NotePreviewActivity.getOpenIntent(activity, id);
         slideInFromRightForResult(activity, intent, RequestCodes.PREVIEW_NOTE);
     }
 

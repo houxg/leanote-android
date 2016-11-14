@@ -1,4 +1,4 @@
-package com.leanote.android.ui.note.refact;
+package com.leanote.android.ui.note;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -20,6 +20,8 @@ import com.leanote.android.model.NoteInfo;
 import com.leanote.android.networking.NetworkUtils;
 import com.leanote.android.service.NoteFileService;
 import com.leanote.android.service.NoteService;
+import com.leanote.android.ui.note.refact.EditorFragment;
+import com.leanote.android.ui.note.refact.SettingFragment;
 import com.leanote.android.util.ToastUtils;
 import com.leanote.android.widget.LeaViewPager;
 
@@ -30,9 +32,11 @@ import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
-public class EditActivity extends AppCompatActivity implements EditorFragment.EditorFragmentListener {
+//TODO: hide action bar
+//TODO: onSaveInstance
+public class NoteEditActivity extends AppCompatActivity implements EditorFragment.EditorFragmentListener {
 
-    private static final String TAG = "EditActivity";
+    private static final String TAG = "NoteEditActivity";
     public static final String EXT_NOTE_LOCAL_ID = "ext_note_local_id";
     public static final int FRAG_EDITOR = 0;
     public static final int FRAG_SETTINGS = 1;
@@ -61,7 +65,7 @@ public class EditActivity extends AppCompatActivity implements EditorFragment.Ed
     }
 
     public static Intent getOpenIntent(Context context, long noteLocalId) {
-        Intent intent = new Intent(context, EditActivity.class);
+        Intent intent = new Intent(context, NoteEditActivity.class);
         intent.putExtra(EXT_NOTE_LOCAL_ID, noteLocalId);
         return intent;
     }
@@ -88,17 +92,17 @@ public class EditActivity extends AppCompatActivity implements EditorFragment.Ed
                             public void call(NoteInfo noteInfo) {
                                 saveAsDraft(noteInfo);
                                 setResult(RESULT_OK);
-                                if (NetworkUtils.isNetworkAvailable(EditActivity.this)) {
+                                if (NetworkUtils.isNetworkAvailable(NoteEditActivity.this)) {
                                     boolean isSucceed = NoteService.updateNote(AppDataBase.getNoteByLocalId(mModified.getId()));
                                     if (isSucceed) {
                                         NoteInfo note = AppDataBase.getNoteByLocalId(mModified.getId());
                                         note.setIsDirty(false);
                                         note.save();
                                     } else {
-                                        ToastUtils.showToast(EditActivity.this, R.string.upload_fail, ToastUtils.Duration.SHORT);
+                                        ToastUtils.showToast(NoteEditActivity.this, R.string.upload_fail, ToastUtils.Duration.SHORT);
                                     }
                                 } else {
-                                    ToastUtils.showToast(EditActivity.this, R.string.no_network_message, ToastUtils.Duration.SHORT);
+                                    ToastUtils.showToast(NoteEditActivity.this, R.string.no_network_message, ToastUtils.Duration.SHORT);
                                 }
                             }
                         });
@@ -120,7 +124,7 @@ public class EditActivity extends AppCompatActivity implements EditorFragment.Ed
                     .doOnCompleted(new Action0() {
                         @Override
                         public void call() {
-                            EditActivity.super.onBackPressed();
+                            NoteEditActivity.super.onBackPressed();
                         }
                     })
                     .subscribe(new Action1<NoteInfo>() {
@@ -207,7 +211,7 @@ public class EditActivity extends AppCompatActivity implements EditorFragment.Ed
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return EditorFragment.getNewInstance(mModified.isMarkDown(), EditActivity.this);
+                    return EditorFragment.getNewInstance(mModified.isMarkDown(), NoteEditActivity.this);
                 case 1:
                     return SettingFragment.getNewInstance(mModified.getNoteBookId());
                 default:

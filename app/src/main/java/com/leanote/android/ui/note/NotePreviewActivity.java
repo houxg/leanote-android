@@ -1,4 +1,4 @@
-package com.leanote.android.ui.note.refact;
+package com.leanote.android.ui.note;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -15,6 +15,7 @@ import com.leanote.android.db.AppDataBase;
 import com.leanote.android.model.NoteInfo;
 import com.leanote.android.networking.NetworkUtils;
 import com.leanote.android.service.NoteService;
+import com.leanote.android.ui.note.refact.EditorFragment;
 import com.leanote.android.util.ToastUtils;
 
 import butterknife.BindView;
@@ -27,9 +28,9 @@ import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
-public class PreviewActivity extends AppCompatActivity implements EditorFragment.EditorFragmentListener {
+public class NotePreviewActivity extends AppCompatActivity implements EditorFragment.EditorFragmentListener {
 
-    private static final String TAG = "PreviewActivity";
+    private static final String TAG = "NotePreviewActivity";
     public static final String EXT_NOTE_LOCAL_ID = "ext_note_local_id";
     public static final int REQ_EDIT = 1;
 
@@ -56,7 +57,7 @@ public class PreviewActivity extends AppCompatActivity implements EditorFragment
     }
 
     public static Intent getOpenIntent(Context context, long noteLocalId) {
-        Intent intent = new Intent(context, PreviewActivity.class);
+        Intent intent = new Intent(context, NotePreviewActivity.class);
         intent.putExtra(EXT_NOTE_LOCAL_ID, noteLocalId);
         return intent;
     }
@@ -71,7 +72,7 @@ public class PreviewActivity extends AppCompatActivity implements EditorFragment
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_edit:
-                startActivityForResult(EditActivity.getOpenIntent(this, mNote.getId()), REQ_EDIT);
+                startActivityForResult(NoteEditActivity.getOpenIntent(this, mNote.getId()), REQ_EDIT);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -128,9 +129,9 @@ public class PreviewActivity extends AppCompatActivity implements EditorFragment
                             mNote.setIsDirty(false);
                             mNote.save();
                             refresh();
-                            ToastUtils.showToast(PreviewActivity.this, R.string.upload_successfully, ToastUtils.Duration.SHORT);
+                            ToastUtils.showToast(NotePreviewActivity.this, R.string.upload_successfully, ToastUtils.Duration.SHORT);
                         } else {
-                            ToastUtils.showToast(PreviewActivity.this, R.string.upload_fail, ToastUtils.Duration.SHORT);
+                            ToastUtils.showToast(NotePreviewActivity.this, R.string.upload_fail, ToastUtils.Duration.SHORT);
                         }
                     }
                 });
@@ -180,7 +181,7 @@ public class PreviewActivity extends AppCompatActivity implements EditorFragment
 
     private void showProgress(String message) {
         dismissProgress();
-        mProgressDialog = ProgressDialog.show(PreviewActivity.this, "", message, false);
+        mProgressDialog = ProgressDialog.show(NotePreviewActivity.this, "", message, false);
     }
 
     private void dismissProgress() {
@@ -207,8 +208,10 @@ public class PreviewActivity extends AppCompatActivity implements EditorFragment
     }
 
     private void refresh() {
+        //TODO: animation
         mActionContainer.setVisibility(mNote.isDirty() ? View.VISIBLE : View.GONE);
         mRevertBtn.setVisibility(mNote.getUsn() > 0 ? View.VISIBLE : View.GONE);
+
         mEditorFragment.setTitle(mNote.getTitle());
         mEditorFragment.setContent(mNote.getContent());
     }

@@ -4,6 +4,6 @@
     android:id="@+id/pager"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.leanote.android.ui.note.refact.EditActivity">
+    tools:context="com.leanote.android.ui.note.NoteEditActivity">
 
 </com.leanote.android.widget.LeaViewPager>
