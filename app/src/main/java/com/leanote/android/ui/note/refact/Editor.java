@@ -16,7 +16,9 @@ public abstract class Editor {
 
     public enum Style {
         BOLD,
-        ITALIC
+        ITALIC,
+        ORDER_LIST,
+        UNORDER_LIST
     }
 
     protected EditorListener mListener;

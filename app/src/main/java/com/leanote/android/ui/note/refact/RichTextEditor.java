@@ -154,6 +154,12 @@ public class RichTextEditor extends Editor implements OnJsEditorStateChangedList
                 case "italic":
                     mListener.onStyleChanged(Style.ITALIC, entry.getValue());
                     break;
+                case "orderedList":
+                    mListener.onStyleChanged(Style.ORDER_LIST, entry.getValue());
+                    break;
+                case "unorderedList":
+                    mListener.onStyleChanged(Style.UNORDER_LIST, entry.getValue());
+                    break;
             }
         }
     }

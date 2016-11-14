@@ -37,12 +37,17 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
     protected EditorFragmentListener mListener;
     private Editor mEditor;
 
+    @BindView(R.id.ll_tools)
+    View mToolContainer;
+
     @BindView(R.id.btn_bold)
     ImageButton mBoldBtn;
     @BindView(R.id.btn_italic)
     ImageButton mItalicBtn;
-    @BindView(R.id.ll_tools)
-    View mToolContainer;
+    @BindView(R.id.btn_order_list)
+    ImageButton mOrderListBtn;
+    @BindView(R.id.btn_unorder_list)
+    ImageButton mUnorderListBtn;
 
     private boolean isEditingEnabled = true;
 
@@ -187,6 +192,12 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
                         break;
                     case ITALIC:
                         setStyleButton(mItalicBtn, enabled, R.drawable.format_bar_button_italic_highlighted, R.drawable.format_bar_button_italic);
+                        break;
+                    case ORDER_LIST:
+                        setStyleButton(mOrderListBtn, enabled, R.drawable.format_bar_button_ol_highlighted, R.drawable.format_bar_button_ol);
+                        break;
+                    case UNORDER_LIST:
+                        setStyleButton(mUnorderListBtn, enabled, R.drawable.format_bar_button_ul_highlighted, R.drawable.format_bar_button_ul);
                         break;
                 }
             }
