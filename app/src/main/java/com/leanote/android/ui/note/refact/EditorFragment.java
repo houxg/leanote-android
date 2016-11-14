@@ -44,7 +44,7 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
     @BindView(R.id.ll_tools)
     View mToolContainer;
 
-    private boolean isEdittingEnabled = true;
+    private boolean isEditingEnabled = true;
 
     public EditorFragment() {
     }
@@ -151,7 +151,7 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
     }
 
     public void setEditingEnabled(boolean enabled) {
-        isEdittingEnabled = enabled;
+        isEditingEnabled = enabled;
         mEditor.setEditingEnabled(enabled);
         //TODO: add slide animation
         mToolContainer.setVisibility(enabled ? View.VISIBLE : View.GONE);
@@ -164,7 +164,7 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
 
     @Override
     public void onClickedLink(String title, String url) {
-        if (isEdittingEnabled) {
+        if (isEditingEnabled) {
             DialogUtils.editLink(getActivity(), title, url, new DialogUtils.ChangedListener() {
                 @Override
                 public void onChanged(String title, String link) {

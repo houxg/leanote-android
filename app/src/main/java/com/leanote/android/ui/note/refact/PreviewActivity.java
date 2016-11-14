@@ -7,10 +7,23 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.leanote.android.R;
 import com.leanote.android.db.AppDataBase;
 import com.leanote.android.model.NoteInfo;
+import com.leanote.android.networking.NetworkUtils;
+import com.leanote.android.service.NoteService;
+import com.leanote.android.util.ToastUtils;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 public class PreviewActivity extends AppCompatActivity implements EditorFragment.EditorFragmentListener {
 
@@ -21,11 +34,16 @@ public class PreviewActivity extends AppCompatActivity implements EditorFragment
     private EditorFragment mEditorFragment;
     private NoteInfo mNote;
 
+    @BindView(R.id.rl_action)
+    View mActionContainer;
+    @BindView(R.id.tv_revert)
+    View mRevertBtn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preview);
-
+        ButterKnife.bind(this);
         long noteLocalId = getIntent().getLongExtra(EXT_NOTE_LOCAL_ID, -1);
         mNote = AppDataBase.getNoteByLocalId(noteLocalId);
 
@@ -68,6 +86,71 @@ public class PreviewActivity extends AppCompatActivity implements EditorFragment
         }
     }
 
+    @OnClick(R.id.tv_push)
+    void push() {
+        if (!NetworkUtils.isNetworkAvailable(this)) {
+            ToastUtils.showToast(this, R.string.no_network_message, ToastUtils.Duration.SHORT);
+            return;
+        }
+        Observable.create(
+                new Observable.OnSubscribe<Boolean>() {
+                    @Override
+                    public void call(Subscriber<? super Boolean> subscriber) {
+                        if (!subscriber.isUnsubscribed()) {
+                            subscriber.onNext(NoteService.updateNote(AppDataBase.getNoteByLocalId(mNote.getId())));
+                            subscriber.onCompleted();
+                        }
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Boolean>() {
+                    @Override
+                    public void call(Boolean isSucceed) {
+                        if (isSucceed) {
+                            mNote = AppDataBase.getNoteByLocalId(mNote.getId());
+                            mNote.setIsDirty(false);
+                            mNote.save();
+                            refresh();
+                            ToastUtils.showToast(PreviewActivity.this, R.string.upload_successfully, ToastUtils.Duration.SHORT);
+                        } else {
+                            ToastUtils.showToast(PreviewActivity.this, R.string.upload_fail, ToastUtils.Duration.SHORT);
+                        }
+                    }
+                });
+    }
+
+    @OnClick(R.id.tv_revert)
+    void revert() {
+        if (!NetworkUtils.isNetworkAvailable(this)) {
+            ToastUtils.showToast(this, R.string.no_network_message, ToastUtils.Duration.SHORT);
+            return;
+        }
+        Observable.create(
+                new Observable.OnSubscribe<Boolean>() {
+                    @Override
+                    public void call(Subscriber<? super Boolean> subscriber) {
+                        if (!subscriber.isUnsubscribed()) {
+                            subscriber.onNext(NoteService.revertNote(mNote.getNoteId()));
+                            subscriber.onCompleted();
+                        }
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Boolean>() {
+                    @Override
+                    public void call(Boolean isSucceed) {
+                        if (isSucceed) {
+                            mNote = AppDataBase.getNoteByServerId(mNote.getNoteId());
+                            refresh();
+                        }
+                    }
+                });
+
+    }
+
+
     @Override
     public Uri createImage(String filePath) {
         return null;
@@ -85,6 +168,8 @@ public class PreviewActivity extends AppCompatActivity implements EditorFragment
     }
 
     private void refresh() {
+        mActionContainer.setVisibility(mNote.isDirty() ? View.VISIBLE : View.GONE);
+        mRevertBtn.setVisibility(mNote.getUsn() > 0 ? View.VISIBLE : View.GONE);
         mEditorFragment.setTitle(mNote.getTitle());
         mEditorFragment.setContent(mNote.getContent());
     }

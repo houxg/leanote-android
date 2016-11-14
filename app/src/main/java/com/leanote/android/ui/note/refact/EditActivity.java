@@ -25,6 +25,7 @@ import com.leanote.android.widget.LeaViewPager;
 
 import rx.Observable;
 import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
@@ -56,6 +57,7 @@ public class EditActivity extends AppCompatActivity implements EditorFragment.Ed
         mPager.setPagingEnabled(false);
         mPager.setAdapter(new SectionAdapter(getFragmentManager()));
         mPager.setOffscreenPageLimit(2);
+        setResult(RESULT_CANCELED);
     }
 
     public static Intent getOpenIntent(Context context, long noteLocalId) {
@@ -114,6 +116,7 @@ public class EditActivity extends AppCompatActivity implements EditorFragment.Ed
             mPager.setCurrentItem(FRAG_EDITOR);
         } else {
             checkChangeOrDirty()
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Action1<NoteInfo>() {
                         @Override
                         public void call(NoteInfo note) {
@@ -124,9 +127,9 @@ public class EditActivity extends AppCompatActivity implements EditorFragment.Ed
                                 Log.i(TAG, "remove empty note, id=" + note.getId());
                                 AppDataBase.deleteNoteByLocalId(note.getId());
                             }
+                            EditActivity.super.onBackPressed();
                         }
                     });
-            super.onBackPressed();
         }
     }
 
