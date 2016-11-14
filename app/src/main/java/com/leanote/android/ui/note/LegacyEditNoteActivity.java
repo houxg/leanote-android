@@ -69,7 +69,7 @@ import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 
-public class EditNoteActivity extends AppCompatActivity
+public class LegacyEditNoteActivity extends AppCompatActivity
         implements EditorFragmentAbstract.EditorFragmentListener {
 
     public static final String EXTRA_NOTEID = "noteId";
@@ -359,7 +359,7 @@ public class EditNoteActivity extends AppCompatActivity
         } else {
             // It is a regular local image file
             if (!addMedia(mediaUri)) {
-                Toast.makeText(EditNoteActivity.this, getResources().getText(R.string.gallery_error), Toast.LENGTH_SHORT)
+                Toast.makeText(LegacyEditNoteActivity.this, getResources().getText(R.string.gallery_error), Toast.LENGTH_SHORT)
                         .show();
             }
         }
@@ -370,19 +370,19 @@ public class EditNoteActivity extends AppCompatActivity
         @Override
         protected Uri doInBackground(Uri... uris) {
             Uri imageUri = uris[0];
-            return MediaUtils.downloadExternalMedia(EditNoteActivity.this, imageUri);
+            return MediaUtils.downloadExternalMedia(LegacyEditNoteActivity.this, imageUri);
         }
 
         @Override
         protected void onPreExecute() {
-            Toast.makeText(EditNoteActivity.this, R.string.download, Toast.LENGTH_SHORT).show();
+            Toast.makeText(LegacyEditNoteActivity.this, R.string.download, Toast.LENGTH_SHORT).show();
         }
 
         protected void onPostExecute(Uri newUri) {
             if (newUri != null) {
                 addMedia(newUri);
             } else {
-                Toast.makeText(EditNoteActivity.this, getString(R.string.error_downloading_image), Toast.LENGTH_SHORT)
+                Toast.makeText(LegacyEditNoteActivity.this, getString(R.string.error_downloading_image), Toast.LENGTH_SHORT)
                         .show();
             }
         }
@@ -473,7 +473,7 @@ public class EditNoteActivity extends AppCompatActivity
                         if (TextUtils.isEmpty(content)) {
                             spanned = new SpannableString("");
                         } else {
-                            spanned = LeaHtml.fromHtml(content, EditNoteActivity.this, getNote(), getMaximumThumbnailWidthForEditor());
+                            spanned = LeaHtml.fromHtml(content, LegacyEditNoteActivity.this, getNote(), getMaximumThumbnailWidthForEditor());
                         }
                         return Observable.just(spanned);
                     }
@@ -489,7 +489,7 @@ public class EditNoteActivity extends AppCompatActivity
                     @Override
                     public void onError(Throwable e) {
                         AppLog.e(AppLog.T.API, "fetch note content error", e);
-                        ToastUtils.showToast(EditNoteActivity.this, R.string.fetch_note_content_fail);
+                        ToastUtils.showToast(LegacyEditNoteActivity.this, R.string.fetch_note_content_fail);
                     }
 
                     @Override

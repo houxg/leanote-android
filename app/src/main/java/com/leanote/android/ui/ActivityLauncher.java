@@ -65,18 +65,18 @@ public class ActivityLauncher {
         NotebookInfo notebook = AppDataBase.getRecentNoteBook(AccountHelper.getDefaultAccount().getUserId());
         newNote.setNoteBookId(notebook.getNotebookId());
         newNote.save();
-//        Intent intent = new Intent(context, EditNoteActivity.class);
+//        Intent intent = new Intent(context, LegacyEditNoteActivity.class);
         Intent intent = EditActivity.getOpenIntent(context, newNote.getId());
-//        intent.putExtra(EditNoteActivity.EXTRA_NOTEID, newNote.getId());
-//        intent.putExtra(EditNoteActivity.EXTRA_IS_NEW_NOTE, true);
+//        intent.putExtra(LegacyEditNoteActivity.EXTRA_NOTEID, newNote.getId());
+//        intent.putExtra(LegacyEditNoteActivity.EXTRA_IS_NEW_NOTE, true);
         context.startActivityForResult(intent, RequestCodes.EDIT_NOTE);
     }
 
     public static void editNoteForResult(Activity activity, long noteId) {
-//        Intent intent = new Intent(activity.getApplicationContext(), EditNoteActivity.class);
+//        Intent intent = new Intent(activity.getApplicationContext(), LegacyEditNoteActivity.class);
         Intent intent = EditActivity.getOpenIntent(activity, noteId);
-//        intent.putExtra(EditNoteActivity.EXTRA_NOTEID, noteId);
-//        intent.putExtra(EditNoteActivity.EXTRA_IS_NEW_NOTE, false);
+//        intent.putExtra(LegacyEditNoteActivity.EXTRA_NOTEID, noteId);
+//        intent.putExtra(LegacyEditNoteActivity.EXTRA_IS_NEW_NOTE, false);
         activity.startActivityForResult(intent, RequestCodes.EDIT_NOTE);
     }
 

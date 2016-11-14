@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  * Created by binnchx on 10/27/15.
  */
 public class EditNotePreviewFragment extends Fragment {
-    private EditNoteActivity mActivity;
+    private LegacyEditNoteActivity mActivity;
     private WebView mWebView;
     private TextView mTextView;
     private LoadNotePreviewTask mLoadTask;
@@ -40,7 +40,7 @@ public class EditNotePreviewFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mActivity = (EditNoteActivity)getActivity();
+        mActivity = (LegacyEditNoteActivity)getActivity();
 
         ViewGroup rootView = (ViewGroup) inflater
                 .inflate(R.layout.edit_note_preview_fragment, container, false);

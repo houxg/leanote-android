@@ -55,7 +55,7 @@ public class EditNoteSettingsFragment extends Fragment
                              Bundle savedInstanceState) {
 
         AppLog.i("settting fragment init...");
-        mNote = ((EditNoteActivity) getActivity()).getNote();
+        mNote = ((LegacyEditNoteActivity) getActivity()).getNote();
         mRootView = (ViewGroup) inflater.inflate(R.layout.edit_note_settings_fragment, container, false);
 
         if (mRootView == null || mNote == null) {
@@ -228,7 +228,7 @@ public class EditNoteSettingsFragment extends Fragment
         NotebookInfo notebook = mNotebookInfos.get(mNotebookSpinner.getSelectedItemPosition());
 
         AppDataBase.updateNoteSettings(mNote.getId(), notebook.getNotebookId(), tags, togglePublicBlog.isChecked());
-        //((EditNoteActivity)getActivity()).reloadNote();
+        //((LegacyEditNoteActivity)getActivity()).reloadNote();
     }
 
 

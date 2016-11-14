@@ -86,13 +86,13 @@
         </activity>
 
         <!-- <activity -->
-        <!-- android:name=".ui.note.EditNoteActivity" -->
+        <!-- android:name=".ui.note.LegacyEditNoteActivity" -->
         <!-- android:label="@string/title_activity_edit_note" > -->
 
         <!-- </activity> stateHidden| -->
 
         <activity
-            android:name=".ui.note.EditNoteActivity"
+            android:name=".ui.note.LegacyEditNoteActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_edit_note"
             android:theme="@style/CalypsoTheme"
