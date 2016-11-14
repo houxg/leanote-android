@@ -30560,7 +30560,7 @@ define('editor',[
 		};
 
 		// scroll 自动滚动
-		var adjustScroll;
+		var adjustScroll = false;
         var $body = $('body');
 		var debouncedUpdateCursorCoordinates = utils.debounce(function() {
 			$inputElt.toggleClass('has-selection', this.selectionStart !== this.selectionEnd);
@@ -30625,6 +30625,7 @@ define('editor',[
 		}, this);
 		this.updateCursorCoordinates = function(adjustScrollParam) {
 			adjustScroll = adjustScroll || adjustScrollParam;
+			adjustScroll = false;
 			debouncedUpdateCursorCoordinates();
 		};
 		this.updateSelectionRange = function() {

@@ -57,7 +57,11 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
     public static EditorFragment getNewInstance(boolean isMarkdown, @NonNull EditorFragmentListener listener) {
         EditorFragment fragment = new EditorFragment();
         fragment.mListener = listener;
-        fragment.mEditor = new RichTextEditor(fragment);
+        if (isMarkdown) {
+            fragment.mEditor = new MarkdownEditor(fragment);
+        } else {
+            fragment.mEditor = new RichTextEditor(fragment);
+        }
         return fragment;
     }
 
@@ -164,6 +168,7 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
 
     @Override
     public void onPageLoaded() {
+        mEditor.setEditingEnabled(true);
         mListener.onInitialized();
     }
 
