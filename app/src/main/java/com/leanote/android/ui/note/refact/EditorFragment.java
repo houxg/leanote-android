@@ -31,11 +31,12 @@ import butterknife.OnClick;
 public class EditorFragment extends Fragment implements Editor.EditorListener {
 
     private static final String TAG = "EditorFragment";
-    private static final String EXT_IS_MARKDOWN = "ext_is_markdown";
+    private static final String ARG_IS_MARKDOWN = "arg_is_markdown";
+    private static final String ARG_ENABLE_EDIT = "arg_enable_edit";
     protected static final int REQ_SELECT_IMAGE = 879;
 
 
-    protected EditorFragmentListener mListener;
+    private EditorFragmentListener mListener;
     private Editor mEditor;
 
     @BindView(R.id.ll_tools)
@@ -52,17 +53,34 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
     @BindView(R.id.web_editor)
     WebView mWebView;
 
-    private boolean isEditingEnabled = true;
+    private boolean mIsEditingEnabled = true;
 
     public EditorFragment() {
     }
 
-    public static EditorFragment getNewInstance(boolean isMarkdown) {
+    public static EditorFragment getNewInstance(boolean isMarkdown, boolean enableEditing) {
         EditorFragment fragment = new EditorFragment();
         Bundle arguments = new Bundle();
-        arguments.putBoolean(EXT_IS_MARKDOWN, isMarkdown);
+        arguments.putBoolean(ARG_IS_MARKDOWN, isMarkdown);
+        arguments.putBoolean(ARG_ENABLE_EDIT, enableEditing);
         fragment.setArguments(arguments);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (getActivity() instanceof EditorFragmentListener) {
+            mListener = (EditorFragmentListener) getActivity();
+        } else {
+            throw new IllegalArgumentException("Current activity is not the EditorFragmentListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
     }
 
     @Nullable
@@ -70,37 +88,27 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_new_editor, container, false);
         ButterKnife.bind(this, view);
-        return view;
-    }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if (getActivity() instanceof EditorFragmentListener) {
-            mListener = (EditorFragmentListener) getActivity();
-        } else {
-            throw new IllegalArgumentException("Current activity is not the EditorFragmentListener");
-        }
+        Bundle arguments = savedInstanceState == null ? getArguments() : savedInstanceState;
+        mIsEditingEnabled = arguments.getBoolean(ARG_ENABLE_EDIT, false);
+        boolean isMarkdown = arguments.getBoolean(ARG_IS_MARKDOWN, true);
 
-        boolean isMarkdown;
-        if (savedInstanceState == null) {
-            isMarkdown = getArguments().getBoolean(EXT_IS_MARKDOWN, true);
-        } else {
-            isMarkdown = savedInstanceState.getBoolean(EXT_IS_MARKDOWN, true);
-        }
-        
+        mToolContainer.setVisibility(mIsEditingEnabled ? View.VISIBLE : View.GONE);
+
         if (isMarkdown) {
             mEditor = new MarkdownEditor(this);
         } else {
             mEditor = new RichTextEditor(this);
         }
         mEditor.init(mWebView);
+        return view;
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(EXT_IS_MARKDOWN, mEditor instanceof MarkdownEditor);
+        outState.putBoolean(ARG_IS_MARKDOWN, mEditor instanceof MarkdownEditor);
+        outState.putBoolean(ARG_ENABLE_EDIT, mToolContainer.getVisibility() == View.VISIBLE);
     }
 
     public void setTitle(String title) {
@@ -154,7 +162,8 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
 
         if (requestCode == REQ_SELECT_IMAGE
                 && resultCode == Activity.RESULT_OK
-                && data != null) {
+                && data != null
+                && mListener != null) {
             List<String> pathList = data.getStringArrayListExtra(ImgSelActivity.INTENT_RESULT);
             if (CollectionUtils.isNotEmpty(pathList)) {
                 String path = pathList.get(0);
@@ -188,7 +197,7 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
     }
 
     public void setEditingEnabled(boolean enabled) {
-        isEditingEnabled = enabled;
+        mIsEditingEnabled = enabled;
         mEditor.setEditingEnabled(enabled);
         //TODO: add slide animation
         mToolContainer.setVisibility(enabled ? View.VISIBLE : View.GONE);
@@ -196,13 +205,15 @@ public class EditorFragment extends Fragment implements Editor.EditorListener {
 
     @Override
     public void onPageLoaded() {
-        mEditor.setEditingEnabled(true);
-        mListener.onInitialized();
+        mEditor.setEditingEnabled(mIsEditingEnabled);
+        if (mListener != null) {
+            mListener.onInitialized();
+        }
     }
 
     @Override
     public void onClickedLink(String title, String url) {
-        if (isEditingEnabled) {
+        if (mIsEditingEnabled) {
             DialogUtils.editLink(getActivity(), title, url, new DialogUtils.ChangedListener() {
                 @Override
                 public void onChanged(String title, String link) {

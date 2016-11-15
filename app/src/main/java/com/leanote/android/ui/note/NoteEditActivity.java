@@ -241,7 +241,7 @@ public class NoteEditActivity extends AppCompatActivity implements EditorFragmen
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return EditorFragment.getNewInstance(mModified.isMarkDown());
+                    return EditorFragment.getNewInstance(mModified.isMarkDown(), true);
                 case 1:
                     return SettingFragment.getNewInstance();
                 default:

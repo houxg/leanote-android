@@ -52,7 +52,7 @@ public class NotePreviewActivity extends AppCompatActivity implements EditorFrag
         long noteLocalId = getIntent().getLongExtra(EXT_NOTE_LOCAL_ID, -1);
         mNote = AppDataBase.getNoteByLocalId(noteLocalId);
 
-        mEditorFragment = EditorFragment.getNewInstance(mNote.isMarkDown());
+        mEditorFragment = EditorFragment.getNewInstance(mNote.isMarkDown(), false);
         getFragmentManager().beginTransaction().add(R.id.container, mEditorFragment).commit();
     }
 
@@ -204,7 +204,6 @@ public class NotePreviewActivity extends AppCompatActivity implements EditorFrag
     @Override
     public void onInitialized() {
         refresh();
-        mEditorFragment.setEditingEnabled(false);
     }
 
     private void refresh() {
