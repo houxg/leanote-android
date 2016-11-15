@@ -16,7 +16,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:paddingEnd="16dp"
-        android:paddingStart="16dp">
+        android:paddingStart="16dp"
+        android:visibility="gone"
+        android:background="#fff">
 
         <TextView
             android:id="@+id/tv_revert"
