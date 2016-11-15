@@ -60,15 +60,12 @@ public class NoteEditActivity extends AppCompatActivity implements EditorFragmen
         mPager.setAdapter(new SectionAdapter(getFragmentManager()));
         mPager.setOffscreenPageLimit(2);
 
-        long noteLocalId;
-        if (savedInstanceState == null) {
-            noteLocalId = getIntent().getLongExtra(EXT_NOTE_LOCAL_ID, -1);
-        } else {
-            noteLocalId = savedInstanceState.getLong(EXT_NOTE_LOCAL_ID, -1);
+        if (savedInstanceState != null) {
             mEditorFragment = (EditorFragment) getFragmentManager().findFragmentByTag(savedInstanceState.getString(TAG_EDITOR));
             mSettingsFragment = (SettingFragment) getFragmentManager().findFragmentByTag(savedInstanceState.getString(TAG_SETTING));
         }
 
+        long noteLocalId = getIntent().getLongExtra(EXT_NOTE_LOCAL_ID, -1);
         if (noteLocalId == -1) {
             finish();
             return;
