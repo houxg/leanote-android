@@ -90,6 +90,7 @@
                         android:textSize="18sp" />
 
                     <TextView
+                        android:id="@+id/tv_recent_notes"
                         android:layout_width="240dp"
                         android:layout_height="wrap_content"
                         android:padding="8dp"

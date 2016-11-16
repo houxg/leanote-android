@@ -97,6 +97,15 @@ public class NoteFragment extends Fragment implements NoteAdapter.NoteAdapterLis
         mAdapter.loadFromLocal(notebookLocalId);
     }
 
+    public void loadRecentNote() {
+        mCurrentNotebookId = -1;
+        mAdapter.loadFromLocal();
+    }
+
+    public void loadNoteWithTag(String tag) {
+        mAdapter.loadFromLocal();
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);

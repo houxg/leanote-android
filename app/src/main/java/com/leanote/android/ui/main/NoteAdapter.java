@@ -2,6 +2,7 @@ package com.leanote.android.ui.main;
 
 
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,8 @@ import com.leanote.android.model.NoteInfo;
 import com.leanote.android.model.NotebookInfo;
 import com.leanote.android.service.AccountService;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +35,27 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
 
     public void loadFromLocal() {
         mData = AppDataBase.getAllNotes(AccountService.getCurrent().getUserId());
+        Collections.sort(mData, new Comparator<NoteInfo>() {
+            @Override
+            public int compare(NoteInfo lhs, NoteInfo rhs) {
+                String lTime = lhs.getUpdatedTime();
+                String rTime = rhs.getUpdatedTime();
+
+                if (TextUtils.isEmpty(lTime)) {
+                    return 1;
+                } else if (TextUtils.isEmpty(rTime)) {
+                    return -1;
+                }
+
+                if (lTime.compareToIgnoreCase(rTime) > 0) {
+                    return -1;
+                } else if (lhs.getUpdatedTime().compareToIgnoreCase(rhs.getUpdatedTime()) == 0) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            }
+        });
         updateNotebookMap();
         notifyDataSetChanged();
     }

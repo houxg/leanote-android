@@ -23,6 +23,7 @@ import com.leanote.android.ui.main.NoteFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
@@ -92,6 +93,12 @@ public class MainActivity extends BaseActivity implements NotebookAdapter.Notebo
     @Override
     public void onClickedNotebook(NotebookInfo notebook) {
         mNoteFragment.loadNoteFromLocal(notebook.getId());
+        mDrawerLayout.closeDrawer(GravityCompat.START, true);
+    }
+
+    @OnClick(R.id.tv_recent_notes)
+    void showRecentNote() {
+        mNoteFragment.loadRecentNote();
         mDrawerLayout.closeDrawer(GravityCompat.START, true);
     }
 }
