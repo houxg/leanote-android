@@ -39,7 +39,7 @@ public class NewAccount extends BaseModel {
     String accessToken = "";
     @Column(name = "useMarkDown")
     @SerializedName("UseMarkdown")
-    boolean useMarkdown;
+    boolean useMarkdown = true;
     @Column(name = "lastUsn")
     @SerializedName("LastSyncUsn")
     int lastSyncUsn;
@@ -124,6 +124,14 @@ public class NewAccount extends BaseModel {
 
     public void setLastUsn(int lastUsn) {
         this.lastSyncUsn = lastUsn;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
     }
 
     @Override

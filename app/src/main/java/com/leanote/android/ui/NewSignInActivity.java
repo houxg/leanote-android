@@ -12,8 +12,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.leanote.android.R;
-import com.leanote.android.db.AppDataBase;
-import com.leanote.android.model.NewAccount;
+import com.leanote.android.model.Authentication;
 import com.leanote.android.networking.retrofitapi.ApiProvider;
 import com.leanote.android.service.AccountService;
 
@@ -95,7 +94,7 @@ public class NewSignInActivity extends BaseActivity implements TextWatcher {
         AccountService.login(email, password)
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Observer<NewAccount>() {
+                .subscribe(new Observer<Authentication>() {
                     @Override
                     public void onCompleted() {
 
@@ -107,17 +106,8 @@ public class NewSignInActivity extends BaseActivity implements TextWatcher {
                     }
 
                     @Override
-                    public void onNext(NewAccount accountModel) {
-                        NewAccount localAccount = AppDataBase.getAccount(accountModel.getEmail(), host);
-                        if (localAccount == null) {
-                            accountModel.setHost(host);
-                            accountModel.insert();
-                        } else {
-                            localAccount.setAccessToken(accountModel.getAccessToken());
-                            localAccount.setUserId(accountModel.getUserId());
-                            localAccount.setUserName(accountModel.getUserName());
-                            localAccount.update();
-                        }
+                    public void onNext(Authentication authentication) {
+                        AccountService.saveToAccount(authentication, host);
                         Intent intent = MainActivity.getOpenIntent(NewSignInActivity.this, true);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);

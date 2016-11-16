@@ -1,7 +1,7 @@
 package com.leanote.android.networking.retrofitapi;
 
 
-import com.leanote.android.model.NewAccount;
+import com.leanote.android.model.Authentication;
 import com.leanote.android.networking.retrofitapi.model.BaseResponse;
 
 import retrofit2.Call;
@@ -11,7 +11,7 @@ import retrofit2.http.Query;
 public interface AuthApi {
 
     @GET("auth/login")
-    Call<NewAccount> login(@Query("email") String email, @Query("pwd") String password);
+    Call<Authentication> login(@Query("email") String email, @Query("pwd") String password);
 
     @GET("auth/logout")
     Call<BaseResponse> logout(@Query("token") String token);
