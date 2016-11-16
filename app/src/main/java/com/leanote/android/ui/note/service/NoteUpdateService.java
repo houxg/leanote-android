@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
-import com.leanote.android.model.AccountHelper;
+import com.leanote.android.service.AccountService;
 import com.leanote.android.service.NoteService;
 
 import de.greenrobot.event.EventBus;
@@ -23,7 +23,7 @@ public class NoteUpdateService extends Service {
     private static final String TAG = "NoteUpdateService";
 
     public static void startServiceForNote(Context context) {
-        if (!AccountHelper.isSignedIn()) {
+        if (!AccountService.isSignedIn()) {
             return;
         }
 
@@ -64,7 +64,7 @@ public class NoteUpdateService extends Service {
                 .subscribe(new Observer<Boolean>() {
                     @Override
                     public void onCompleted() {
-
+                        stopSelf();
                     }
 
                     @Override

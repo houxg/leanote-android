@@ -1,6 +1,8 @@
 package com.leanote.android.ui;
 
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
@@ -11,14 +13,16 @@ import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
 
 import com.leanote.android.R;
-import com.leanote.android.model.AccountHelper;
 import com.leanote.android.model.NotebookInfo;
+import com.leanote.android.service.AccountService;
 import com.leanote.android.ui.main.NoteFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends BaseActivity implements NotebookAdapter.NotebookAdapterListener {
+
+    private static final String EXT_SHOULD_RELOAD = "ext_should_reload";
 
     NoteFragment mNoteFragment;
 
@@ -28,6 +32,12 @@ public class MainActivity extends BaseActivity implements NotebookAdapter.Notebo
     DrawerLayout mDrawerLayout;
     @BindView(R.id.tv_email)
     TextView mEmailTv;
+
+    public static Intent getOpenIntent(Context context, boolean shouldReload) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra(EXT_SHOULD_RELOAD, shouldReload);
+        return intent;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,7 +54,7 @@ public class MainActivity extends BaseActivity implements NotebookAdapter.Notebo
         adapter.setListener(this);
         mNotebookRv.setAdapter(adapter);
         adapter.init();
-        mEmailTv.setText(AccountHelper.getDefaultAccount().getUserName());
+        mEmailTv.setText(AccountService.getCurrent().getEmail());
     }
 
     @Override

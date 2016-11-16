@@ -6,7 +6,6 @@ import android.util.Log;
 
 import com.leanote.android.Leanote;
 import com.leanote.android.db.AppDataBase;
-import com.leanote.android.model.AccountHelper;
 import com.leanote.android.model.NoteFile;
 
 import org.bson.types.ObjectId;
@@ -62,7 +61,8 @@ public class NoteFileService {
     }
 
     public static Uri getServerImageUri(String serverId) {
-        return new Uri.Builder().scheme("https").authority("leanote.com").appendEncodedPath("api/file/getImage").appendQueryParameter("fileId", serverId).build();
+        Uri uri = Uri.parse(AccountService.getCurrent().getHost());
+        return uri.buildUpon().appendEncodedPath("api/file/getImage").appendQueryParameter("fileId", serverId).build();
     }
 
     public static boolean isLocalImageUri(Uri uri) {
@@ -79,7 +79,7 @@ public class NoteFileService {
             filePath = noteFile.getLocalPath();
             Log.i(TAG, "use local image, path=" + filePath);
         } else {
-            String url = NoteFileService.getUrl("https://leanote.com", noteFile.getServerId(), AccountHelper.getDefaultAccount().getAccessToken());
+            String url = NoteFileService.getUrl(AccountService.getCurrent().getHost(), noteFile.getServerId(), AccountService.getCurrent().getAccessToken());
             Log.i(TAG, "use server image, url=" + url);
             try {
                 filePath = NoteFileService.getImageFromServer(Uri.parse(url), Leanote.getContext().getCacheDir());

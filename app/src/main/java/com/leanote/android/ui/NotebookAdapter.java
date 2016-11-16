@@ -9,8 +9,8 @@ import android.widget.TextView;
 
 import com.leanote.android.R;
 import com.leanote.android.db.AppDataBase;
-import com.leanote.android.model.AccountHelper;
 import com.leanote.android.model.NotebookInfo;
+import com.leanote.android.service.AccountService;
 import com.leanote.android.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ public class NotebookAdapter extends RecyclerView.Adapter<NotebookAdapter.Notebo
     }
 
     public void init() {
-        mData = AppDataBase.getRootNotebooks(AccountHelper.getDefaultAccount().getUserId());
+        mData = AppDataBase.getRootNotebooks(AccountService.getCurrent().getUserId());
         mStack = new Stack<>();
         notifyDataSetChanged();
     }
@@ -85,7 +85,7 @@ public class NotebookAdapter extends RecyclerView.Adapter<NotebookAdapter.Notebo
     }
 
     boolean hasChild(String notebookId) {
-        return CollectionUtils.isNotEmpty(AppDataBase.getChildNotebook(notebookId, AccountHelper.getDefaultAccount().getUserId()));
+        return CollectionUtils.isNotEmpty(AppDataBase.getChildNotebook(notebookId, AccountService.getCurrent().getUserId()));
     }
 
     private void listUpper() {
@@ -95,11 +95,11 @@ public class NotebookAdapter extends RecyclerView.Adapter<NotebookAdapter.Notebo
 
         mStack.pop();
         if (mStack.isEmpty()) {
-            mData = AppDataBase.getRootNotebooks(AccountHelper.getDefaultAccount().getUserId());
+            mData = AppDataBase.getRootNotebooks(AccountService.getCurrent().getUserId());
         } else {
             String parentId = mStack.peek();
             mData.add(AppDataBase.getNotebookByServerId(parentId));
-            mData.addAll(AppDataBase.getChildNotebook(parentId, AccountHelper.getDefaultAccount().getUserId()));
+            mData.addAll(AppDataBase.getChildNotebook(parentId, AccountService.getCurrent().getUserId()));
         }
         notifyItemRangeInserted(0, mData.size());
     }
@@ -118,7 +118,7 @@ public class NotebookAdapter extends RecyclerView.Adapter<NotebookAdapter.Notebo
         notifyItemChanged(0);
 
         mStack.push(notebook.getNotebookId());
-        List<NotebookInfo> children = AppDataBase.getChildNotebook(notebook.getNotebookId(), AccountHelper.getDefaultAccount().getUserId());
+        List<NotebookInfo> children = AppDataBase.getChildNotebook(notebook.getNotebookId(), AccountService.getCurrent().getUserId());
         int childrenSize = children.size();
         mData.addAll(children);
         notifyItemRangeInserted(1, childrenSize);

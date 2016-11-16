@@ -7,8 +7,7 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import com.leanote.android.db.AppDataBase;
-import com.leanote.android.db.LeanoteDbManager;
-import com.leanote.android.model.AccountHelper;
+import com.leanote.android.model.NewAccount;
 import com.leanote.android.model.NoteFile;
 import com.leanote.android.model.NoteInfo;
 import com.leanote.android.model.NotebookInfo;
@@ -44,7 +43,7 @@ public class NoteService {
     private static final int MAX_ENTRY = 20;
 
     public static boolean fetchFromServer() {
-        int noteUsn = AccountHelper.getDefaultAccount().getLastSyncUsn();
+        int noteUsn = AccountService.getCurrent().getLastSyncUsn();
         int notebookUsn = noteUsn;
         List<NoteInfo> notes;
         do {
@@ -115,8 +114,14 @@ public class NoteService {
 
         Log.i(TAG, "noteUsn=" + noteUsn + ", notebookUsn=" + notebookUsn);
         int max = Math.max(notebookUsn, noteUsn);
-        LeanoteDbManager.getInstance().updateAccountUsn(max, AccountHelper.getDefaultAccount().getUserId());
+        saveLastUsn(max);
         return true;
+    }
+
+    private static void saveLastUsn(int lastUsn) {
+        NewAccount account = AccountService.getCurrent();
+        account.setLastUsn(lastUsn);
+        account.save();
     }
 
     private static void handleFile(long noteLocalId, List<NoteFile> remoteFiles) {
@@ -197,7 +202,7 @@ public class NoteService {
     private static String convertToLocalImageLinkForRichText(long noteLocalId, String noteContent) {
         return replace(noteContent,
                 "<img[^>]+src\\s*=\\s*['\"]([^'\"]+)['\"][^>]*>",
-                "\\ssrc\\s*=\\s*\"https://leanote.com/api/file/getImage\\?fileId=.*?\"",
+                String.format(Locale.US, "\\ssrc\\s*=\\s*\"%s/api/file/getImage\\?fileId=.*?\"", AccountService.getCurrent().getHost()),
                 new Replacer() {
                     @Override
                     public String replaceWith(String original, Object... extraData) {
@@ -222,8 +227,8 @@ public class NoteService {
 
     private static String convertToLocalImageLinkForMD(long noteLocalId, String noteContent) {
         return replace(noteContent,
-                "!\\[.*?\\]\\(https://leanote.com/api/file/getImage\\?fileId=.*?\\)",
-                "\\(https://leanote.com/api/file/getImage\\?fileId=.*?\\)",
+                String.format(Locale.US, "!\\[.*?\\]\\(%s/api/file/getImage\\?fileId=.*?\\)", AccountService.getCurrent().getHost()),
+                String.format(Locale.US, "\\(%s/api/file/getImage\\?fileId=.*?\\)", AccountService.getCurrent().getHost()),
                 new Replacer() {
                     @Override
                     public String replaceWith(String original, Object... extraData) {
@@ -266,7 +271,7 @@ public class NoteService {
             note.save();
             if (note.getUsn() - modifiedNote.getUsn() == 1) {
                 Log.d(TAG, "update usn=" + note.getUsn());
-                LeanoteDbManager.getInstance().updateAccountUsn(note.getUsn(), AccountHelper.getDefaultAccount().getUserId());
+                saveLastUsn(note.getUsn());
             }
         } else {
             throw new IllegalArgumentException(note.getMsg());

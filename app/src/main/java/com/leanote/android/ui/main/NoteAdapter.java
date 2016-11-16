@@ -9,9 +9,9 @@ import android.widget.TextView;
 
 import com.leanote.android.R;
 import com.leanote.android.db.AppDataBase;
-import com.leanote.android.model.AccountHelper;
 import com.leanote.android.model.NoteInfo;
 import com.leanote.android.model.NotebookInfo;
+import com.leanote.android.service.AccountService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,13 +31,13 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
     }
 
     public void loadFromLocal() {
-        mData = AppDataBase.getAllNotes(AccountHelper.getDefaultAccount().getUserId());
+        mData = AppDataBase.getAllNotes(AccountService.getCurrent().getUserId());
         updateNotebookMap();
         notifyDataSetChanged();
     }
 
     public void loadFromLocal(long notebookLocalId) {
-        mData = AppDataBase.getNotesFromNotebook(AccountHelper.getDefaultAccount().getUserId(), notebookLocalId);
+        mData = AppDataBase.getNotesFromNotebook(AccountService.getCurrent().getUserId(), notebookLocalId);
         updateNotebookMap();
         notifyDataSetChanged();
     }
@@ -56,7 +56,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
     }
 
     private void updateNotebookMap() {
-        List<NotebookInfo> notebooks = AppDataBase.getAllNotebook(AccountHelper.getDefaultAccount().getUserId());
+        List<NotebookInfo> notebooks = AppDataBase.getAllNotebook(AccountService.getCurrent().getUserId());
         mNotebookId2TitleMaps = new HashMap<>();
         for (NotebookInfo notebook : notebooks) {
             mNotebookId2TitleMaps.put(notebook.getNotebookId(), notebook.getTitle());

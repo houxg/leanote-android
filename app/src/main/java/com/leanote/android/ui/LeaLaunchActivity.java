@@ -7,14 +7,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.leanote.android.R;
-import com.leanote.android.model.AccountHelper;
+import com.leanote.android.model.NewAccount;
+import com.leanote.android.networking.retrofitapi.ApiProvider;
+import com.leanote.android.service.AccountService;
 
 public class LeaLaunchActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (AccountHelper.isSignedIn()) {
+        if (AccountService.isSignedIn()) {
+            NewAccount account = AccountService.getCurrent();
+            ApiProvider.getInstance().init(account.getHost());
             Intent intent = new Intent(this, MainActivity.class);
             //Intent intent = new Intent(this, LeaMainActivity2.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);

@@ -160,6 +160,7 @@
             android:label="Preview" />
         <activity android:name=".ui.MainActivity"
             android:label="Notes" />
+        <activity android:name=".ui.NewSignInActivity" />
     </application>
 
 </manifest>

@@ -2,6 +2,8 @@ package com.leanote.android.db;
 
 import android.util.Log;
 
+import com.leanote.android.model.NewAccount;
+import com.leanote.android.model.NewAccount_Table;
 import com.leanote.android.model.NoteDetailList;
 import com.leanote.android.model.NoteFile;
 import com.leanote.android.model.NoteFile_Table;
@@ -191,5 +193,20 @@ public class AppDataBase {
                 .and(NoteFile_Table.localId.notIn(excepts))
                 .async()
                 .execute();
+    }
+
+    public static NewAccount getAccount(String email, String host) {
+        return SQLite.select()
+                .from(NewAccount.class)
+                .where(NewAccount_Table.email.eq(email))
+                .and(NewAccount_Table.host.eq(host))
+                .querySingle();
+    }
+
+    public static NewAccount getAccountWithToken() {
+        return SQLite.select()
+                .from(NewAccount.class)
+                .where(NewAccount_Table.token.notEq(""))
+                .querySingle();
     }
 }

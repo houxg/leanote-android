@@ -1,7 +1,7 @@
 package com.leanote.android.networking.retrofitapi;
 
 
-import com.leanote.android.model.AccountHelper;
+import com.leanote.android.service.AccountService;
 
 import java.io.IOException;
 
@@ -15,7 +15,7 @@ import retrofit2.Retrofit;
 
 public class ApiProvider {
 
-    private Retrofit mLeanoteRetrofit;
+    private Retrofit mApiRetrofit;
 
     private static class SingletonHolder {
         private final static ApiProvider INSTANCE = new ApiProvider();
@@ -26,6 +26,9 @@ public class ApiProvider {
     }
 
     private ApiProvider() {
+    }
+
+    public void init(String host) {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder()
@@ -38,7 +41,7 @@ public class ApiProvider {
                         HttpUrl newUrl = url;
                         if (shouldAddTokenToQuery(path)) {
                             newUrl = url.newBuilder()
-                                    .addQueryParameter("token", AccountHelper.getDefaultAccount().getAccessToken())
+                                    .addQueryParameter("token", AccountService.getCurrent().getAccessToken())
                                     .build();
                         }
                         Request newRequest = request.newBuilder()
@@ -49,8 +52,8 @@ public class ApiProvider {
                 })
                 .addNetworkInterceptor(interceptor)
                 .build();
-        mLeanoteRetrofit = new Retrofit.Builder()
-                .baseUrl("https://leanote.com/api/")
+        mApiRetrofit = new Retrofit.Builder()
+                .baseUrl(host + "/api/")
                 .client(client)
                 .addConverterFactory(new LeaResponseConverterFactory())
                 .build();
@@ -60,23 +63,22 @@ public class ApiProvider {
         return !path.startsWith("/api/auth/login")
 //                && !path.startsWith("/api/note/updateNote")
                 && !path.startsWith("/api/auth/register");
-
     }
 
     public AuthApi getAuthApi() {
-        return mLeanoteRetrofit.create(AuthApi.class);
+        return mApiRetrofit.create(AuthApi.class);
     }
 
     public NoteApi getNoteApi() {
-        return mLeanoteRetrofit.create(NoteApi.class);
+        return mApiRetrofit.create(NoteApi.class);
     }
 
     public UserApi getUserApi() {
-        return mLeanoteRetrofit.create(UserApi.class);
+        return mApiRetrofit.create(UserApi.class);
     }
 
     public NotebookApi getNotebookApi() {
-        return mLeanoteRetrofit.create(NotebookApi.class);
+        return mApiRetrofit.create(NotebookApi.class);
     }
 
 }
