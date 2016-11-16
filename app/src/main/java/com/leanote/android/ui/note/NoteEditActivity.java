@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -20,6 +20,7 @@ import com.leanote.android.model.NoteInfo;
 import com.leanote.android.networking.NetworkUtils;
 import com.leanote.android.service.NoteFileService;
 import com.leanote.android.service.NoteService;
+import com.leanote.android.ui.BaseActivity;
 import com.leanote.android.ui.note.refact.EditorFragment;
 import com.leanote.android.ui.note.refact.SettingFragment;
 import com.leanote.android.util.ToastUtils;
@@ -34,7 +35,7 @@ import rx.schedulers.Schedulers;
 
 //TODO: hide action bar
 //TODO: onSaveInstance
-public class NoteEditActivity extends AppCompatActivity implements EditorFragment.EditorFragmentListener, SettingFragment.SettingFragmentListener {
+public class NoteEditActivity extends BaseActivity implements EditorFragment.EditorFragmentListener, SettingFragment.SettingFragmentListener {
 
     private static final String TAG = "NoteEditActivity";
     public static final String EXT_NOTE_LOCAL_ID = "ext_note_local_id";
@@ -54,7 +55,7 @@ public class NoteEditActivity extends AppCompatActivity implements EditorFragmen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
-
+        initToolBar((Toolbar) findViewById(R.id.toolbar));
         mPager = (LeaViewPager) findViewById(R.id.pager);
         mPager.setPagingEnabled(false);
         mPager.setAdapter(new SectionAdapter(getFragmentManager()));

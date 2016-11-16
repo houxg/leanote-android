@@ -7,17 +7,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.leanote.android.R;
+import com.leanote.android.model.AccountHelper;
 
 public class LeaLaunchActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent intent = new Intent(this, LeaMainActivity.class);
-        //Intent intent = new Intent(this, LeaMainActivity2.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        finish();
+        if (AccountHelper.isSignedIn()) {
+            Intent intent = new Intent(this, MainActivity.class);
+            //Intent intent = new Intent(this, LeaMainActivity2.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+        } else {
+            ActivityLauncher.showSignInForResult(this);
+            finish();
+        }
     }
 
     @Override

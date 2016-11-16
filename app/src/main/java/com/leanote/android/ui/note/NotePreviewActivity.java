@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +15,7 @@ import com.leanote.android.db.AppDataBase;
 import com.leanote.android.model.NoteInfo;
 import com.leanote.android.networking.NetworkUtils;
 import com.leanote.android.service.NoteService;
+import com.leanote.android.ui.BaseActivity;
 import com.leanote.android.ui.note.refact.EditorFragment;
 import com.leanote.android.util.ToastUtils;
 
@@ -28,7 +29,7 @@ import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
-public class NotePreviewActivity extends AppCompatActivity implements EditorFragment.EditorFragmentListener {
+public class NotePreviewActivity extends BaseActivity implements EditorFragment.EditorFragmentListener {
 
     private static final String TAG = "NotePreviewActivity";
     public static final String EXT_NOTE_LOCAL_ID = "ext_note_local_id";
@@ -49,6 +50,7 @@ public class NotePreviewActivity extends AppCompatActivity implements EditorFrag
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preview);
         ButterKnife.bind(this);
+        initToolBar((Toolbar) findViewById(R.id.toolbar));
         long noteLocalId = getIntent().getLongExtra(EXT_NOTE_LOCAL_ID, -1);
         mNote = AppDataBase.getNoteByLocalId(noteLocalId);
 

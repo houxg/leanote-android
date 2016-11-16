@@ -125,7 +125,24 @@ public class AppDataBase {
     public static List<NotebookInfo> getAllNotebook(String userId) {
         return SQLite.select()
                 .from(NotebookInfo.class)
-                .where(NoteInfo_Table.userId.eq(userId))
+                .where(NotebookInfo_Table.userId.eq(userId))
+                .queryList();
+    }
+
+    public static List<NotebookInfo> getRootNotebooks(String userId) {
+        return SQLite.select()
+                .from(NotebookInfo.class)
+                .where(NotebookInfo_Table.userId.eq(userId))
+                .and(NotebookInfo_Table.parentNotebookId.eq(""))
+                .queryList();
+    }
+
+    public static List<NotebookInfo> getChildNotebook(String notebookId, String userId) {
+        Log.i(TAG, "getChildNotebook(), parentId=" + notebookId);
+        return SQLite.select()
+                .from(NotebookInfo.class)
+                .where(NotebookInfo_Table.userId.eq(userId))
+                .and(NotebookInfo_Table.parentNotebookId.eq(notebookId))
                 .queryList();
     }
 

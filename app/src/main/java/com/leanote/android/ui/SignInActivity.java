@@ -335,6 +335,8 @@ public class SignInActivity extends LeaAbstractActivity implements TextWatcher {
                         if (account.isOk()) {
                             AccountHelper.getInstance().setAccount(account);
                             XLog.e(XLog.getTag(), XLog.TAG_GU + "login success");
+                            Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+                            startActivity(intent);
                             finishCurrentActivity();
                         } else {
                             XLog.e(XLog.getTag(), XLog.TAG_GU + account.getMsg());
