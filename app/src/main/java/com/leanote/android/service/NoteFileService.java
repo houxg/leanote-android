@@ -30,17 +30,6 @@ public class NoteFileService {
     private static final String IMAGE_PATH = "getImage";
     private static final String IMAGE_PATH_WITH_SLASH = "/getImage";
 
-    public static String convertFromServerIdToLocalId(String serverId) {
-        NoteFile noteFile = AppDataBase.getNoteFileByServerId(serverId);
-        if (noteFile == null) {
-            noteFile = new NoteFile();
-            noteFile.setLocalId(new ObjectId().toString());
-            noteFile.setServerId(serverId);
-            noteFile.save();
-        }
-        return noteFile.getLocalId();
-    }
-
     public static String convertFromLocalIdToServerId(String localId) {
         NoteFile noteFile = AppDataBase.getNoteFileByLocalId(localId);
         return noteFile == null ? null : noteFile.getServerId();

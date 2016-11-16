@@ -34,7 +34,6 @@ import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 //TODO: hide action bar
-//TODO: onSaveInstance
 public class NoteEditActivity extends BaseActivity implements EditorFragment.EditorFragmentListener, SettingFragment.SettingFragmentListener {
 
     private static final String TAG = "NoteEditActivity";
