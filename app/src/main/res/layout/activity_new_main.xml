@@ -60,25 +60,52 @@
 
             <include layout="@layout/divider" />
 
-            <TextView
-                android:id="@+id/tv_recent_notes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:fontFamily="sans-serif-medium"
-                android:padding="16dp"
-                android:text="Recent notes"
-                android:textColor="@color/primary_text_light"
-                android:textSize="14sp" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp">
 
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_recent" />
+
+                <TextView
+                    android:id="@+id/tv_recent_notes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="56dp"
+                    android:clickable="true"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Recent notes"
+                    android:textColor="@color/primary_text_light"
+                    android:textSize="14sp" />
+            </RelativeLayout>
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_folder" />
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="56dp"
                     android:clickable="true"
                     android:fontFamily="sans-serif-medium"
                     android:text="Notebooks"
