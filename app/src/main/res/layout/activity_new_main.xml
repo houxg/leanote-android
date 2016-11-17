@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,10 +14,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <FrameLayout
-            android:id="@+id/container"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
+
+            <FrameLayout
+                android:id="@+id/container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_margin="@dimen/fab_margin"
+                app:srcCompat="@drawable/ic_edit_white" />
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="240dp"
@@ -62,6 +77,7 @@
 
 
             <RelativeLayout
+                android:id="@+id/rl_recent_notes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp">
@@ -75,12 +91,11 @@
 
                 <TextView
                     android:id="@+id/tv_recent_notes"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="56dp"
-                    android:clickable="true"
                     android:fontFamily="sans-serif-medium"
                     android:text="Recent notes"
                     android:textColor="@color/primary_text_light"
@@ -89,6 +104,7 @@
 
 
             <RelativeLayout
+                android:id="@+id/rl_notebook"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp">
@@ -101,12 +117,11 @@
                     android:src="@drawable/ic_folder" />
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="56dp"
-                    android:clickable="true"
                     android:fontFamily="sans-serif-medium"
                     android:text="Notebooks"
                     android:textColor="@color/hint_text_light"
@@ -124,7 +139,7 @@
 
 
             <RelativeLayout
-                android:id="@+id/rl_notebook"
+                android:id="@+id/rl_notebook_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"

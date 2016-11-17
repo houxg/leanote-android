@@ -20,11 +20,14 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.leanote.android.R;
+import com.leanote.android.db.AppDataBase;
 import com.leanote.android.model.NewAccount;
+import com.leanote.android.model.NoteInfo;
 import com.leanote.android.model.NotebookInfo;
 import com.leanote.android.model.User;
 import com.leanote.android.service.AccountService;
 import com.leanote.android.ui.main.NoteFragment;
+import com.leanote.android.ui.note.NoteEditActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -52,7 +55,7 @@ public class MainActivity extends BaseActivity implements NotebookAdapter.Notebo
     TextView mUserNameTv;
     @BindView(R.id.iv_notebook_triangle)
     View mNotebookTriangle;
-    @BindView(R.id.rl_notebook)
+    @BindView(R.id.rl_notebook_list)
     View mNotebookPanel;
 
     public static Intent getOpenIntent(Context context, boolean shouldReload) {
@@ -150,14 +153,26 @@ public class MainActivity extends BaseActivity implements NotebookAdapter.Notebo
         setTitle(notebook.getTitle());
     }
 
-    @OnClick(R.id.tv_recent_notes)
+    @OnClick(R.id.fab)
+    void clickedFab() {
+        NewAccount account = AccountService.getCurrent();
+        NoteInfo newNote = new NoteInfo();
+        NotebookInfo notebook = AppDataBase.getRecentNoteBook(account.getUserId());
+        newNote.setNoteBookId(notebook.getNotebookId());
+        newNote.setIsMarkDown(account.getDefaultEditor() == NewAccount.EDITOR_MARKDOWN);
+        newNote.save();
+        Intent intent = NoteEditActivity.getOpenIntent(this, newNote.getId());
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.rl_recent_notes)
     void showRecentNote() {
         mNoteFragment.loadRecentNote();
         mDrawerLayout.closeDrawer(GravityCompat.START, true);
         setTitle("Recent notes");
     }
 
-    @OnClick(R.id.iv_notebook_triangle)
+    @OnClick(R.id.rl_notebook)
     void toggleNotebook() {
         boolean shouldShowNotebook = (boolean) mNotebookTriangle.getTag();
         shouldShowNotebook = !shouldShowNotebook;
