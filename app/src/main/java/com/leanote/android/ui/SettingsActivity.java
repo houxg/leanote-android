@@ -41,6 +41,8 @@ public class SettingsActivity extends BaseActivity {
     TextView mUserNameTv;
     @BindView(R.id.tv_email)
     TextView mEmailTv;
+    @BindView(R.id.tv_host)
+    TextView mHostTv;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -199,6 +201,7 @@ public class SettingsActivity extends BaseActivity {
         mEditorTv.setText(mEditors[current.getDefaultEditor()]);
         mUserNameTv.setText(current.getUserName());
         mEmailTv.setText(current.getEmail());
+        mHostTv.setText(current.getHost());
         Glide.with(this)
                 .load(current.getAvatar())
                 .centerCrop()
