@@ -26,6 +26,7 @@ import com.leanote.android.ui.main.NoteFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
@@ -105,6 +106,7 @@ public class MainActivity extends BaseActivity implements NotebookAdapter.Notebo
         Glide.with(this)
                 .load(account.getAvatar())
                 .centerCrop()
+                .bitmapTransform(new CropCircleTransformation(this))
                 .into(mAvatarIv);
     }
 
