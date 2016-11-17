@@ -8,7 +8,9 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.leanote.android.R;
@@ -22,6 +24,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 
 public class NewSignInActivity extends BaseActivity implements TextWatcher {
@@ -42,6 +45,10 @@ public class NewSignInActivity extends BaseActivity implements TextWatcher {
     TextView mCustomHostBtn;
     @BindView(R.id.et_custom_host)
     EditText mHostEt;
+    @BindView(R.id.ll_action)
+    View mActionPanel;
+    @BindView(R.id.progress)
+    ProgressBar mProgress;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,7 +57,7 @@ public class NewSignInActivity extends BaseActivity implements TextWatcher {
         ButterKnife.bind(this);
         mEmailEt.addTextChangedListener(this);
         mPasswordEt.addTextChangedListener(this);
-        refreshHostSetting(false);
+        mCustomHostBtn.setTag(false);
     }
 
     @Override
@@ -69,20 +76,38 @@ public class NewSignInActivity extends BaseActivity implements TextWatcher {
     }
 
     @OnClick(R.id.tv_custom_host)
-    void switchHost(View v) {
+    void switchHost() {
         refreshHostSetting(!(boolean) mCustomHostBtn.getTag());
-
     }
 
     private void refreshHostSetting(boolean isCustomHost) {
         if (isCustomHost) {
             mCustomHostBtn.setText("Use Leanote.com");
-            mHostEt.setText("");
+            mHostEt.setPivotY(0);
+            mHostEt.animate()
+                    .scaleY(1)
+                    .setDuration(200)
+                    .setInterpolator(new AccelerateDecelerateInterpolator())
+                    .start();
+            mActionPanel.animate()
+                    .yBy(mHostEt.getHeight())
+                    .setDuration(200)
+                    .setInterpolator(new AccelerateDecelerateInterpolator())
+                    .start();
         } else {
             mCustomHostBtn.setText("Use custom host");
-            mHostEt.setText(LEANOTE_HOST);
+            mHostEt.setPivotY(0);
+            mHostEt.animate()
+                    .scaleY(0)
+                    .setDuration(200)
+                    .setInterpolator(new AccelerateDecelerateInterpolator())
+                    .start();
+            mActionPanel.animate()
+                    .yBy(-mHostEt.getHeight())
+                    .setDuration(200)
+                    .setInterpolator(new AccelerateDecelerateInterpolator())
+                    .start();
         }
-        mHostEt.setVisibility(isCustomHost ? View.VISIBLE : View.GONE);
         mCustomHostBtn.setTag(isCustomHost);
     }
 
@@ -91,21 +116,34 @@ public class NewSignInActivity extends BaseActivity implements TextWatcher {
     void signIn() {
         String email = mEmailEt.getText().toString();
         String password = mPasswordEt.getText().toString();
-        final String host = mHostEt.getText().toString().trim();
+        boolean isCustomHost = (boolean) mCustomHostBtn.getTag();
+        final String host = isCustomHost ? mHostEt.getText().toString().trim() : LEANOTE_HOST;
         ApiProvider.getInstance().init(host);
         AccountService.login(email, password)
+                .doOnSubscribe(new Action0() {
+                    @Override
+                    public void call() {
+                        mSignInBtn.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                animateSignInProgress();
+                            }
+                        });
+                    }
+                })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Authentication>() {
                     @Override
                     public void onCompleted() {
-
+                        animateSignFinish();
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         e.printStackTrace();
                         ToastUtils.showToast(NewSignInActivity.this, "Network error");
+                        animateSignFinish();
                     }
 
                     @Override
@@ -121,6 +159,42 @@ public class NewSignInActivity extends BaseActivity implements TextWatcher {
                         }
                     }
                 });
+    }
+
+    private void animateSignInProgress() {
+        mSignInBtn.animate()
+                .scaleX(0)
+                .setDuration(200)
+                .setInterpolator(new AccelerateDecelerateInterpolator())
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        mProgress.animate()
+                                .alpha(1)
+                                .setDuration(100)
+                                .setInterpolator(new AccelerateDecelerateInterpolator())
+                                .start();
+                    }
+                })
+                .start();
+    }
+
+    private void animateSignFinish() {
+        mProgress.animate()
+                .alpha(0)
+                .setDuration(100)
+                .setInterpolator(new AccelerateDecelerateInterpolator())
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        mSignInBtn.animate()
+                                .scaleX(1)
+                                .setDuration(200)
+                                .setInterpolator(new AccelerateDecelerateInterpolator())
+                                .start();
+                    }
+                })
+                .start();
     }
 
     @Override

@@ -8,7 +8,7 @@
     tools:context="com.leanote.android.ui.note.NoteEditActivity">
 
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
@@ -21,8 +21,8 @@
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
             android:background="#fff"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp"
+            android:hint="email"
+            android:padding="8dp"
             android:textSize="18sp" />
 
         <EditText
@@ -32,10 +32,12 @@
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_below="@id/et_email"
             android:background="#fff"
+            android:hint="password"
             android:inputType="textPassword"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp"
+            android:padding="8dp"
             android:textSize="18sp" />
 
         <EditText
@@ -44,35 +46,64 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_below="@id/et_password"
             android:background="#fff"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp"
-            android:text="https://leanote.com"
-            android:textSize="18sp" />
+            android:hint="host address"
+            android:padding="8dp"
+            android:textSize="18sp"
+            android:scaleY="0"/>
 
-        <TextView
-            android:id="@+id/tv_sign_in"
+        <RelativeLayout
+            android:id="@+id/ll_action"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="32dp"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="16dp"
-            android:background="#757575"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="Sign in"
-            android:textColor="#EEEEEE"
-            android:textSize="18sp" />
+            android:layout_below="@id/et_password"
+            android:orientation="vertical">
 
-        <TextView
+            <TextView
+                android:id="@+id/tv_sign_in"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="32dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="16dp"
+                android:background="#757575"
+                android:gravity="center"
+                android:padding="8dp"
+                android:layout_centerHorizontal="true"
+                android:text="Sign in"
+                android:textColor="#EEEEEE"
+                android:textSize="18sp" />
+
+            <ProgressBar
+                android:id="@+id/progress"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:indeterminate="true"
+                android:layout_centerHorizontal="true"
+                android:layout_alignTop="@id/tv_sign_in"
+                android:layout_alignBottom="@id/tv_sign_in"
+                android:alpha="0"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="4dp"
+                android:layout_below="@id/tv_sign_in"
+                android:layout_centerHorizontal="true"
+                android:text="@string/forgot_password"
+                android:textColor="#EEEEEE" />
+        </RelativeLayout>
+
+        <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="4dp"
-            android:text="@string/forgot_password"
-            android:textColor="#EEEEEE" />
-    </LinearLayout>
+            android:layout_below="@id/ll_action"
+            android:padding="8dp"
+            android:textSize="18sp"
+            android:visibility="invisible"/>
+    </RelativeLayout>
 
 
     <TextView
