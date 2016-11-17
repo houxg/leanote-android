@@ -18,7 +18,7 @@ public interface UserApi {
     Call<BaseResponse> updateUsername(@Query("username") String username);
 
     @GET("user/updatePwd")
-    Call<BaseResponse> updatePwd(@Query("oldPwd") String oldPwd, @Query("pwd") String pwd);
+    Call<BaseResponse> updatePassword(@Query("oldPwd") String oldPwd, @Query("pwd") String pwd);
 
     @GET("user/getSyncState")
     Call<SyncState> getSyncState();

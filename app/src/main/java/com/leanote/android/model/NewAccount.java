@@ -10,6 +10,9 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 @Table(name = "Account", database = AppDataBase.class)
 public class NewAccount extends BaseModel {
 
+    public static final int EDITOR_RICH_TEXT = 0;
+    public static final int EDITOR_MARKDOWN = 1;
+
     @SerializedName("Ok")
     boolean isOk;
     @SerializedName("Msg")
@@ -37,9 +40,8 @@ public class NewAccount extends BaseModel {
     @Column(name = "token")
     @SerializedName("Token")
     String accessToken = "";
-    @Column(name = "useMarkDown")
-    @SerializedName("UseMarkdown")
-    boolean useMarkdown = true;
+    @Column(name = "defaultEditor")
+    int defaultEditor = EDITOR_MARKDOWN;
     @Column(name = "lastUsn")
     @SerializedName("LastSyncUsn")
     int lastSyncUsn;
@@ -86,12 +88,8 @@ public class NewAccount extends BaseModel {
         return lastSyncUsn;
     }
 
-    public boolean isUseMarkdown() {
-        return useMarkdown;
-    }
-
-    public void setUseMarkdown(boolean useMarkdown) {
-        this.useMarkdown = useMarkdown;
+    public int getDefaultEditor() {
+        return defaultEditor;
     }
 
     public String getHost() {
@@ -134,6 +132,10 @@ public class NewAccount extends BaseModel {
         this.verified = verified;
     }
 
+    public void setDefaultEditor(int defaultEditor) {
+        this.defaultEditor = defaultEditor;
+    }
+
     @Override
     public String toString() {
         return "NewAccount{" +
@@ -146,7 +148,7 @@ public class NewAccount extends BaseModel {
                 ", verified=" + verified +
                 ", avatar='" + avatar + '\'' +
                 ", accessToken='" + accessToken + '\'' +
-                ", useMarkdown=" + useMarkdown +
+                ", defaultEditor=" + defaultEditor +
                 ", lastSyncUsn=" + lastSyncUsn +
                 ", host='" + host + '\'' +
                 '}';

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/new_toolbar" />
+
+    <RelativeLayout
+        android:id="@+id/rl_avatar"
+        style="@style/SettingsPanel"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/SettingsSecondaryText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:text="Avatar" />
+
+        <ImageView
+            android:id="@+id/iv_avatar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:text="Markdown" />
+
+    </RelativeLayout>
+
+    <include layout="@layout/divider" />
+
+    <LinearLayout
+        style="@style/SettingsPanel"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/SettingsSecondaryText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email" />
+
+        <TextView
+            android:id="@+id/tv_email"
+            style="@style/SettingsStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <include layout="@layout/divider" />
+
+    <LinearLayout
+        android:id="@+id/ll_user_name"
+        style="@style/SettingsPanel"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/SettingsSecondaryText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="User name" />
+
+        <TextView
+            android:id="@+id/tv_user_name"
+            style="@style/SettingsStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <include layout="@layout/divider" />
+
+    <LinearLayout
+        android:id="@+id/ll_change_password"
+        style="@style/SettingsPanel"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/SettingsSecondaryText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Change password" />
+
+    </LinearLayout>
+
+    <include layout="@layout/divider" />
+
+    <LinearLayout
+        android:id="@+id/ll_editor"
+        style="@style/SettingsPanel"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/SettingsSecondaryText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Editor" />
+
+        <TextView
+            android:id="@+id/tv_editor"
+            style="@style/SettingsStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Markdown" />
+
+    </LinearLayout>
+
+    <include layout="@layout/divider" />
+
+    <LinearLayout
+        android:id="@+id/ll_image_size"
+        style="@style/SettingsPanel"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/SettingsSecondaryText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Image size" />
+
+        <TextView
+            android:id="@+id/tv_image_size"
+            style="@style/SettingsStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="200*200" />
+
+    </LinearLayout>
+
+    <include layout="@layout/divider" />
+
+    <LinearLayout
+        android:id="@+id/ll_log_out"
+        style="@style/SettingsPanel"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/SettingsSecondaryText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Log out" />
+
+    </LinearLayout>
+
+    <include layout="@layout/divider" />
+
+</LinearLayout>

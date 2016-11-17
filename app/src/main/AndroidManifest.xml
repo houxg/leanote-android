@@ -161,6 +161,8 @@
         <activity android:name=".ui.MainActivity"
             android:label="Notes" />
         <activity android:name=".ui.NewSignInActivity" />
+        <activity android:name=".ui.SettingsActivity"
+            android:label="Settings" />
     </application>
 
 </manifest>

@@ -7,6 +7,7 @@ import com.leanote.android.model.NewAccount;
 import com.leanote.android.model.User;
 import com.leanote.android.networking.retrofitapi.ApiProvider;
 import com.leanote.android.networking.retrofitapi.RetrofitUtils;
+import com.leanote.android.networking.retrofitapi.model.BaseResponse;
 
 import rx.Observable;
 
@@ -45,6 +46,20 @@ public class AccountService {
         localAccount.setAvatar(user.getAvatar());
         localAccount.setVerified(user.isVerified());
         localAccount.save();
+    }
+
+    public static void logout() {
+        NewAccount account = getCurrent();
+        account.setAccessToken("");
+        account.update();
+    }
+
+    public static Observable<BaseResponse> changePassword(String oldPassword, String newPassword) {
+        return RetrofitUtils.create(ApiProvider.getInstance().getUserApi().updatePassword(oldPassword, newPassword));
+    }
+
+    public static Observable<BaseResponse> changeUserName(String userName) {
+        return RetrofitUtils.create(ApiProvider.getInstance().getUserApi().updateUsername(userName));
     }
 
     public static NewAccount getCurrent() {
