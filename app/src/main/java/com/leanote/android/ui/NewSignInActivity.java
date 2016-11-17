@@ -15,11 +15,13 @@ import com.leanote.android.R;
 import com.leanote.android.model.Authentication;
 import com.leanote.android.networking.retrofitapi.ApiProvider;
 import com.leanote.android.service.AccountService;
+import com.leanote.android.util.ToastUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class NewSignInActivity extends BaseActivity implements TextWatcher {
@@ -92,8 +94,8 @@ public class NewSignInActivity extends BaseActivity implements TextWatcher {
         final String host = mHostEt.getText().toString().trim();
         ApiProvider.getInstance().init(host);
         AccountService.login(email, password)
-                .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Authentication>() {
                     @Override
                     public void onCompleted() {
@@ -103,15 +105,20 @@ public class NewSignInActivity extends BaseActivity implements TextWatcher {
                     @Override
                     public void onError(Throwable e) {
                         e.printStackTrace();
+                        ToastUtils.showToast(NewSignInActivity.this, "Network error");
                     }
 
                     @Override
                     public void onNext(Authentication authentication) {
-                        AccountService.saveToAccount(authentication, host);
-                        Intent intent = MainActivity.getOpenIntent(NewSignInActivity.this, true);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                        finish();
+                        if (authentication.isOk()) {
+                            AccountService.saveToAccount(authentication, host);
+                            Intent intent = MainActivity.getOpenIntent(NewSignInActivity.this, true);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            ToastUtils.showToast(NewSignInActivity.this, "Wrong email or password");
+                        }
                     }
                 });
     }
