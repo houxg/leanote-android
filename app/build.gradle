@@ -44,6 +44,7 @@ android {
         versionCode 196
         minSdkVersion 19
         targetSdkVersion 23
+        multiDexEnabled true
 
         buildConfigField "String", "APP_PN_KEY", "\"com.leanote.android.playstore\""
     }
@@ -135,5 +136,7 @@ dependencies {
     apt 'com.jakewharton:butterknife-compiler:8.4.0'
     compile project(':img-selector')
     compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile 'jp.wasabeef:glide-transformations:2.0.1'
+    compile 'com.android.support:multidex:1.0.1'
 }
 
