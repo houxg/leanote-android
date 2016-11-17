@@ -54,7 +54,7 @@ public class NoteEditActivity extends BaseActivity implements EditorFragment.Edi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
-        initToolBar((Toolbar) findViewById(R.id.toolbar));
+        initToolBar((Toolbar) findViewById(R.id.toolbar), true);
         mPager = (LeaViewPager) findViewById(R.id.pager);
         mPager.setPagingEnabled(false);
         mPager.setAdapter(new SectionAdapter(getFragmentManager()));

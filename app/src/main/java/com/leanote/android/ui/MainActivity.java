@@ -10,6 +10,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,8 +30,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
+import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class MainActivity extends BaseActivity implements NotebookAdapter.NotebookAdapterListener {
@@ -66,6 +67,8 @@ public class MainActivity extends BaseActivity implements NotebookAdapter.Notebo
         setContentView(R.layout.activity_new_main);
         ButterKnife.bind(this);
         initToolBar((Toolbar) findViewById(R.id.toolbar));
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white);
 
         mNoteFragment = NoteFragment.newInstance();
         getFragmentManager().beginTransaction().add(R.id.container, mNoteFragment).commit();
@@ -76,18 +79,9 @@ public class MainActivity extends BaseActivity implements NotebookAdapter.Notebo
         mNotebookRv.setAdapter(adapter);
         adapter.init();
         mEmailTv.setText(AccountService.getCurrent().getEmail());
-
-        AccountService.getInfo(AccountService.getCurrent().getUserId())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<User>() {
-                    @Override
-                    public void call(User user) {
-                        AccountService.saveToAccount(user, AccountService.getCurrent().getHost());
-                        refreshInfo();
-                    }
-                });
         mNotebookTriangle.setTag(false);
+        refreshInfo();
+        fetchInfo();
     }
 
     @Override
@@ -102,31 +96,65 @@ public class MainActivity extends BaseActivity implements NotebookAdapter.Notebo
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
             return true;
+        } else if (item.getItemId() == android.R.id.home) {
+            if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                mDrawerLayout.closeDrawer(GravityCompat.START, true);
+            } else {
+                mDrawerLayout.openDrawer(GravityCompat.START, true);
+            }
+            return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void fetchInfo() {
+        AccountService.getInfo(AccountService.getCurrent().getUserId())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<User>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(User user) {
+                        AccountService.saveToAccount(user, AccountService.getCurrent().getHost());
+                        refreshInfo();
+                    }
+                });
     }
 
     private void refreshInfo() {
         NewAccount account = AccountService.getCurrent();
         mUserNameTv.setText(account.getUserName());
         mEmailTv.setText(account.getEmail());
-        Glide.with(this)
-                .load(account.getAvatar())
-                .centerCrop()
-                .bitmapTransform(new CropCircleTransformation(this))
-                .into(mAvatarIv);
+        if (!TextUtils.isEmpty(account.getAvatar())) {
+            Glide.with(this)
+                    .load(account.getAvatar())
+                    .centerCrop()
+                    .bitmapTransform(new CropCircleTransformation(this))
+                    .into(mAvatarIv);
+        }
     }
 
     @Override
     public void onClickedNotebook(NotebookInfo notebook) {
         mNoteFragment.loadNoteFromLocal(notebook.getId());
         mDrawerLayout.closeDrawer(GravityCompat.START, true);
+        setTitle(notebook.getTitle());
     }
 
     @OnClick(R.id.tv_recent_notes)
     void showRecentNote() {
         mNoteFragment.loadRecentNote();
         mDrawerLayout.closeDrawer(GravityCompat.START, true);
+        setTitle("Recent notes");
     }
 
     @OnClick(R.id.iv_notebook_triangle)

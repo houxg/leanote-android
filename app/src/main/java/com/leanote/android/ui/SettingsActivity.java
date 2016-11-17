@@ -48,7 +48,7 @@ public class SettingsActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        initToolBar((Toolbar) findViewById(R.id.toolbar));
+        initToolBar((Toolbar) findViewById(R.id.toolbar), true);
         ButterKnife.bind(this);
         refresh();
     }

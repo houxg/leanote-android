@@ -50,7 +50,7 @@ public class NotePreviewActivity extends BaseActivity implements EditorFragment.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preview);
         ButterKnife.bind(this);
-        initToolBar((Toolbar) findViewById(R.id.toolbar));
+        initToolBar((Toolbar) findViewById(R.id.toolbar), true);
         long noteLocalId = getIntent().getLongExtra(EXT_NOTE_LOCAL_ID, -1);
         mNote = AppDataBase.getNoteByLocalId(noteLocalId);
 
