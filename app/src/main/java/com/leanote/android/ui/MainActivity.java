@@ -101,7 +101,7 @@ public class MainActivity extends BaseActivity implements NotebookAdapter.Notebo
     private void refreshInfo() {
         NewAccount account = AccountService.getCurrent();
         mUserNameTv.setText(account.getUserName());
-        mEmailTv.setText(account.getUserName());
+        mEmailTv.setText(account.getEmail());
         Glide.with(this)
                 .load(account.getAvatar())
                 .centerCrop()
