@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#fff"
     android:orientation="vertical">
 
     <include layout="@layout/new_toolbar" />
@@ -17,94 +19,94 @@
             android:layout_height="match_parent" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="240dp"
+            android:layout_height="match_parent"
             android:layout_gravity="start"
+            android:background="@color/navigation"
             android:clickable="true"
             android:orientation="vertical">
 
-            <RelativeLayout
-                android:layout_width="240dp"
-                android:layout_height="160dp"
-                android:background="#F5F5F5">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
                 <ImageView
                     android:id="@+id/iv_avatar"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_centerHorizontal="true"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
                     android:layout_marginTop="8dp"
                     android:scaleType="centerCrop" />
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/tv_user_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:orientation="vertical"
-                    android:paddingBottom="8dp"
-                    android:paddingEnd="16dp"
-                    android:paddingStart="16dp">
+                    android:layout_marginTop="32dp"
+                    android:textColor="@color/secondary_text_light"
+                    android:textSize="14sp"
+                    tools:text="exercitation" />
 
-                    <TextView
-                        android:id="@+id/tv_user_name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#9E9E9E"
-                        android:textSize="14sp" />
+                <TextView
+                    android:id="@+id/tv_email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/secondary_text_light"
+                    android:textSize="14sp"
+                    tools:text="quis@incididunt.com" />
 
-                    <TextView
-                        android:id="@+id/tv_email"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#9E9E9E"
-                        android:textSize="14sp"/>
-                </LinearLayout>
+            </LinearLayout>
 
+            <include layout="@layout/divider" />
 
-            </RelativeLayout>
-
-            <View
-                android:layout_width="240dp"
-                android:layout_height="1dp"
-                android:background="@color/drawer_divider" />
+            <TextView
+                android:id="@+id/tv_recent_notes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:fontFamily="sans-serif-medium"
+                android:padding="16dp"
+                android:text="Recent notes"
+                android:textColor="@color/primary_text_light"
+                android:textSize="14sp" />
 
             <RelativeLayout
-                android:layout_width="240dp"
-                android:layout_height="match_parent"
-                android:background="#F5F5F5"
-                android:orientation="vertical">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
 
-                <LinearLayout
-                    android:id="@+id/ll_selections"
-                    android:layout_width="240dp"
+                <TextView
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:clickable="true"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Notebooks"
+                    android:textColor="@color/hint_text_light"
+                    android:textSize="14sp" />
 
-                    <TextView
-                        android:layout_width="240dp"
-                        android:layout_height="wrap_content"
-                        android:padding="16dp"
-                        android:text="Notebooks"
-                        android:textColor="@color/navigation_subheader_text"
-                        android:textSize="18sp" />
+                <ImageView
+                    android:id="@+id/iv_notebook_triangle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:padding="8dp"
+                    android:src="@drawable/triangle" />
+            </RelativeLayout>
 
-                    <TextView
-                        android:id="@+id/tv_recent_notes"
-                        android:layout_width="240dp"
-                        android:layout_height="wrap_content"
-                        android:padding="8dp"
-                        android:paddingStart="36dp"
-                        android:text="Recent notes"
-                        android:textColor="@color/navigation_list_text"
-                        android:textSize="16sp" />
-                </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_notebook"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone">
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/rv_notebook"
                     android:layout_width="240dp"
-                    android:layout_height="match_parent"
-                    android:layout_below="@id/ll_selections" />
+                    android:layout_height="match_parent" />
 
             </RelativeLayout>
 

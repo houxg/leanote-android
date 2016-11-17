@@ -12,6 +12,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -47,6 +49,10 @@ public class MainActivity extends BaseActivity implements NotebookAdapter.Notebo
     ImageView mAvatarIv;
     @BindView(R.id.tv_user_name)
     TextView mUserNameTv;
+    @BindView(R.id.iv_notebook_triangle)
+    View mNotebookTriangle;
+    @BindView(R.id.rl_notebook)
+    View mNotebookPanel;
 
     public static Intent getOpenIntent(Context context, boolean shouldReload) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -81,6 +87,7 @@ public class MainActivity extends BaseActivity implements NotebookAdapter.Notebo
                         refreshInfo();
                     }
                 });
+        mNotebookTriangle.setTag(false);
     }
 
     @Override
@@ -120,5 +127,26 @@ public class MainActivity extends BaseActivity implements NotebookAdapter.Notebo
     void showRecentNote() {
         mNoteFragment.loadRecentNote();
         mDrawerLayout.closeDrawer(GravityCompat.START, true);
+    }
+
+    @OnClick(R.id.iv_notebook_triangle)
+    void toggleNotebook() {
+        boolean shouldShowNotebook = (boolean) mNotebookTriangle.getTag();
+        shouldShowNotebook = !shouldShowNotebook;
+        if (shouldShowNotebook) {
+            mNotebookTriangle.animate()
+                    .rotation(180)
+                    .setDuration(200)
+                    .setInterpolator(new AccelerateDecelerateInterpolator())
+                    .start();
+        } else {
+            mNotebookTriangle.animate()
+                    .rotation(0)
+                    .setDuration(200)
+                    .setInterpolator(new AccelerateDecelerateInterpolator())
+                    .start();
+        }
+        mNotebookPanel.setVisibility(shouldShowNotebook ? View.VISIBLE : View.GONE);
+        mNotebookTriangle.setTag(shouldShowNotebook);
     }
 }
