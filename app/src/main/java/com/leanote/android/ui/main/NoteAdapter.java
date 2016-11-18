@@ -2,6 +2,7 @@ package com.leanote.android.ui.main;
 
 
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -90,7 +91,11 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
     @Override
     public void onBindViewHolder(NoteAdapter.NoteHolder holder, int position) {
         final NoteInfo note = mData.get(position);
-        holder.titleTv.setText(note.getTitle());
+        if (TextUtils.isEmpty(note.getTitle())) {
+            holder.titleTv.setText("Untitled");
+        } else {
+            holder.titleTv.setText(note.getTitle());
+        }
         holder.contentTv.setText(note.getContent());
         holder.notebookTv.setText(mNotebookId2TitleMaps.get(note.getNoteBookId()));
         long updateTime = note.getUpdatedTimeVal();
