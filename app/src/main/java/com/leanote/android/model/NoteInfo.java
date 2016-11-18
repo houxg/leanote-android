@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by binnchx on 10/18/15.
  */
-@Table(name = "Notes", database = AppDataBase.class)
+@Table(name = "Note", database = AppDataBase.class)
 public class NoteInfo extends BaseModel implements Serializable {
 
     @SerializedName("Ok")
