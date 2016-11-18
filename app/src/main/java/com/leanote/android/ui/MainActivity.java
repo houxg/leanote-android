@@ -33,10 +33,12 @@ import com.leanote.android.service.AccountService;
 import com.leanote.android.service.NotebookService;
 import com.leanote.android.ui.main.NoteFragment;
 import com.leanote.android.ui.note.NoteEditActivity;
+import com.leanote.android.ui.note.service.NoteEvents;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.greenrobot.event.EventBus;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import rx.Observable;
 import rx.Observer;
@@ -97,6 +99,13 @@ public class MainActivity extends BaseActivity implements NotebookAdapter.Notebo
         mNotebookTriangle.setTag(false);
         refreshInfo();
         fetchInfo();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -252,5 +261,9 @@ public class MainActivity extends BaseActivity implements NotebookAdapter.Notebo
         }
         mNotebookPanel.setVisibility(shouldShowNotebook ? View.VISIBLE : View.GONE);
         mNotebookTriangle.setTag(shouldShowNotebook);
+    }
+
+    public void onEventMainThread(NoteEvents.RequestNotes event) {
+        ((NotebookAdapter) mNotebookRv.getAdapter()).reload();
     }
 }
