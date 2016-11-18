@@ -269,7 +269,7 @@ public class NoteService {
             note.setContent(modifiedNote.getContent());
             handleFile(modifiedNote.getId(), note.getNoteFiles());
             note.save();
-            if (note.getUsn() - modifiedNote.getUsn() == 1) {
+            if (note.getUsn() - AccountService.getCurrent().getLastSyncUsn() == 1) {
                 Log.d(TAG, "update usn=" + note.getUsn());
                 saveLastUsn(note.getUsn());
             }
