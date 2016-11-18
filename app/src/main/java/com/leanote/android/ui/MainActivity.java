@@ -40,6 +40,7 @@ import rx.schedulers.Schedulers;
 public class MainActivity extends BaseActivity implements NotebookAdapter.NotebookAdapterListener {
 
     private static final String EXT_SHOULD_RELOAD = "ext_should_reload";
+    private static final String TAG_NOTE_FRAGMENT = "note_fragment";
 
     NoteFragment mNoteFragment;
 
@@ -73,8 +74,12 @@ public class MainActivity extends BaseActivity implements NotebookAdapter.Notebo
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white);
 
-        mNoteFragment = NoteFragment.newInstance();
-        getFragmentManager().beginTransaction().add(R.id.container, mNoteFragment).commit();
+        if (savedInstanceState == null) {
+            mNoteFragment = NoteFragment.newInstance();
+            getFragmentManager().beginTransaction().add(R.id.container, mNoteFragment, TAG_NOTE_FRAGMENT).commit();
+        } else {
+            mNoteFragment = (NoteFragment) getFragmentManager().findFragmentByTag(TAG_NOTE_FRAGMENT);
+        }
 
         mNotebookRv.setLayoutManager(new LinearLayoutManager(this));
         NotebookAdapter adapter = new NotebookAdapter();

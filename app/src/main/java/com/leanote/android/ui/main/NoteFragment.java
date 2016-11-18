@@ -79,11 +79,6 @@ public class NoteFragment extends Fragment implements NoteAdapter.NoteAdapterLis
             }
         });
 
-        if (savedInstanceState != null) {
-            mScrollPosition = savedInstanceState.getFloat(EXT_SCROLL_POSITION);
-            mNoteListView.scrollTo(0, (int) mScrollPosition);
-        }
-
         mNoteListView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -101,14 +96,15 @@ public class NoteFragment extends Fragment implements NoteAdapter.NoteAdapterLis
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         EventBus.getDefault().register(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
+        if (savedInstanceState == null) {
+            mAdapter.loadFromLocal();
+        }
+        if (savedInstanceState != null) {
+            mScrollPosition = savedInstanceState.getFloat(EXT_SCROLL_POSITION, 0);
+        }
     }
 
     @Override
@@ -118,15 +114,15 @@ public class NoteFragment extends Fragment implements NoteAdapter.NoteAdapterLis
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        EventBus.getDefault().unregister(this);
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putFloat(EXT_SCROLL_POSITION, mScrollPosition);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     public void loadNoteFromLocal(long notebookLocalId) {
@@ -140,12 +136,6 @@ public class NoteFragment extends Fragment implements NoteAdapter.NoteAdapterLis
     }
 
     public void loadNoteWithTag(String tag) {
-        mAdapter.loadFromLocal();
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
         mAdapter.loadFromLocal();
     }
 
