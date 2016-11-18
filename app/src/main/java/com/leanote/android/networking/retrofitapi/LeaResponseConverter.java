@@ -12,6 +12,7 @@ import com.leanote.android.util.CollectionUtils;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import okhttp3.ResponseBody;
 import retrofit2.Converter;
@@ -31,12 +32,14 @@ public class LeaResponseConverter<T> implements Converter<ResponseBody, T> {
             T val = adapter.fromJson(jsonString);
             if (val instanceof NoteInfo) {
                 ((NoteInfo)val).updateTags();
+                ((NoteInfo)val).updateTime();
             } if (val instanceof List
                     && CollectionUtils.isNotEmpty((Collection) val)
                     && ((List)val).get(0) instanceof NoteInfo) {
-                List<NoteInfo> noteInfos = (List<NoteInfo>) val;
-                for (NoteInfo note : noteInfos) {
+                List<NoteInfo> notes = (List<NoteInfo>) val;
+                for (NoteInfo note : notes) {
                     note.updateTags();
+                    note.updateTime();
                 }
             }
             return val;

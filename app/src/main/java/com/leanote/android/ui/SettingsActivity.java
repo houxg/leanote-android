@@ -16,15 +16,23 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.leanote.android.R;
 import com.leanote.android.model.NewAccount;
+import com.leanote.android.model.NoteInfo;
+import com.leanote.android.model.NoteInfo_Table;
+import com.leanote.android.model.NotebookInfo;
+import com.leanote.android.model.NotebookInfo_Table;
 import com.leanote.android.networking.retrofitapi.model.BaseResponse;
 import com.leanote.android.service.AccountService;
 import com.leanote.android.util.ToastUtils;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import rx.Observable;
 import rx.Observer;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class SettingsActivity extends BaseActivity {
@@ -140,6 +148,40 @@ public class SettingsActivity extends BaseActivity {
                     }
                 })
                 .show();
+    }
+
+    @OnClick(R.id.ll_clear)
+    void clearData() {
+        Observable.create(
+                new Observable.OnSubscribe<Void>() {
+                    @Override
+                    public void call(Subscriber<? super Void> subscriber) {
+                        if (!subscriber.isUnsubscribed()) {
+                            SQLite.delete()
+                                    .from(NoteInfo.class)
+                                    .where(NoteInfo_Table.userId.eq(AccountService.getCurrent().getUserId()))
+                                    .execute();
+                            SQLite.delete()
+                                    .from(NotebookInfo.class)
+                                    .where(NotebookInfo_Table.userId.eq(AccountService.getCurrent().getUserId()))
+                                    .execute();
+                            NewAccount account = AccountService.getCurrent();
+                            account.setLastUsn(0);
+                            account.update();
+                            subscriber.onNext(null);
+                            subscriber.onCompleted();
+                        }
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Void>() {
+                    @Override
+                    public void call(Void aVoid) {
+                        ToastUtils.showToast(SettingsActivity.this, "finish");
+                    }
+                });
+
     }
 
     private void changeUsername(final String username) {

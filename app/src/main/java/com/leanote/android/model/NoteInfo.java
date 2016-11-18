@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.gson.annotations.SerializedName;
 import com.leanote.android.db.AppDataBase;
 import com.leanote.android.util.CollectionUtils;
+import com.leanote.android.util.TimeUtils;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
@@ -52,21 +53,20 @@ public class NoteInfo extends BaseModel implements Serializable {
     @Column(name = "isBlog")
     @SerializedName("IsBlog")
     boolean isPublicBlog;
-    @Column(name = "createdTime")
-    @SerializedName("CreatedTime")
-    String createdTime = "";
-    @Column(name = "updatedTime")
-    @SerializedName("UpdatedTime")
-    String updatedTime = "";
     @Column(name = "publicTime")
-    @SerializedName("PublicTime")
-    String publicTime = "";
+    long publicTime;
     @Column(name = "usn")
     @SerializedName("Usn")
     int usn;
 
     @SerializedName("Files")
     List<NoteFile> noteFiles;
+    @SerializedName("UpdatedTime")
+    String updatedTimeData = "";
+    @SerializedName("CreatedTime")
+    String createdTimeData = "";
+    @SerializedName("PublicTime")
+    String publicTimeData = "";
 
     @Column(name = "id")
     @PrimaryKey(autoincrement = true)
@@ -82,29 +82,33 @@ public class NoteInfo extends BaseModel implements Serializable {
     boolean isDirty;
     @Column(name = "isUploading")
     boolean isUploading;
+    @Column(name = "createdTime")
+    long createdTime;
+    @Column(name = "updatedTime")
+    long updatedTime;
     boolean uploadSucc = true;
 
-    public String getCreatedTime() {
+    public long getCreatedTimeVal() {
         return createdTime;
     }
 
-    public void setCreatedTime(String createdTime) {
+    public void setCreatedTimeVal(long createdTime) {
         this.createdTime = createdTime;
     }
 
-    public String getUpdatedTime() {
+    public long getUpdatedTimeVal() {
         return updatedTime;
     }
 
-    public void setUpdatedTime(String updatedTime) {
+    public void setUpdatedTimeVal(long updatedTime) {
         this.updatedTime = updatedTime;
     }
 
-    public String getPublicTime() {
+    public long getPublicTimeVal() {
         return publicTime;
     }
 
-    public void setPublicTime(String publicTime) {
+    public void setPublicTimeVal(long publicTime) {
         this.publicTime = publicTime;
     }
 
@@ -205,9 +209,39 @@ public class NoteInfo extends BaseModel implements Serializable {
         tags = tagBuilder.toString();
     }
 
+    public void updateTime() {
+        createdTime = TimeUtils.toTimestamp(createdTimeData);
+        updatedTime = TimeUtils.toTimestamp(updatedTimeData);
+        publicTime = TimeUtils.toTimestamp(publicTimeData);
+    }
+
     public List<NoteFile> getNoteFiles() {
         return noteFiles;
     }
+
+    //TODO:delete this
+    public String getUpdatedTime() {
+        return updatedTimeData;
+    }
+
+    //TODO:delete this
+    public String getCreatedTime() {
+        return updatedTimeData;
+    }
+
+    //TODO:delete this
+    public String getPublicTime() {
+        return publicTimeData;
+    }
+
+    //TODO:delete this
+    public void setUpdatedTime(String v) {}
+
+    //TODO:delete this
+    public void setCreatedTime(String v) {}
+
+    //TODO:delete this
+    public void setPublicTime(String publicTime) {}
 
     @Override
     public String toString() {

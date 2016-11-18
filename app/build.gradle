@@ -87,6 +87,8 @@ android {
 def dbflow_version = "4.0.0-beta1"
 
 dependencies {
+    // https://mvnrepository.com/artifact/junit/junit
+    compile group: 'junit', name: 'junit', version: '4.12'
 
     // 导入library-1.0.10(里面是volley)
     compile('org.wordpress:mediapicker:1.2.4') {

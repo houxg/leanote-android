@@ -16,12 +16,12 @@ import com.leanote.android.networking.retrofitapi.ApiProvider;
 import com.leanote.android.networking.retrofitapi.RetrofitUtils;
 import com.leanote.android.util.CollectionUtils;
 import com.leanote.android.util.StringUtils;
+import com.leanote.android.util.TimeUtils;
 
 import org.bson.types.ObjectId;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -365,8 +365,9 @@ public class NoteService {
         requestBodyMap.put("Content", createPartFromString(content));
         requestBodyMap.put("IsMarkdown", createPartFromString(getBooleanString(note.isMarkDown())));
         requestBodyMap.put("IsBlog", createPartFromString(getBooleanString(note.isPublicBlog())));
-        requestBodyMap.put("CreatedTime", createPartFromString(getTime(System.currentTimeMillis())));
-        requestBodyMap.put("UpdatedTime", createPartFromString(getTime(System.currentTimeMillis())));
+        long current = System.currentTimeMillis();
+        requestBodyMap.put("CreatedTime", createPartFromString(TimeUtils.toServerTime(current)));
+        requestBodyMap.put("UpdatedTime", createPartFromString(TimeUtils.toServerTime(current)));
 
         List<String> imageLocalIds;
         if (note.isMarkDown()) {
@@ -425,18 +426,6 @@ public class NoteService {
         return localIds;
     }
 
-    private static String getTime(long time) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(time);
-        return String.format(Locale.US, "%d-%d-%d %d:%d:%d",
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH) + 1,
-                calendar.get(Calendar.DAY_OF_MONTH),
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE),
-                calendar.get(Calendar.SECOND));
-    }
-
     private static Call<NoteInfo> updateNote(NoteInfo original, NoteInfo modified) {
         List<MultipartBody.Part> fileBodies = new ArrayList<>();
 
@@ -455,7 +444,7 @@ public class NoteService {
         requestBodyMap.put("Content", createPartFromString(content));
         requestBodyMap.put("IsMarkdown", createPartFromString(getBooleanString(modified.isMarkDown())));
         requestBodyMap.put("IsBlog", createPartFromString(getBooleanString(modified.isPublicBlog())));
-        requestBodyMap.put("UpdatedTime", createPartFromString(getTime(System.currentTimeMillis())));
+        requestBodyMap.put("UpdatedTime", createPartFromString(TimeUtils.toServerTime(System.currentTimeMillis())));
 
         List<String> imageLocalIds;
         if (modified.isMarkDown()) {
