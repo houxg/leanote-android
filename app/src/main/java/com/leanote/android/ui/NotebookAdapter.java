@@ -22,6 +22,9 @@ import butterknife.ButterKnife;
 
 public class NotebookAdapter extends RecyclerView.Adapter<NotebookAdapter.NotebookHolder> {
 
+    private static final int TYPE_NOTEBOOK = 46;
+    private static final int TYPE_ADD = 735;
+
     private Stack<String> mStack;
     private List<NotebookInfo> mData;
     private NotebookAdapterListener mListener;
@@ -36,24 +39,64 @@ public class NotebookAdapter extends RecyclerView.Adapter<NotebookAdapter.Notebo
         notifyDataSetChanged();
     }
 
+    public void reload() {
+        if (mStack.isEmpty()) {
+            init();
+        } else {
+            NotebookInfo parent = mData.get(0);
+            mData = AppDataBase.getChildNotebook(mStack.peek(), AccountService.getCurrent().getUserId());
+            mData.add(0, parent);
+            notifyDataSetChanged();
+        }
+    }
+
+    private String getCurrentParentId() {
+        return mStack.size() == 0 ? "" : mStack.peek();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position == getItemCount() - 1) {
+            return TYPE_ADD;
+        } else {
+            return TYPE_NOTEBOOK;
+        }
+    }
+
     @Override
     public NotebookAdapter.NotebookHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_notebook, parent, false);
-        NotebookAdapter.NotebookHolder holder = new NotebookAdapter.NotebookHolder(view);
-        return holder;
+        View view;
+        if (viewType == TYPE_ADD) {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_add_notebook, parent, false);
+        } else {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_notebook, parent, false);
+        }
+        return new NotebookHolder(view);
     }
 
     @Override
     public void onBindViewHolder(NotebookAdapter.NotebookHolder holder, int position) {
+        if (getItemViewType(position) == TYPE_ADD) {
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mListener != null) {
+                        mListener.onClickedAddNotebook(getCurrentParentId());
+                    }
+                }
+            });
+            return;
+        }
+
         final NotebookInfo notebook = mData.get(position);
         holder.titleTv.setText(notebook.getTitle());
 
         String notebookId = notebook.getNotebookId();
         boolean isSuper = isSuper(notebookId);
         boolean isSuperOrRoot = isSuper | mStack.isEmpty();
-        boolean hasChild = hasChild(notebookId);
+//        boolean hasChild = hasChild(notebookId);
         holder.placeholder.setVisibility(isSuperOrRoot ? View.GONE : View.VISIBLE);
-        holder.navigator.setVisibility(hasChild ? View.VISIBLE : View.INVISIBLE);
+//        holder.navigator.setVisibility(hasChild ? View.VISIBLE : View.INVISIBLE);
         holder.navigator.setText(isSuper ? "-" : "+");
         holder.navigator.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,7 +119,7 @@ public class NotebookAdapter extends RecyclerView.Adapter<NotebookAdapter.Notebo
         });
     }
 
-    boolean isSuper(String notebookId) {
+    private boolean isSuper(String notebookId) {
         if (mStack.isEmpty()) {
             return false;
         } else {
@@ -84,7 +127,7 @@ public class NotebookAdapter extends RecyclerView.Adapter<NotebookAdapter.Notebo
         }
     }
 
-    boolean hasChild(String notebookId) {
+    private boolean hasChild(String notebookId) {
         return CollectionUtils.isNotEmpty(AppDataBase.getChildNotebook(notebookId, AccountService.getCurrent().getUserId()));
     }
 
@@ -126,11 +169,13 @@ public class NotebookAdapter extends RecyclerView.Adapter<NotebookAdapter.Notebo
 
     @Override
     public int getItemCount() {
-        return mData == null ? 0 : mData.size();
+        return mData == null ? 1 : mData.size() + 1;
     }
 
     public interface NotebookAdapterListener {
         void onClickedNotebook(NotebookInfo notebook);
+
+        void onClickedAddNotebook(String parentNotebookId);
     }
 
     static class NotebookHolder extends RecyclerView.ViewHolder {

@@ -1,7 +1,9 @@
 package com.leanote.android.ui;
 
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,10 +13,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -26,6 +30,7 @@ import com.leanote.android.model.NoteInfo;
 import com.leanote.android.model.NotebookInfo;
 import com.leanote.android.model.User;
 import com.leanote.android.service.AccountService;
+import com.leanote.android.service.NotebookService;
 import com.leanote.android.ui.main.NoteFragment;
 import com.leanote.android.ui.note.NoteEditActivity;
 
@@ -33,7 +38,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
+import rx.Observable;
 import rx.Observer;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -156,6 +163,55 @@ public class MainActivity extends BaseActivity implements NotebookAdapter.Notebo
         mNoteFragment.loadNoteFromLocal(notebook.getId());
         mDrawerLayout.closeDrawer(GravityCompat.START, true);
         setTitle(notebook.getTitle());
+    }
+
+    @Override
+    public void onClickedAddNotebook(final String parentNotebookId) {
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_sigle_edittext, null);
+        final EditText mEdit = (EditText) view.findViewById(R.id.edit);
+        new AlertDialog.Builder(this)
+                .setTitle("Add notebook")
+                .setView(view)
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        addNotebook(mEdit.getText().toString(), parentNotebookId);
+                    }
+                })
+                .show();
+    }
+
+    private void addNotebook(final String title, final String parentNotebookId) {
+        Observable.create(
+                new Observable.OnSubscribe<Void>() {
+                    @Override
+                    public void call(Subscriber<? super Void> subscriber) {
+                        if (!subscriber.isUnsubscribed()) {
+                            NotebookService.addNotebook(title, parentNotebookId);
+                            subscriber.onNext(null);
+                            subscriber.onCompleted();
+                        }
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Void>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(Void isSucceed) {
+                        ((NotebookAdapter) mNotebookRv.getAdapter()).reload();
+                    }
+                });
     }
 
     @OnClick(R.id.fab)

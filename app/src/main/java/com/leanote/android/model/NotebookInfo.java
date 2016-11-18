@@ -169,4 +169,11 @@ public class NotebookInfo extends BaseModel {
     }
 
 
+    public boolean isOk() {
+        return isOk;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
 }
