@@ -86,6 +86,7 @@ public class AppDataBase {
                 .from(NoteInfo.class)
                 .where(NoteInfo_Table.notebookId.eq(notebookInfo.getNotebookId()))
                 .and(NoteInfo_Table.userId.eq(userId))
+                .and(NoteInfo_Table.IsDeletedOnServer.eq(false))
                 .queryList();
 
         detailList.addAll(noteInfos);
@@ -96,6 +97,7 @@ public class AppDataBase {
         List<NoteInfo> noteInfos = SQLite.select()
                 .from(NoteInfo.class)
                 .where(NoteInfo_Table.userId.eq(userId))
+                .and(NoteInfo_Table.IsDeletedOnServer.eq(false))
                 .queryList();
         NoteDetailList detailList = new NoteDetailList();
         detailList.addAll(noteInfos);
