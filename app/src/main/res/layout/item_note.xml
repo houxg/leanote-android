@@ -37,6 +37,14 @@
             tools:text="9-18 23:23"
             android:textColor="#757575" />
 
+        <TextView
+            android:id="@+id/tv_dirty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Changed"
+            android:layout_marginStart="8dp"
+            android:textColor="#FFA726" />
+
     </LinearLayout>
 
     <TextView

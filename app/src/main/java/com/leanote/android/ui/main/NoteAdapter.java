@@ -94,6 +94,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
         holder.contentTv.setText(note.getContent());
         holder.notebookTv.setText(mNotebookId2TitleMaps.get(note.getNoteBookId()));
         holder.updateTimeTv.setText(note.getUpdatedTime());
+        holder.dirtyTv.setVisibility(note.isDirty() ? View.VISIBLE : View.GONE);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,6 +122,8 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
         TextView notebookTv;
         @BindView(R.id.tv_update_time)
         TextView updateTimeTv;
+        @BindView(R.id.tv_dirty)
+        TextView dirtyTv;
 
         public NoteHolder(View itemView) {
             super(itemView);
