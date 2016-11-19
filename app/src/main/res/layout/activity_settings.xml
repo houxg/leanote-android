@@ -166,18 +166,19 @@
 
             <LinearLayout
                 android:id="@+id/ll_clear"
-                style="@style/SettingsPanel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical">
 
                 <TextView
                     style="@style/SettingsSecondaryText"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:padding="16dp"
                     android:text="Clear data" />
 
+                <include layout="@layout/divider" />
             </LinearLayout>
-
-            <include layout="@layout/divider" />
 
             <LinearLayout
                 android:id="@+id/ll_log_out"

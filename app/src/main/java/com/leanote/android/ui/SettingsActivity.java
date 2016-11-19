@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.leanote.android.BuildConfig;
 import com.leanote.android.R;
 import com.leanote.android.model.NewAccount;
 import com.leanote.android.model.NoteInfo;
@@ -51,6 +52,8 @@ public class SettingsActivity extends BaseActivity {
     TextView mEmailTv;
     @BindView(R.id.tv_host)
     TextView mHostTv;
+    @BindView(R.id.ll_clear)
+    View mClearDataView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,6 +62,7 @@ public class SettingsActivity extends BaseActivity {
         initToolBar((Toolbar) findViewById(R.id.toolbar), true);
         ButterKnife.bind(this);
         refresh();
+        mClearDataView.setVisibility(BuildConfig.DEBUG ? View.VISIBLE : View.GONE);
     }
 
     @OnClick(R.id.ll_editor)
@@ -151,7 +155,27 @@ public class SettingsActivity extends BaseActivity {
     }
 
     @OnClick(R.id.ll_clear)
-    void clearData() {
+    void clickedClearData() {
+        new AlertDialog.Builder(this)
+                .setTitle("Clear data")
+                .setMessage("Are you sure to delete all notes and notebooks in this account?")
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        clearData();
+                    }
+                })
+                .show();
+    }
+
+    private void clearData() {
         Observable.create(
                 new Observable.OnSubscribe<Void>() {
                     @Override
@@ -181,7 +205,6 @@ public class SettingsActivity extends BaseActivity {
                         ToastUtils.showToast(SettingsActivity.this, "finish");
                     }
                 });
-
     }
 
     private void changeUsername(final String username) {
