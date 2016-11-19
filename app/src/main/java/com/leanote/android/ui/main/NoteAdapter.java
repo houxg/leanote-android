@@ -119,11 +119,28 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
                 }
             }
         });
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (mListener != null) {
+                    mListener.onLongClickNote(note);
+                }
+                return true;
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
         return mData == null ? 0 : mData.size();
+    }
+
+    public void delete(NoteInfo note) {
+        int index = mData.indexOf(note);
+        if (index >= 0) {
+            mData.remove(index);
+            notifyItemRemoved(index);
+        }
     }
 
     static class NoteHolder extends RecyclerView.ViewHolder {
@@ -150,5 +167,6 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
 
     public interface NoteAdapterListener {
         void onClickNote(NoteInfo note);
+        void onLongClickNote(NoteInfo note);
     }
 }

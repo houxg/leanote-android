@@ -103,6 +103,12 @@ public class MainActivity extends BaseActivity implements NotebookAdapter.Notebo
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        ((NotebookAdapter) mNotebookRv.getAdapter()).reload();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
@@ -237,7 +243,7 @@ public class MainActivity extends BaseActivity implements NotebookAdapter.Notebo
 
     @OnClick(R.id.rl_recent_notes)
     void showRecentNote() {
-        mNoteFragment.loadRecentNote();
+        mNoteFragment.loadNoteFromLocal(NoteFragment.RECENT_NOTES);
         mDrawerLayout.closeDrawer(GravityCompat.START, true);
         setTitle("Recent notes");
     }

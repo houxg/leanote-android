@@ -1,7 +1,9 @@
 package com.leanote.android.ui.main;
 
 
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
@@ -14,6 +16,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,22 +24,30 @@ import android.view.ViewGroup;
 
 import com.leanote.android.R;
 import com.leanote.android.model.NoteInfo;
+import com.leanote.android.service.NoteService;
 import com.leanote.android.ui.note.NotePreviewActivity;
 import com.leanote.android.ui.note.service.NoteEvents;
 import com.leanote.android.ui.note.service.NoteUpdateService;
 import com.leanote.android.util.DisplayUtils;
 import com.leanote.android.util.ToastUtils;
 
+import java.util.Locale;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
+import rx.Observable;
+import rx.Observer;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class NoteFragment extends Fragment implements NoteAdapter.NoteAdapterListener {
 
     private static final String TAG = "NoteFragment";
     private static final String EXT_SCROLL_POSITION = "ext_scroll_position";
 
-    private int RECENT_NOTES = -1;
+    public static final int RECENT_NOTES = -1;
 
     @BindView(R.id.recycler_view)
     RecyclerView mNoteListView;
@@ -111,6 +122,7 @@ public class NoteFragment extends Fragment implements NoteAdapter.NoteAdapterLis
     public void onResume() {
         super.onResume();
         mNoteListView.scrollTo(0, (int) mScrollPosition);
+        loadNoteFromLocal(mCurrentNotebookId);
     }
 
     @Override
@@ -126,13 +138,13 @@ public class NoteFragment extends Fragment implements NoteAdapter.NoteAdapterLis
     }
 
     public void loadNoteFromLocal(long notebookLocalId) {
-        mCurrentNotebookId = notebookLocalId;
-        mAdapter.loadFromLocal(notebookLocalId);
-    }
-
-    public void loadRecentNote() {
-        mCurrentNotebookId = -1;
-        mAdapter.loadFromLocal();
+        if (notebookLocalId < 0) {
+            mCurrentNotebookId = RECENT_NOTES;
+            mAdapter.loadFromLocal();
+        } else {
+            mCurrentNotebookId = notebookLocalId;
+            mAdapter.loadFromLocal(mCurrentNotebookId);
+        }
     }
 
     public void loadNoteWithTag(String tag) {
@@ -142,6 +154,60 @@ public class NoteFragment extends Fragment implements NoteAdapter.NoteAdapterLis
     @Override
     public void onClickNote(NoteInfo note) {
         startActivity(NotePreviewActivity.getOpenIntent(getActivity(), note.getId()));
+    }
+
+    @Override
+    public void onLongClickNote(final NoteInfo note) {
+        new AlertDialog.Builder(getActivity())
+                .setTitle("Delete note")
+                .setMessage(String.format(Locale.US, "Are you sure to delete %s?", TextUtils.isEmpty(note.getTitle()) ? "this note" : note.getTitle()))
+                .setCancelable(true)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        deleteNote(note);
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
+    }
+
+    private void deleteNote(final NoteInfo note) {
+        Observable.create(
+                new Observable.OnSubscribe<Void>() {
+                    @Override
+                    public void call(Subscriber<? super Void> subscriber) {
+                        if (!subscriber.isUnsubscribed()) {
+                            NoteService.deleteNote(note);
+                            subscriber.onNext(null);
+                            subscriber.onCompleted();
+                        }
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Void>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        ToastUtils.showToast(getActivity(), "Delete failed");
+                    }
+
+                    @Override
+                    public void onNext(Void aVoid) {
+                        mAdapter.delete(note);
+                    }
+                });
     }
 
     public void onEventMainThread(NoteEvents.RequestNotes event) {

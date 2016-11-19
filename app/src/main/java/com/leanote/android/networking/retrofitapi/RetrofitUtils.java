@@ -43,4 +43,17 @@ public class RetrofitUtils {
         }
         return null;
     }
+
+    public static <T> T excuteWithException(Call<T> call) {
+        try {
+            Response<T> response = call.execute();
+            if (response.isSuccessful()) {
+                return response.body();
+            } else {
+                throw new IllegalStateException("response not successful");
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException(e.getCause());
+        }
+    }
 }

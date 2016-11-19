@@ -41,7 +41,7 @@
             android:clickable="true"
             android:orientation="vertical">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -49,29 +49,39 @@
 
                 <ImageView
                     android:id="@+id/iv_avatar"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
                     android:scaleType="centerCrop" />
 
-                <TextView
-                    android:id="@+id/tv_user_name"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
-                    android:textColor="@color/secondary_text_light"
-                    android:textSize="14sp"
-                    tools:text="exercitation" />
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="8dp"
+                    android:layout_toEndOf="@id/iv_avatar"
+                    android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/tv_email"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/secondary_text_light"
-                    android:textSize="14sp"
-                    tools:text="quis@incididunt.com" />
+                    <TextView
+                        android:id="@+id/tv_user_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/secondary_text_light"
+                        android:textSize="14sp"
+                        tools:text="exercitation" />
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/tv_email"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/secondary_text_light"
+                        android:textSize="14sp"
+                        tools:text="quis@incididunt.com" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
 
             <include layout="@layout/divider" />
 
@@ -95,7 +105,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginStart="56dp"
+                    android:layout_marginStart="48dp"
                     android:fontFamily="sans-serif-medium"
                     android:text="Recent notes"
                     android:textColor="@color/primary_text_light"
@@ -121,7 +131,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginStart="56dp"
+                    android:layout_marginStart="48dp"
                     android:fontFamily="sans-serif-medium"
                     android:text="Notebooks"
                     android:textColor="@color/hint_text_light"

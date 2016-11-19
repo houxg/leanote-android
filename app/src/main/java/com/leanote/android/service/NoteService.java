@@ -269,10 +269,7 @@ public class NoteService {
             note.setContent(modifiedNote.getContent());
             handleFile(modifiedNote.getId(), note.getNoteFiles());
             note.save();
-            if (note.getUsn() - AccountService.getCurrent().getLastSyncUsn() == 1) {
-                Log.d(TAG, "update usn=" + note.getUsn());
-                saveLastUsn(note.getUsn());
-            }
+            updateUsnIfNeed(note.getUsn());
         } else {
             throw new IllegalArgumentException(note.getMsg());
         }
@@ -477,6 +474,28 @@ public class NoteService {
             requestBodyMap.put("IsTrash", createPartFromString(getBooleanString(modified.isTrash())));
         }
         return ApiProvider.getInstance().getNoteApi().update(requestBodyMap, fileBodies);
+    }
+
+    public static void deleteNote(NoteInfo note) {
+        if (TextUtils.isEmpty(note.getNoteId())) {
+            AppDataBase.deleteNoteByLocalId(note.getId());
+        } else {
+            UpdateRet response = RetrofitUtils.excuteWithException(deleteNote(note.getNoteId(), note.getUsn()));
+            if (response.isOk()) {
+                AppDataBase.deleteNoteByLocalId(note.getId());
+                updateUsnIfNeed(response.getUsn());
+            } else {
+                throw new IllegalStateException(response.getMsg());
+            }
+        }
+    }
+
+    private static void updateUsnIfNeed(int newUsn) {
+        NewAccount account = AccountService.getCurrent();
+        if (newUsn - account.getLastSyncUsn() == 1) {
+            account.setLastUsn(newUsn);
+            account.update();
+        }
     }
 
     public static Call<UpdateRet> deleteNote(String noteId, int usn) {

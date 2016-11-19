@@ -37,28 +37,27 @@ public class NoteInfo extends BaseModel implements Serializable {
     @Column(name = "title")
     @SerializedName("Title")
     String title = "";
-    @Column(name = "tags")
-    String tags = "";
-    @SerializedName("Tags")
-    List<String> tagData;
     @Column(name = "content")
     @SerializedName("Content")
     String content = "";
     @Column(name = "isMarkDown")
     @SerializedName("IsMarkdown")
     boolean isMarkDown;
-    @Column(name = "IsDeletedOnServer")
+    @Column(name = "isTrash")
     @SerializedName("IsTrash")
     boolean isTrash;
+    @Column(name = "isDeleted")
+    @SerializedName("IsDeleted")
+    boolean isDeleted;
     @Column(name = "isBlog")
     @SerializedName("IsBlog")
     boolean isPublicBlog;
-    @Column(name = "publicTime")
-    long publicTime;
     @Column(name = "usn")
     @SerializedName("Usn")
     int usn;
 
+    @SerializedName("Tags")
+    List<String> tagData;
     @SerializedName("Files")
     List<NoteFile> noteFiles;
     @SerializedName("UpdatedTime")
@@ -77,7 +76,6 @@ public class NoteInfo extends BaseModel implements Serializable {
     @Column(name = "noteAbstract")
     String noteAbstract = "";
     String fileIds;
-    boolean isDeleted;
     @Column(name = "isDirty")
     boolean isDirty;
     @Column(name = "isUploading")
@@ -86,6 +84,10 @@ public class NoteInfo extends BaseModel implements Serializable {
     long createdTime;
     @Column(name = "updatedTime")
     long updatedTime;
+    @Column(name = "publicTime")
+    long publicTime;
+    @Column(name = "tags")
+    String tags = "";
     boolean uploadSucc = true;
 
     public long getCreatedTimeVal() {
