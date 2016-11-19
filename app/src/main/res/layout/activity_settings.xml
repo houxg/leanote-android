@@ -143,7 +143,8 @@
             <LinearLayout
                 android:id="@+id/ll_image_size"
                 style="@style/SettingsPanel"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:visibility="gone">
 
                 <TextView
                     style="@style/SettingsSecondaryText"
@@ -160,7 +161,8 @@
 
             </LinearLayout>
 
-            <include layout="@layout/divider" />
+            <include layout="@layout/divider"
+                android:visibility="gone"/>
 
             <LinearLayout
                 android:id="@+id/ll_clear"
